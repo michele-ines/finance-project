@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "ES2017", // ✅ bom equilíbrio entre compatibilidade e recursos modernos
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ], // ✅ adequado para Next.js + React
+    "allowJs": true, // ✅ permite arquivos JS (útil se misturar JS e TS)
+    "skipLibCheck": true, // ✅ ignora checagem de declaração (melhora build, sem afetar segurança)
+    "strict": true, // ✅ excelente prática
+    "noEmit": true, // ✅ Next cuida da build, então você não precisa emitir JS
+    "esModuleInterop": true, // ✅ necessário para importar libs CommonJS corretamente
+    "module": "esnext", // ⚠️ moderno, mas pode causar alerta com Jest (Jest usa CommonJS)
+    "moduleResolution": "bundler", // ✅ ideal para projetos com Next 13+ e App Router
+    "resolveJsonModule": true, // ✅ permite importar `.json` como módulos
+    "isolatedModules": true, // ✅ exigido por Next.js
+    "jsx": "preserve", // ✅ exigido por Next.js
+    "incremental": true, // ✅ ativa build incremental
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ], // ✅ suporte ao Next.js
+    "baseUrl": "src",
+    "paths": {
+      "@components/*": [
+        "stories/components/*"
+      ] // ✅ ótimos aliases
+    },
+    "types": [
+      "jest",
+      "@testing-library/jest-dom"
+    ]
+  },
+  "include": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "jest.setup.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
