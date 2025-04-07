@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ===== Cores Base ===== */
+  --byte-bg-default: #ffffff;
+  --byte-text-primary: #151414;
+  --byte-color-black: #151414;
+
+  /* ===== Cores Utilitárias ===== */
+  --byte-color-error: #BF1313;
+  --byte-color-red-500: #bd3737;
+  --byte-color-orange-500: #FF5031;
+  --byte-color-orange-300: #F1823D;
+  --byte-color-green-500: #47A138;
+  --byte-color-green-100: #F8F8F8;
+  --byte-color-blue-500: #2567F9;
+  --byte-color-purple-500: #8F3CFF;
+  --byte-color-magenta-500: #FF3C82;
+
+  --byte-gray-100: #DEE9EA;
+  --byte-gray-200: #CBCBCB;
+  --byte-gray-800: #444444;
+
+  --byte-gradient-green: linear-gradient(90deg, #1ec88d 0%, #58fcb4 100%);
+
+  /* ===== Tipografia ===== */
+  --font-inter: 'Inter', sans-serif;
+
+  --text-xs: 14px;
+  --text-sm: 16px;
+  --text-base: 18px;
+  --text-md: 20px;
+  --text-lg: 25px;
+
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ===== Background/Texto padrão ===== */
+  --background: var(--byte-bg-default);
+  --foreground: var(--byte-text-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #151414;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter);
+}

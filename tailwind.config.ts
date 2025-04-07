@@ -1,0 +1,54 @@
+import type { Config } from 'tailwindcss';
+
+const config: Config = {
+  content: ['./src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {
+      screens: {
+        mobile: '360px',
+        tablet: '768px',
+        desktop: '1024px',
+        xl: '1280px',
+      },
+      colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+
+        // Personalizadas
+        'byte-black': 'var(--byte-color-black)',
+        'byte-error': 'var(--byte-color-error)',
+        'byte-red-500': 'var(--byte-color-red-500)',
+        'byte-orange-500': 'var(--byte-color-orange-500)',
+        'byte-orange-300': 'var(--byte-color-orange-300)',
+        'byte-green-500': 'var(--byte-color-green-500)',
+        'byte-green-100': 'var(--byte-color-green-100)',
+        'byte-blue-500': 'var(--byte-color-blue-500)',
+        'byte-purple-500': 'var(--byte-color-purple-500)',
+        'byte-magenta-500': 'var(--byte-color-magenta-500)',
+        'byte-gray-100': 'var(--byte-gray-100)',
+        'byte-gray-200': 'var(--byte-gray-200)',
+        'byte-gray-800': 'var(--byte-gray-800)',
+      },
+      fontFamily: {
+        inter: ['var(--font-inter)', 'sans-serif'],
+      },
+      fontSize: {
+        xs: ['var(--text-xs)', '120%'],
+        sm: ['var(--text-sm)', '120%'],
+        base: ['var(--text-base)', '120%'],
+        md: ['var(--text-md)', '120%'],
+        lg: ['var(--text-lg)', '120%'],
+      },
+      fontWeight: {
+        normal: 'var(--font-normal)',
+        medium: 'var(--font-medium)',
+        semibold: 'var(--font-semibold)',
+        bold: 'var(--font-bold)',
+      },
+    },
+  },
+  darkMode: 'media',
+  plugins: [],
+};
+
+export default config;
