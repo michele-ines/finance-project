@@ -62,7 +62,7 @@ export default function Header() {
           <Box>
             <Link href="/">
               <Image
-                src="/bite-bank-logo.svg"
+                src="/header/header-logo.svg"
                 alt="Bite Bank Logo"
                 width={120}
                 height={40}
@@ -84,7 +84,7 @@ export default function Header() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Link href="/">
               <Image
-                src="/bite-bank-logo.svg"
+                src="/header/header-logo.svg"
                 alt="Bite Bank Logo"
                 width={120}
                 height={40}

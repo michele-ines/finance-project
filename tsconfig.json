@@ -15,7 +15,7 @@
     "moduleResolution": "bundler", // ✅ ideal para projetos com Next 13+ e App Router
     "resolveJsonModule": true, // ✅ permite importar `.json` como módulos
     "isolatedModules": true, // ✅ exigido por Next.js
-    "jsx": "preserve", // ✅ exigido por Next.js
+    "jsx": "preserve", // 👈 Adicione isso aqui
     "incremental": true, // ✅ ativa build incremental
     "plugins": [
       {
@@ -34,7 +34,7 @@
     ]
   },
   "include": [
-    "src/**/*",                 
+    "src/**/*",
     "**/*.test.ts",
     "**/*.test.tsx",
     "jest.setup.ts",
