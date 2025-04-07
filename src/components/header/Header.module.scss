@@ -1,0 +1,22 @@
+.header {
+  background-color: var(--byte-color-black) !important;
+}
+
+.menuItemText {
+  color: var(--byte-color-green-500) !important;
+}
+
+.mobileMenuItemText {
+  color: var(--byte-color-green-500) !important;
+}
+
+.openAccountButton {
+  background-color: var(--byte-color-green-500) !important;
+  color: #ffffff !important;
+}
+
+.loginButton {
+  background: transparent !important;
+  border: 2px solid var(--byte-color-green-500) !important;
+  color: var(--byte-color-green-500) !important;
+}
