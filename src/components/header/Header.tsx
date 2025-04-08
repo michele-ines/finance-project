@@ -32,7 +32,8 @@ export default function Header() {
       className={`${styles.header} shadow-none`}
       sx={{ color: "black" }}
     >
-      <Toolbar className="max-w-[1280px] w-full mx-auto px-4 tablet:px-6 desktop:px-8">
+      <Toolbar 
+      className="max-w-[1280px] w-full mx-auto px-4 tablet:px-6 desktop:px-8">
         {/* MOBILE: Exibe somente em xs */}
         <Box
           sx={{

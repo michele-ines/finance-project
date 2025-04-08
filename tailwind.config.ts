@@ -5,10 +5,15 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        mobile: '360px',
-        tablet: '768px',
-        desktop: '1024px',
+        // Se quiser manter os breakpoints padrões, inclua-os aqui também.
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
         xl: '1280px',
+        '2xl': '1536px',
+  
+        // Adicionando um breakpoint customizado chamado 'desktop'
+        desktop: '1024px'
       },
       colors: {
         background: 'var(--background)',

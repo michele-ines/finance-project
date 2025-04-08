@@ -5,6 +5,7 @@ import React from "react";
 
 // Importe o Header
 import Header from "../components/header/Header";
+import Footer from "../components/footer/Footer"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  // children,
 }: {
   children: React.ReactNode;
 }) {
@@ -32,7 +33,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        <main>{children}</main>
+        {/* <main>{children}</main> */}
+        <Footer /> {/* 👈 adiciona o Footer aqui */}
       </body>
     </html>
   );
