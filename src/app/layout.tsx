@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  // children,
+  children,
 }: {
   children: React.ReactNode;
 }) {
@@ -33,8 +33,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        {/* <main>{children}</main> */}
-        <Footer /> {/* 👈 adiciona o Footer aqui */}
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );

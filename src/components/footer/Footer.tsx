@@ -1,6 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import React from "react";
+import { Image } from "../ui/index"; 
+
 import styles from './Footer.module.scss';
 
 export default function Footer() {

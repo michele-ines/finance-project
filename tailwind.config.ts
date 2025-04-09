@@ -15,6 +15,9 @@ const config: Config = {
         // Adicionando um breakpoint customizado chamado 'desktop'
         desktop: '1024px'
       },
+      borderRadius: {
+        'md': '8px',
+      },
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',

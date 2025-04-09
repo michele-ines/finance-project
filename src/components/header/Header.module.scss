@@ -10,6 +10,7 @@
 
 .menuItemText {
   color: var(--byte-color-green-500) !important;
+  text-transform: none !important;
 }
 
 .mobileMenuItemText {
@@ -25,4 +26,5 @@
   background: transparent !important;
   border: 2px solid var(--byte-color-green-500) !important;
   color: var(--byte-color-green-500) !important;
+  text-transform: none !important;
 }

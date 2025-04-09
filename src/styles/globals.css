@@ -1,31 +1,39 @@
+/* =======================
+  Import Tailwind e fontes
+   ======================= */
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
+
+/* ==========================
+      Variáveis e reset padrão
+      ========================== */
 :root {
   /* ===== Cores Base ===== */
   --byte-bg-default: #ffffff;
-  --byte-text-primary: #151414;
+  --byte-text-medium-gray: #767676;
   --byte-color-black: #000000;
 
   /* ===== Cores Utilitárias ===== */
-  --byte-color-error: #BF1313;
+  --byte-color-error: #bf1313;
   --byte-color-red-500: #bd3737;
-  --byte-color-orange-500: #FF5031;
-  --byte-color-orange-300: #F1823D;
-  --byte-color-green-500: #47A138;
-  --byte-color-green-100: #F8F8F8;
-  --byte-color-blue-500: #2567F9;
-  --byte-color-purple-500: #8F3CFF;
-  --byte-color-magenta-500: #FF3C82;
+  --byte-color-orange-500: #ff5031;
+  --byte-color-orange-300: #f1823d;
+  --byte-color-green-500: #47a138;
+  --byte-color-green-100: #f8f8f8;
+  --byte-color-blue-500: #2567f9;
+  --byte-color-purple-500: #8f3cff;
+  --byte-color-magenta-500: #ff3c82;
 
-  --byte-gray-100: #DEE9EA;
-  --byte-gray-200: #CBCBCB;
+  --byte-gray-100: #dee9ea;
+  --byte-gray-200: #cbcbcb;
   --byte-gray-800: #444444;
 
   --byte-gradient-green: linear-gradient(90deg, #1ec88d 0%, #58fcb4 100%);
+  --byte-gradient-teal: linear-gradient(180deg, #004d61 0%, #ffffff 100%);
 
   /* ===== Tipografia ===== */
-  --font-inter: 'Inter', sans-serif;
+  --font-inter: "Inter", sans-serif;
 
   --text-xs: 14px;
   --text-sm: 16px;
@@ -40,7 +48,7 @@
 
   /* ===== Background/Texto padrão ===== */
   --background: var(--byte-bg-default);
-  --foreground: var(--byte-text-primary);
+  --foreground: var(--byte-color-black);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -54,4 +62,68 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter);
+  margin: 0;
+  padding: 0;
+}
+
+/* 
+      ============================
+      Banner Title (h1 do banner)
+      ============================
+   */
+.banner-title {
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+  color: var(--byte-color-black);
+}
+
+/* 
+      ===========================
+      Título "Vantagens do nosso banco"
+      =========================== */
+.vantagens-titulo {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 120%;
+  letter-spacing: 0%;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--byte-color-black);
+}
+
+/* 
+      ===========================
+      Título das vantagens 
+      (ex.: "Conta e cartão gratuitos", etc.)
+      =========================== */
+.vantagem-title {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 120%;
+  letter-spacing: 0%;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--byte-color-green-500);
+}
+
+/* 
+      ===========================
+      Descrição das vantagens
+      (ex.: "Isso mesmo, nossa conta é digital...", etc.)
+      =========================== */
+.vantagem-description {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 120%;
+  letter-spacing: 0%;
+  text-align: center;
+  vertical-align: middle;
+  color: var(--byte-text-medium-gray);
 }
