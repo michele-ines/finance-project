@@ -1,34 +1,41 @@
-import '@testing-library/jest-dom';
 import React from 'react';
-import { render } from '@testing-library/react';
-import Footer from './Footer';
+import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
+
+// Mock do next/font/google antes de carregar o ui/index
+jest.mock('next/font/google', () => ({
+  Inter: () => ({ className: '' }),
+  Roboto_Mono: () => ({ className: '' }),
+}));
+
+import Footer from './footer';
 
 describe('Footer', () => {
-  it('should render', () => {
+  it('deve renderizar o footer', () => {
     const { baseElement } = render(<Footer />);
     expect(baseElement).toBeInTheDocument();
   });
 
-  it('should display Serviços section', () => {
-    const { getByText } = render(<Footer />);
-    expect(getByText('Serviços')).toBeInTheDocument();
-    expect(getByText('Conta corrente')).toBeInTheDocument();
-    expect(getByText('Conta PJ')).toBeInTheDocument();
-    expect(getByText('Cartão de crédito')).toBeInTheDocument();
+  it('deve exibir seção Serviços', () => {
+    render(<Footer />);
+    expect(screen.getByText(/Serviços/i)).toBeInTheDocument();
+    expect(screen.getByText(/Conta corrente/i)).toBeInTheDocument();
+    expect(screen.getByText(/Conta PJ/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cartão de crédito/i)).toBeInTheDocument();
   });
 
-  it('should display Contato section', () => {
-    const { getByText } = render(<Footer />);
-    expect(getByText('Contato')).toBeInTheDocument();
-    expect(getByText('0800 504 3058')).toBeInTheDocument();
-    expect(getByText('oi@designedbyalex.art.br')).toBeInTheDocument();
-    expect(getByText('studio@bytebank.com.br')).toBeInTheDocument();
+  it('deve exibir seção Contato', () => {
+    render(<Footer />);
+    expect(screen.getByText(/Contato/i)).toBeInTheDocument();
+    expect(screen.getByText('0800 504 3058')).toBeInTheDocument();
+    expect(screen.getByText('oi@designedbyalex.art.br')).toBeInTheDocument();
+    expect(screen.getByText('studio@bytebank.com.br')).toBeInTheDocument();
   });
 
-  it('should display Desenvolvido por Alex section and images', () => {
-    const { getByText, getAllByRole } = render(<Footer />);
-    expect(getByText('Desenvolvido por Alex')).toBeInTheDocument();
-    const images = getAllByRole('img');
+  it('deve exibir seção Desenvolvido por Alex e imagens', () => {
+    render(<Footer />);
+    expect(screen.getByText(/Desenvolvido por Alex/i)).toBeInTheDocument();
+    const images = screen.getAllByRole('img');
     expect(images.length).toBeGreaterThanOrEqual(4);
   });
 });

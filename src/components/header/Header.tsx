@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
 import {
+  React,
+  useRouter,
   AppBar,
   Box,
   Toolbar,
@@ -14,7 +15,6 @@ import {
   Link,
 } from "../ui/index";
 
-import { useRouter } from "next/navigation";
 
 import styles from "./Header.module.scss";
 

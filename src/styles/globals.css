@@ -4,7 +4,6 @@
 @import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
-
 /* ==========================
       Variáveis e reset padrão
       ========================== */
@@ -48,10 +47,9 @@
   --font-bold: 700;
 
   --line-height-tight: 100%;
-  --line-height-normal: 120%;  /* use essa como padrão */
-  --letter-spacing-none: 0%;   /* tracking */
+  --line-height-normal: 120%; /* use essa como padrão */
+  --letter-spacing-none: 0%; /* tracking */
   --vertical-align-middle: middle;
-
 
   /* ===== Background/Texto padrão ===== */
   --background: var(--byte-bg-default);
@@ -80,11 +78,26 @@ body {
    */
 .banner-title {
   font-family: var(--font-inter);
-  font-weight: 600;
-  font-size: 28px;
-  line-height: 100%;
-  letter-spacing: 0%;
-  vertical-align: middle;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-xl);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-none);
+  vertical-align: var(--vertical-align-middle);
+  color: var(--byte-color-black);
+}
+
+/* 
+      ===========================
+      Título "Vantagens do nosso banco"
+      =========================== 
+*/
+.banner-title-mobile {
+  font-family: var(--font-inter);
+  font-weight: var(--font-bold);
+  font-size: var(--text-lg);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-none);
+  vertical-align: var(--vertical-align-middle);
   color: var(--byte-color-black);
 }
 
@@ -92,31 +105,13 @@ body {
       ===========================
       Título "Vantagens do nosso banco"
       =========================== */
-.vantagens-titulo {
-  font-family: var(--font-inter);
-  font-weight: 700;
-  font-size: 25px;
-  line-height: 120%;
-  letter-spacing: 0%;
-  text-align: center;
-  vertical-align: middle;
-  color: var(--byte-color-black);
-}
-
-/* 
-      ===========================
-      Título das vantagens 
-      (ex.: "Conta e cartão gratuitos", etc.)
-      =========================== */
 .vantagem-title {
   font-family: var(--font-inter);
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 120%;
-  letter-spacing: 0%;
+  font-weight: var(--font-bold);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-none);
   text-align: center;
-  vertical-align: middle;
-  color: var(--byte-color-green-500);
+  vertical-align: var(--vertical-align-middle);
 }
 
 /* 
@@ -126,11 +121,8 @@ body {
       =========================== */
 .vantagem-description {
   font-family: var(--font-inter);
-  font-weight: 400;
   font-size: 16px;
-  line-height: 120%;
-  letter-spacing: 0%;
-  text-align: center;
-  vertical-align: middle;
-  color: var(--byte-text-medium-gray);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-none);
+  vertical-align: var(--vertical-align-middle);
 }

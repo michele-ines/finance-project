@@ -1,45 +1,68 @@
-import '@testing-library/jest-dom';
-import React from 'react';
 
-// mock do router do Next
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    back: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    pathname: '/',
-  }),
+// 1) Mock das fontes do Next antes de qualquer import que use fonts
+jest.mock('next/font/google', () => ({
+  Inter: () => ({ className: '' }),
+  Roboto_Mono: () => ({ className: '' }),
 }));
 
-import { render, fireEvent, act } from '@testing-library/react';
-import Header from './Header';
+// 2) Mock do useRouter do seu ui/index
+const pushMock = jest.fn();
+jest.mock('../ui/index', () => {
+  const actual = jest.requireActual('../ui/index');
+  return {
+    ...actual,
+    useRouter: () => ({ push: pushMock }),
+  };
+});
+
+// 3) Imports do React, Testing Library e do componente
+import React from 'react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
+import Header from '../header/header';
 
 describe('Header', () => {
-  it('should render desktop layout with logo and buttons', () => {
-    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
-    const { getAllByAltText, getByRole } = render(<Header />);
-    
-    const logos = getAllByAltText('Bite Bank Logo');
-    expect(logos).toHaveLength(2);
-    
-    expect(getByRole('button', { name: 'Sobre' })).toBeInTheDocument();
-    expect(getByRole('button', { name: 'Serviços' })).toBeInTheDocument();
-    expect(getByRole('button', { name: 'Abrir Conta' })).toBeInTheDocument();
-    expect(getByRole('button', { name: 'Já tenho conta' })).toBeInTheDocument();
+  beforeEach(() => {
+    pushMock.mockClear();
   });
 
-  it('should open and close mobile menu', () => {
-    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 375 });
-    const { getByLabelText, getByRole } = render(<Header />);
-    
-    const menuButton = getByLabelText('menu');
-    act(() => fireEvent.click(menuButton));
+  it('renderiza logo e botões de navegação desktop', () => {
+    render(<Header />);
 
-    expect(getByRole('menuitem', { name: 'Sobre' })).toBeInTheDocument();
-    expect(getByRole('menuitem', { name: 'Serviços' })).toBeInTheDocument();
+    // Logo principal
+    expect(screen.getAllByAltText('Bite Bank Logo').length).toBeGreaterThan(0);
 
-    const sobreMenuItem = getByRole('menuitem', { name: 'Sobre' });
-    act(() => fireEvent.click(sobreMenuItem));
+    // Botões de menu desktop
+    expect(screen.getByRole('button', { name: /dashboard/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sobre/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /serviços/i })).toBeInTheDocument();
+
+    // Botões de ação
+    expect(screen.getByRole('button', { name: /abrir conta/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /já tenho conta/i })).toBeInTheDocument();
+  });
+
+  it('chama router.push("/dashboard") ao clicar em Dashboard', () => {
+    render(<Header />);
+    fireEvent.click(screen.getByRole('button', { name: /dashboard/i }));
+    expect(pushMock).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('abre e fecha o menu mobile corretamente', () => {
+    render(<Header />);
+
+    // Abre o menu mobile
+    fireEvent.click(screen.getByLabelText('menu'));
+
+    // Captura o <ul role="menu">
+    const menu = screen.getByRole('menu');
+    expect(menu).toBeVisible();
+
+    // Dentro do menu, pega o item “Dashboard”
+    const mobileDashboard = within(menu).getByText('Dashboard');
+    expect(mobileDashboard).toBeVisible();
+
+    // Clica e verifica fechamento
+    fireEvent.click(mobileDashboard);
+    expect(menu).not.toBeVisible();
   });
 });

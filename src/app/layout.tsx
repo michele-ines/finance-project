@@ -1,25 +1,14 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// src/app/layout.tsx
 import "../styles/globals.css";
 import React from "react";
 
-// Importe o Header
-import Header from "../components/header/Header";
-import Footer from "../components/footer/Footer"; 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { geistSans, geistMono, Metadata } from "../components/ui";
+import Header  from "../components/header/header";
+import Footer  from "../components/footer/footer";
 
 export const metadata: Metadata = {
-  title: "ByteBank",
-  description: "Seja bem-vindo ao ByteBank",
+  title:       "ByteBank",
+  description: "Seja bem‑vindo ao ByteBank",
 };
 
 export default function RootLayout({
@@ -29,9 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Header />
         <main>{children}</main>
         <Footer />
