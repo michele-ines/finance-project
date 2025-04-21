@@ -1,19 +1,28 @@
 import '@testing-library/jest-dom';
 import React from 'react';
+
+// mock do router do Next
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    back: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    pathname: '/',
+  }),
+}));
+
 import { render, fireEvent, act } from '@testing-library/react';
 import Header from './Header';
 
 describe('Header', () => {
   it('should render desktop layout with logo and buttons', () => {
-    // Simula uma tela desktop
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
     const { getAllByAltText, getByRole } = render(<Header />);
     
-    // Verifica que existem duas instâncias do logo (se esse for o comportamento esperado)
     const logos = getAllByAltText('Bite Bank Logo');
     expect(logos).toHaveLength(2);
     
-    // Usa getByRole para identificar os botões de forma mais específica
     expect(getByRole('button', { name: 'Sobre' })).toBeInTheDocument();
     expect(getByRole('button', { name: 'Serviços' })).toBeInTheDocument();
     expect(getByRole('button', { name: 'Abrir Conta' })).toBeInTheDocument();
@@ -21,24 +30,16 @@ describe('Header', () => {
   });
 
   it('should open and close mobile menu', () => {
-    // Simula uma tela mobile
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 375 });
     const { getByLabelText, getByRole } = render(<Header />);
     
-    // Seleciona o botão de menu pela label
     const menuButton = getByLabelText('menu');
-    act(() => {
-      fireEvent.click(menuButton);
-    });
+    act(() => fireEvent.click(menuButton));
 
-    // Após abrir o menu, usa getByRole para identificar os itens de menu de forma mais específica
     expect(getByRole('menuitem', { name: 'Sobre' })).toBeInTheDocument();
     expect(getByRole('menuitem', { name: 'Serviços' })).toBeInTheDocument();
 
-    // Seleciona o item "Sobre" do menu e simula um clique
     const sobreMenuItem = getByRole('menuitem', { name: 'Sobre' });
-    act(() => {
-      fireEvent.click(sobreMenuItem);
-    });
+    act(() => fireEvent.click(sobreMenuItem));
   });
 });

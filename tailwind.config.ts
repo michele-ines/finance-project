@@ -40,13 +40,6 @@ const config: Config = {
       fontFamily: {
         inter: ['var(--font-inter)', 'sans-serif'],
       },
-      fontSize: {
-        xs: ['var(--text-xs)', '120%'],
-        sm: ['var(--text-sm)', '120%'],
-        base: ['var(--text-base)', '120%'],
-        md: ['var(--text-md)', '120%'],
-        lg: ['var(--text-lg)', '120%'],
-      },
       fontWeight: {
         normal: 'var(--font-normal)',
         medium: 'var(--font-medium)',

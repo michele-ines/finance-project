@@ -40,11 +40,18 @@
   --text-base: 18px;
   --text-md: 20px;
   --text-lg: 25px;
+  --text-xl: 28px;
 
   --font-normal: 400;
   --font-medium: 500;
   --font-semibold: 600;
   --font-bold: 700;
+
+  --line-height-tight: 100%;
+  --line-height-normal: 120%;  /* use essa como padrão */
+  --letter-spacing-none: 0%;   /* tracking */
+  --vertical-align-middle: middle;
+
 
   /* ===== Background/Texto padrão ===== */
   --background: var(--byte-bg-default);
