@@ -14,6 +14,8 @@ import {
   Link,
 } from "../ui/index";
 
+import { useRouter } from "next/navigation";
+
 import styles from "./Header.module.scss";
 
 export default function Header() {
@@ -29,6 +31,7 @@ export default function Header() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
+  const router = useRouter(); 
 
   return (
     <AppBar
@@ -111,6 +114,14 @@ export default function Header() {
           <Button
             color="inherit"
             className={styles.menuItemText}
+            onClick={() => router.push("/dashboard")}
+            sx={{ textTransform: "none" }}
+          >
+            Dashboard
+          </Button>
+          <Button
+            color="inherit"
+            className={styles.menuItemText}
             sx={{ textTransform: "none" }}
           >
             Sobre
@@ -164,6 +175,11 @@ export default function Header() {
           display: { xs: "block", sm: "none" },
         }}
       >
+        <MenuItem onClick={handleCloseNavMenu}>
+            <Link href="/dashboard" passHref legacyBehavior>
+              <Typography textAlign="center">Dashboard</Typography>
+            </Link>
+          </MenuItem>
         <MenuItem onClick={handleCloseNavMenu}>
           <Typography textAlign="center">Sobre</Typography>
         </MenuItem>
