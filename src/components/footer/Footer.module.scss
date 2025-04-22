@@ -1,4 +1,13 @@
 .footer {
   background:var(--byte-color-black);
   padding: 2.5rem; 
+  box-shadow: none;
+}
+
+.bg-dash {
+  background-color: var(--byte-color-dash);
+}
+
+.bg-black {
+  background-color: var(--byte-color-black);
 }

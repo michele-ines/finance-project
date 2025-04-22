@@ -2,7 +2,7 @@
 export { default as React } from "react";
 
 // ——— Next/Navigation (Hooks) ———
-export { useRouter } from "next/navigation";
+export { usePathname, useRouter, redirect, } from "next/navigation";
 
 // ——————— MUI ———————
 export { default as AppBar } from "@mui/material/AppBar";

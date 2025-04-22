@@ -2,6 +2,7 @@
 import {
   React,
   useRouter,
+  usePathname,
   AppBar,
   Box,
   Toolbar,
@@ -15,7 +16,6 @@ import {
   Link,
 } from "../ui/index";
 
-
 import styles from "./Header.module.scss";
 
 export default function Header() {
@@ -24,6 +24,9 @@ export default function Header() {
     null
   );
 
+  const pathname = usePathname();
+  const router = useRouter();
+
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -31,13 +34,24 @@ export default function Header() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-  const router = useRouter(); 
+
+  // Se a rota começa com /dashboard
+  const isDashboard = pathname.startsWith("/dashboard");
+  // Home pode ser "/" ou "/home"
+  const isHome = pathname === "/" || pathname.startsWith("/home");
+
+  // Defino a cor de fundo dinamicamente
+  const bgColor = isDashboard
+    ? "var(--byte-color-dash)"
+    : isHome
+    ? "var(--byte-color-black)"
+    : undefined;
 
   return (
     <AppBar
     position="static"
     className={`${styles.header} shadow-none`}
-    sx={{ color: "black" }}
+    sx={{ backgroundColor: bgColor}}
   >
     <Toolbar className="max-w-[1280px] w-full mx-auto px-4 tablet:px-6 desktop:px-8">
       {/* MOBILE: Exibe somente em xs */}

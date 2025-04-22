@@ -1,12 +1,26 @@
 "use client";
 
-import { React, Image } from "../ui/index"; 
+import { usePathname, React, Image } from "../ui/index"; 
 
 import styles from './footer.module.scss';
 
 export default function Footer() {
+  const pathname = usePathname() ?? "";
+
+  // detecta rota
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isHome = pathname === "/" || pathname.startsWith("/home");
+
+  // define cor
+  // escolhe a classe de background
+  const bgClass = isDashboard
+    ? styles["bg-dash"]
+    : isHome
+    ? styles["bg-black"]
+    : "";
+
   return (
-    <footer className={styles.footer} >
+    <footer className={`${styles.footer} ${bgClass}`}>
       <div className="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
       {/* Coluna 1 - Serviços */}
         <div className="space-y-3 vantagem-description">

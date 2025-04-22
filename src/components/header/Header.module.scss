@@ -1,6 +1,16 @@
+
 .header {
-  background-color: var(--byte-color-black) !important;
+  /* sem background aqui */
+  box-shadow: none;
 }
+
+// .bg-dash {
+//   background-color: var(--byte-color-dash);
+// }
+
+// .bg-black {
+//   background-color: var(--byte-color-black);
+// }
 
 .toolbarOverride {
   padding-left: 0 !important;

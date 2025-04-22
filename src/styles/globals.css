@@ -12,6 +12,7 @@
   --byte-bg-default: #ffffff;
   --byte-text-medium-gray: #767676;
   --byte-color-black: #000000;
+  --byte-color-dash:#004D61;
 
   /* ===== Cores Utilitárias ===== */
   --byte-color-error: #bf1313;
@@ -126,3 +127,6 @@ body {
   letter-spacing: var(--letter-spacing-none);
   vertical-align: var(--vertical-align-middle);
 }
+
+
+

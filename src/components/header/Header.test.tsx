@@ -18,7 +18,7 @@ jest.mock('../ui/index', () => {
 // 3) Imports do React, Testing Library e do componente
 import React from 'react';
 import { render, screen, fireEvent, within } from '@testing-library/react';
-import Header from '../header/header';
+import Header from './header';
 
 describe('Header', () => {
   beforeEach(() => {
