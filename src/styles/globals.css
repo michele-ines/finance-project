@@ -10,9 +10,12 @@
 :root {
   /* ===== Cores Base ===== */
   --byte-bg-default: #ffffff;
+  --byte-bg-dashboard: #E4EDE3;
   --byte-text-medium-gray: #767676;
   --byte-color-black: #000000;
   --byte-color-dash:#004D61;
+  --byte-color-neutral-600: #8b8b8b;
+  --byte-color-green-50: rgba(71,161,56,.5);
 
   /* ===== Cores Utilitárias ===== */
   --byte-color-error: #bf1313;

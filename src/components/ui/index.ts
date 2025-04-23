@@ -13,9 +13,15 @@ export { default as Typography } from "@mui/material/Typography";
 export { default as Menu } from "@mui/material/Menu";
 export { default as MenuItem } from "@mui/material/MenuItem";
 export { default as Button } from "@mui/material/Button";
+export { default as Select } from "@mui/material/Select";
+export { default as Input } from "@mui/material/Input";
+export { default as FormControl } from "@mui/material/FormControl";
+export { default as InputLabel } from "@mui/material/InputLabel";
+
 
 // ————— MUI Icons —————
 export { default as MenuIcon } from "@mui/icons-material/Menu";
+export { default as VisibilityIcon } from "@mui/icons-material/Visibility";
 
 // ——— Next/Image & Link ———
 export { default as Image } from "next/image";

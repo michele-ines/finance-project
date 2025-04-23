@@ -1,0 +1,39 @@
+{
+  "user": {
+    "name": "Joana da Silva Oliveira"
+  },
+  "balance": {
+    "account": "Conta Corrente",
+    "value": 2500
+  },
+  "transactions": [
+    {
+      "id": 1,
+      "month": "Novembro",
+      "type": "Depósito",
+      "date": "18/11/2022",
+      "amount": 150
+    },
+    {
+      "id": 2,
+      "month": "Novembro",
+      "type": "Depósito",
+      "date": "21/11/2022",
+      "amount": 100
+    },
+    {
+      "id": 3,
+      "month": "Novembro",
+      "type": "Depósito",
+      "date": "21/11/2022",
+      "amount": 50
+    },
+    {
+      "id": 4,
+      "month": "Novembro",
+      "type": "Transferência",
+      "date": "21/11/2022",
+      "amount": -500
+    }
+  ]
+}

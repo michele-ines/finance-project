@@ -16,7 +16,7 @@ import {
   Link,
 } from "../ui/index";
 
-import styles from "./Header.module.scss";
+import styles from "./header.module.scss";
 
 export default function Header() {
   // Estado para controlar a abertura/fechamento do menu mobile
