@@ -18,14 +18,44 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import styles from "./dashboarPage.module.scss";
 import { formatBRL, parseBRL } from "utils/currency";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
-
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editableTransactions, setEditableTransactions] = useState<Transaction[]>(
     data.transactions.map((t) => ({ ...t }))
   );
+
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const formObject = Object.fromEntries(formData.entries());
+    const jsonPayload = JSON.stringify(formObject);
+    
+    try {
+      const res = await fetch("/api/transacaoService", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonPayload,
+      });
+
+      if (!res.ok) {
+        throw new Error("Falha ao adicionar transação");
+      }
+
+      const { message } = await res.json();
+      alert(message);
+      router.push("../");
+    } catch (error) {
+      console.error("Erro ao adicionar transação:", error);
+      alert("Falha ao adicionar transação");
+    }
+  };
 
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = { weekday: "long" };
@@ -73,7 +103,7 @@ export default function DashboardPage() {
                 <h1 className={styles.nameTitle}>Olá, {data.user.name.split(" ")[0]} :)</h1>
                 <p className={styles.dateText}>{getCurrentDate()}</p>
               </Box>
-  
+
               <Box className={styles.balanceSection}>
                 <div className={styles.saldoHeader}>
                   <p className={styles.saldoTitle}>
@@ -87,31 +117,35 @@ export default function DashboardPage() {
               </Box>
 
             </Box>
-  
+
             {/* CARD NOVA TRANSAÇÃO */}
             <Box className={`${styles.cardTransacao} w-full min-h-[478px]`}>
               <h3 className={styles.transacaoTitle}>Nova Transação</h3>
-  
-              <FormControl className={styles.transacaoFormControl}>
-                <Select displayEmpty defaultValue="" className={styles.transacaoSelect}>
-                  <MenuItem value="" disabled>
-                    Selecione o tipo de transação
-                  </MenuItem>
-                  <MenuItem value="cambio">Câmbio de Moeda</MenuItem>
-                  <MenuItem value="deposito">DOC/TED</MenuItem>
-                  <MenuItem value="transferencia">Empréstimo e Financiamento</MenuItem>
-                </Select>
-              </FormControl>
-  
-              <p className={styles.transacaoLabel}>Valor</p>
-              <FormControl className={styles.transacaoFormControl}>
-                <Input placeholder="00,00" className={`${styles.transacaoInput} mb-8`} />
-              </FormControl>
-  
-              <Button className={styles.transacaoButton}>Concluir Transação</Button>
+
+              <form onSubmit={(event) => onSubmit(event)}>
+                <FormControl className={styles.transacaoFormControl}>
+                  <Select name="tipo" displayEmpty defaultValue="" className={styles.transacaoSelect}>
+                    <MenuItem value="" disabled>
+                      Selecione o tipo de transação
+                    </MenuItem>
+                    <MenuItem value="cambio">Câmbio de Moeda</MenuItem>
+                    <MenuItem value="deposito">DOC/TED</MenuItem>
+                    <MenuItem value="transferencia">Empréstimo e Financiamento</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <p className={styles.transacaoLabel}>Valor</p>
+                <FormControl className={styles.transacaoFormControl}>
+                  <Input  name="valor"  placeholder="00,00" className={`${styles.transacaoInput} mb-8`} />
+                </FormControl>
+
+                <Box className="mt-4">
+                  <Button type="submit" className={styles.transacaoButton}>Concluir Transação</Button>
+                </Box>
+                </form>
             </Box>
           </Box>
-  
+
           {/* COLUNA DIREITA (Extrato) */}
           <Box className="w-full lg:w-1/3">
             <Box className={`${styles.cardExtrato} w-full min-h-[512px]`}>
@@ -128,13 +162,13 @@ export default function DashboardPage() {
                   </IconButton>
                 </Box>
               </Box>
-  
+
               <ul className="space-y-4">
                 {editableTransactions.map((tx, index) => (
                   <li key={tx.id}>
                     <Box className={styles.extratoItem} style={{ gap: isEditing ? '0px' : undefined }}>
                       <p className={styles.mesLabel}>{tx.month}</p>
-  
+
                       <Box className={styles.txRow}>
                         {isEditing ? (
                           <Input
@@ -146,7 +180,7 @@ export default function DashboardPage() {
                         ) : (
                           <span className={styles.txType}>{tx.type}</span>
                         )}
-  
+
                         {isEditing ? (
                           <Input
                             disableUnderline
@@ -158,7 +192,7 @@ export default function DashboardPage() {
                           <span className={styles.txDate}>{tx.date}</span>
                         )}
                       </Box>
-  
+
                       {isEditing ? (
                         <Input
                           disableUnderline
@@ -177,7 +211,7 @@ export default function DashboardPage() {
                   </li>
                 ))}
               </ul>
-  
+
               {isEditing && (
                 <Box className="flex gap-2 justify-between">
                   <Button onClick={handleSaveClick} className={styles.botaoSalvar}>
@@ -194,5 +228,5 @@ export default function DashboardPage() {
       </Box>
     </Box>
   );
-  
+
 }
