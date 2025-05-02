@@ -18,6 +18,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import styles from "./dashboarPage.module.scss";
 import { formatBRL, parseBRL } from "utils/currency";
+import clsx from "clsx";          // npm i clsx (ou use template string)
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
@@ -162,7 +163,7 @@ export default function DashboardPage() {
                       {isEditing ? (
                         <Input
                           disableUnderline
-                          className={styles.txValue}
+                          className={clsx(styles.txValue, styles.txValueEditable)}   // ↞ borda completa
                           value={formatBRL(tx.amount)}
                           onChange={(e) => handleTransactionChange(index, "amount", e.target.value)}
                           inputProps={{ inputMode: "numeric" }}

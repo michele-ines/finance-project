@@ -318,7 +318,19 @@
   color: var(--byte-color-neutral-600);
 }
 
-.txValue {
+// .txValue {
+//   width: 100%;
+//   height: 38px;
+//   padding: 8px 12px;
+//   font-family: var(--font-inter);
+//   font-weight: 600;
+//   font-size: 16px;
+//   color: var(--byte-color-black);
+//   border-bottom: 1px solid var(--byte-color-green-50);
+//   background: transparent;
+// }
+/* extractei as regras em comum para evitar repetição */
+%txBase {
   width: 100%;
   height: 38px;
   padding: 8px 12px;
@@ -326,9 +338,19 @@
   font-weight: 600;
   font-size: 16px;
   color: var(--byte-color-black);
-  border: 1px solid var(--byte-color-green-50);
-  border-radius: 4px;
   background: transparent;
+}
+
+/* ⇢ modo NÃO-editável  (só a linha de baixo) */
+.txValue {
+  @extend %txBase;
+  border-bottom: 1px solid var(--byte-color-green-50);
+}
+
+/* ⇢ modo editável (borda em volta toda) */
+.txValueEditable {
+  @extend %txBase;
+  border: 1px solid var(--byte-color-green-50);
 }
 
 .botaoSalvar {
@@ -367,6 +389,4 @@
     background: url("../../../public/dash-card-saldo/card-pixels-2.svg")
       no-repeat left bottom / 120px 120px;
   }
-
-  
 }
