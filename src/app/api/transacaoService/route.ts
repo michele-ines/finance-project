@@ -1,10 +1,10 @@
 import connectMongoDB from "@/../libs/mongoDB";
-import Transacoes from "@/../models/transacao";
+import transacao from "@/../models/transacao";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   await connectMongoDB();
-  const transacoes = await Transacoes.find();
+  const transacoes = await transacao.find();
   return NextResponse.json({ transacoes }, { status: 200 });
 }
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     await connectMongoDB();
 
     // Cria uma nova transação
-    const novaTransacao = await Transacoes.create({ tipo, valor });
+    const novaTransacao = await transacao.create({ tipo, valor });
 
     return NextResponse.json(
       { message: "Transação criada com sucesso", transacao: novaTransacao },
