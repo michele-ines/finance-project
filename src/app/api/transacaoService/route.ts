@@ -3,9 +3,17 @@ import transacao from "@/../models/transacao";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  await connectMongoDB();
-  const transacoes = await transacao.find();
-  return NextResponse.json({ transacoes }, { status: 200 });
+  try {
+    await connectMongoDB();
+    const transacoes = await transacao.find();
+    return NextResponse.json({ transacoes }, { status: 200 });
+  } catch (error) {
+    console.error("Erro ao buscar transações:", error);
+    return NextResponse.json(
+      { message: "Erro ao buscar transações", error: (error as Error).message },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: Request) {
