@@ -18,27 +18,32 @@ import {
 import styles from "./header.module.scss";
 
 export default function Header() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-    null
-  );
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 
   const pathname = usePathname();
-  const router = useRouter();
+  const router   = useRouter();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) =>
     setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
 
-  const isDashboard = pathname.startsWith("/dashboard");
-  const isHome = pathname === "/" || pathname.startsWith("/home");
-  const showPublicLinks = isHome; // ← flag única
+  // ---- flags de rota ----------------------------------------------------
+  const isDashboard        = pathname.startsWith("/dashboard");
+  const isHome             = pathname === "/" || pathname.startsWith("/home");
 
+  // quais grupos de links mostrar
+  const showPublicLinks    = isHome;
+  const showDashboardLinks = isDashboard;      // novo
+  const showDashboardBtn   = !isDashboard;     // oculta "Dashboard" qdo já está nele
+
+  // ---- cor de fundo dinâmica -------------------------------------------
   const bgColor = isDashboard
     ? "var(--byte-color-dash)"
     : isHome
     ? "var(--byte-color-black)"
     : undefined;
 
+  // -----------------------------------------------------------------------
   return (
     <AppBar
       position="static"
@@ -105,16 +110,19 @@ export default function Header() {
               </Box>
             </Link>
 
-            <Button
-              color="inherit"
-              className={styles.menuItemText}
-              onClick={() => router.push("/dashboard")}
-              sx={{ textTransform: "none" }}
-            >
-              Dashboard
-            </Button>
+            {/* Dashboard (somente fora dele) */}
+            {showDashboardBtn && (
+              <Button
+                color="inherit"
+                className={styles.menuItemText}
+                onClick={() => router.push("/dashboard")}
+                sx={{ textTransform: "none" }}
+              >
+                Dashboard
+              </Button>
+            )}
 
-            {/* Sobre e Serviços só na home */}
+            {/* Links públicos – home */}
             {showPublicLinks && (
               <>
                 <Button
@@ -130,6 +138,41 @@ export default function Header() {
                   sx={{ textTransform: "none" }}
                 >
                   Serviços
+                </Button>
+              </>
+            )}
+
+            {/* Links internos – dashboard */}
+            {showDashboardLinks && (
+              <>
+                <Button
+                  color="inherit"
+                  className={styles.menuItemText}
+                  onClick={() => router.push("/home")}
+                  sx={{ textTransform: "none" }}
+                >
+                  Início
+                </Button>
+                <Button
+                  color="inherit"
+                  className={styles.menuItemText}
+                  sx={{ textTransform: "none" }}
+                >
+                  Transferências
+                </Button>
+                <Button
+                  color="inherit"
+                  className={styles.menuItemText}
+                  sx={{ textTransform: "none" }}
+                >
+                  Investimentos
+                </Button>
+                <Button
+                  color="inherit"
+                  className={styles.menuItemText}
+                  sx={{ textTransform: "none" }}
+                >
+                  Outros serviços
                 </Button>
               </>
             )}
@@ -168,22 +211,23 @@ export default function Header() {
           onClose={handleCloseNavMenu}
           sx={{ display: { xs: "block", sm: "none" } }}
         >
-          <MenuItem onClick={handleCloseNavMenu}>
-            <Link href="/dashboard" passHref legacyBehavior>
-              <Typography textAlign="center">Dashboard</Typography>
-            </Link>
-          </MenuItem>
+          {/* Dashboard (fora dele) */}
+          {showDashboardBtn && (
+            <MenuItem onClick={handleCloseNavMenu}>
+              <Link href="/dashboard" passHref legacyBehavior>
+                <Typography textAlign="center">Dashboard</Typography>
+              </Link>
+            </MenuItem>
+          )}
 
-          {/* 🔑 use array, não Fragment */}
+          {/* Público – home */}
           {showPublicLinks && [
             <MenuItem onClick={handleCloseNavMenu} key="sobre">
               <Typography textAlign="center">Sobre</Typography>
             </MenuItem>,
-
             <MenuItem onClick={handleCloseNavMenu} key="servicos">
               <Typography textAlign="center">Serviços</Typography>
             </MenuItem>,
-
             <MenuItem onClick={handleCloseNavMenu} key="botoes">
               <Box
                 sx={{
@@ -210,6 +254,24 @@ export default function Header() {
                   Já tenho conta
                 </Button>
               </Box>
+            </MenuItem>,
+          ]}
+
+          {/* Interno – dashboard */}
+          {showDashboardLinks && [
+            <MenuItem onClick={handleCloseNavMenu} key="inicio">
+              <Link href="/home" passHref legacyBehavior>
+                <Typography textAlign="center">Início</Typography>
+              </Link>
+            </MenuItem>,
+            <MenuItem onClick={handleCloseNavMenu} key="transferencias">
+              <Typography textAlign="center">Transferências</Typography>
+            </MenuItem>,
+            <MenuItem onClick={handleCloseNavMenu} key="investimentos">
+              <Typography textAlign="center">Investimentos</Typography>
+            </MenuItem>,
+            <MenuItem onClick={handleCloseNavMenu} key="outros">
+              <Typography textAlign="center">Outros serviços</Typography>
             </MenuItem>,
           ]}
         </Menu>
