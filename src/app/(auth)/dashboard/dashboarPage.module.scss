@@ -1,0 +1,248 @@
+/* app/dashboard/page.module.scss */
+
+/* ——— BG da página Dashboard ——— */
+.dashboardWrapper {
+  background-color: var(--byte-bg-dashboard);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* Layout de colunas (Saldo + Transação | Extrato) */
+.layout {
+  display: flex;
+  gap: 2rem;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.rightColumn {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+/* ============================ */
+/* ======= Card Saldo ========= */
+/* ============================ */
+.cardSaldo {
+  position: relative;
+  background-color: var(--byte-color-dash);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 283px;
+    height: 228px;
+    background: url("../../../../public/dash-card-saldo/card-pixels-1.svg")
+        no-repeat left bottom / 246px 228px,
+      url("../../../../public/dash-card-saldo/card-pixels-2.svg") no-repeat left
+        bottom / 120px 120px;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: url("../../../../public/dash-card-saldo/card-pixels-1.svg")
+      no-repeat right top / contain;
+    pointer-events: none;
+  }
+}
+
+.nameTitle {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-semibold);
+  font-size: 25px;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-none);
+  margin-bottom: 24px;
+}
+
+.dateText {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-normal);
+  font-size: 13px;
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-none);
+  margin: 4px 0 0;
+}
+
+.balanceSection {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  text-align: left;
+}
+
+.saldoHeader {
+  display: inline-block;
+}
+
+.saldoTitle {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-semibold);
+  font-size: 20px;
+  line-height: var(--line-height-tight);
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.eyeIcon {
+  margin-left: 25px;
+  color: var(--byte-color-orange-500);
+}
+
+.hrOrange {
+  width: 180px;
+  border: none;
+  border-bottom: 2px solid var(--byte-color-orange-500);
+  margin: 8px 0 0;
+  display: block;
+  margin-left: auto;
+}
+
+.contaCorrenteTitle {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-normal);
+  font-size: 16px;
+  margin: 16px 0 8px 0;
+}
+
+.valorSaldoText {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-normal);
+  font-size: 31px;
+  margin: 4px 0 0;
+}
+
+/* ================================= */
+/* ===== Card Nova Transação ======= */
+/* ================================= */
+.cardTransacao {
+  background-color: var(--byte-gray-200);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: url("../../../../public/dash-card-new-transação/card-pixels-3.svg")
+      no-repeat left bottom / contain;
+    pointer-events: none;
+    z-index: 0 !important;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("../../../../public/dash-card-new-transação/Ilustração-2.svg")
+        no-repeat right bottom / 260px 240px,
+      url("../../../../public/dash-card-new-transação/card-pixels-4.svg") no-repeat
+        right top / 120px 120px;
+  }
+
+  @media (max-width: 1023px) {
+    &::after {
+      background: url("../../../../public/dash-card-new-transação/Ilustração-2.svg")
+          no-repeat right bottom / 239px 131px,
+        url("/_next/static/media/card-pixels-4.fc71ab91.svg") no-repeat right
+          top / 120px 95px;
+    }
+  }
+}
+
+.transacaoTitle,
+.transacaoLabel {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 100%;
+  color: var(--byte-gray-100);
+  margin-top: 32px;
+}
+
+.transacaoTitle {
+  margin-bottom: 32px;
+}
+
+.transacaoFormControl {
+  margin-bottom: 32px;
+}
+
+.transacaoSelect {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px !important;
+  border: 1px solid var(--byte-color-dash);
+}
+
+.transacaoInput {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--byte-color-dash);
+  padding: 0 0.5rem;
+  margin-top: 32px;
+}
+
+.transacaoButton {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px !important;
+  border: 2px solid var(--byte-color-dash);
+  background-color: var(--byte-color-dash) !important;
+  color: var(--byte-bg-default) !important;
+}
+
+/* ======= Breakpoints móveis ======= */
+@media (max-width: 767px) {
+  .transacaoSelect {
+    width: auto !important;
+  }
+  .transacaoInput,
+  .transacaoButton {
+    width: 104px !important;
+  }
+  .cardSaldo::before {
+    background: url("../../../../public/dash-card-saldo/card-pixels-2.svg")
+      no-repeat left bottom / 120px 120px;
+  }
+}

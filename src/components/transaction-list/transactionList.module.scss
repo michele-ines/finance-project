@@ -1,0 +1,114 @@
+/* app/dashboard/components/transactionList.module.scss */
+
+/* ===== Card Extrato ===== */
+.cardExtrato {
+  height: auto;
+  border-radius: 8px;
+  padding: 32px 24px;
+  background: var(--byte-bg-default);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.extratoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.extratoTitle {
+  font-family: var(--font-inter);
+  font-weight: var(--font-bold);
+  font-size: 25px;
+  line-height: var(--line-height-tight);
+  color: var(--byte-color-black);
+}
+
+.extratoActions {
+  display: flex;
+  gap: 15px;
+}
+
+.actionBtn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 20px !important;
+  background: var(--byte-color-dash) !important;
+  color: var(--byte-bg-default) !important;
+}
+
+.extratoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mesLabel {
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: var(--line-height-tight);
+  color: var(--byte-color-green-500);
+}
+
+.txRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.txType {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: var(--line-height-tight);
+  color: var(--byte-color-black);
+}
+
+.txDate {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: var(--line-height-tight);
+  color: var(--byte-color-neutral-600);
+}
+
+/* ⇢ modo NÃO‑editável (linha na base) */
+.txValue {
+  width: 100%;
+  height: 38px;
+  padding: 8px 12px;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--byte-color-black);
+  background: transparent;
+  border-bottom: 1px solid var(--byte-color-green-50);
+}
+
+/* ⇢ modo editável (borda em volta) */
+.txValueEditable {
+  @extend .txValue;
+  border: 1px solid var(--byte-color-green-50);
+}
+
+.botaoSalvar,
+.botaoCancelar {
+  width: 100px;
+  height: 48px;
+  border-radius: 8px;
+  padding: 0 !important;
+}
+
+.botaoSalvar {
+  background: var(--byte-color-dash) !important;
+  color: var(--byte-bg-default) !important;
+  border: 2px solid var(--byte-color-dash);
+}
+
+.botaoCancelar {
+  background: var(--byte-bg-default) !important;
+  color: var(--byte-color-dash) !important;
+  border: 2px solid var(--byte-color-dash) !important;
+}

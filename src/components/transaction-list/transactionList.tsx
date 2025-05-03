@@ -1,0 +1,146 @@
+/* app/dashboard/components/TransactionList.tsx */
+"use client";
+
+import React, { useState } from "react";
+import type { Transaction } from "../../types/dashboard";          // ajuste o alias se precisar
+import {
+  Box,
+  Button,
+  Input,
+} from "../ui/index";                                        // idem
+import { IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import clsx from "clsx";
+import styles from "./transactionList.module.scss";
+import { formatBRL, parseBRL } from "utils/currency";
+
+interface TransactionListProps {
+  initialTransactions: Transaction[];
+}
+
+export default function TransactionList({ initialTransactions }: TransactionListProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableTransactions, setEditableTransactions] = useState<Transaction[]>(
+    () => initialTransactions.map((t) => ({ ...t }))
+  );
+
+  /* ───── Handlers ───── */
+  const handleEditClick = () => setIsEditing(true);
+
+  const handleCancelClick = () => {
+    setEditableTransactions(initialTransactions.map((t) => ({ ...t })));
+    setIsEditing(false);
+  };
+
+  const handleSaveClick = () => {
+    // aqui você decide o que fazer com os dados (chamar API, subir p/ pai, etc.)
+    console.log("Salvando transações:", editableTransactions);
+    setIsEditing(false);
+  };
+
+  const handleTransactionChange = (
+    index: number,
+    field: keyof Pick<Transaction, "type" | "date" | "amount">,
+    value: string
+  ) => {
+    setEditableTransactions((trans) =>
+      trans.map((tx, i) => {
+        if (i !== index) return tx;
+        if (field === "amount") return { ...tx, amount: parseBRL(value) };
+        return { ...tx, [field]: value };
+      })
+    );
+  };
+
+  /* ───── JSX ───── */
+  return (
+    <Box className={`${styles.cardExtrato} w-full min-h-[512px]`}>
+      <Box className={styles.extratoHeader}>
+        <h3 className={styles.extratoTitle}>Extrato</h3>
+
+        <Box className={styles.extratoActions}>
+          {!isEditing && (
+            <IconButton className={styles.actionBtn} onClick={handleEditClick}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+          )}
+
+          <IconButton className={styles.actionBtn}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* Lista */}
+      <ul className="space-y-4">
+        {editableTransactions.map((tx, index) => (
+          <li key={tx.id}>
+            <Box
+              className={styles.extratoItem}
+              style={{ gap: isEditing ? "0px" : undefined }}
+            >
+              <p className={styles.mesLabel}>{tx.month}</p>
+
+              <Box className={styles.txRow}>
+                {isEditing ? (
+                  <Input
+                    disableUnderline
+                    className={styles.txType}
+                    value={tx.type}
+                    onChange={(e) =>
+                      handleTransactionChange(index, "type", e.target.value)
+                    }
+                  />
+                ) : (
+                  <span className={styles.txType}>{tx.type}</span>
+                )}
+
+                {isEditing ? (
+                  <Input
+                    disableUnderline
+                    className={styles.txDate}
+                    value={tx.date}
+                    onChange={(e) =>
+                      handleTransactionChange(index, "date", e.target.value)
+                    }
+                  />
+                ) : (
+                  <span className={styles.txDate}>{tx.date}</span>
+                )}
+              </Box>
+
+              {isEditing ? (
+                <Input
+                  disableUnderline
+                  className={clsx(styles.txValue, styles.txValueEditable)}
+                  value={formatBRL(tx.amount)}
+                  onChange={(e) =>
+                    handleTransactionChange(index, "amount", e.target.value)
+                  }
+                  inputProps={{ inputMode: "numeric" }}
+                />
+              ) : (
+                <span className={styles.txValue}>
+                  {tx.amount < 0 ? "-" : ""}
+                  {formatBRL(Math.abs(tx.amount))}
+                </span>
+              )}
+            </Box>
+          </li>
+        ))}
+      </ul>
+
+      {isEditing && (
+        <Box className="flex gap-2 justify-between">
+          <Button onClick={handleSaveClick} className={styles.botaoSalvar}>
+            Salvar
+          </Button>
+          <Button onClick={handleCancelClick} className={styles.botaoCancelar}>
+            Cancelar
+          </Button>
+        </Box>
+      )}
+    </Box>
+  );
+}
