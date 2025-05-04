@@ -14,6 +14,10 @@ export interface Transaction {
   date: string;
   amount: number;
 }
+export interface TransactionListProps {
+  transactions: Transaction[];
+  onSave?: (tx: Transaction[]) => void;
+}
 
 export interface DashboardData {
   user: User;

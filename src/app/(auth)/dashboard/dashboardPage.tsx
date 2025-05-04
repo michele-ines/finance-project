@@ -3,7 +3,7 @@
 
 import React from "react";
 import dashboardData from "../../../constants/dashboardData.json";
-import type { DashboardData } from "../../../types/dashboard";
+import type { DashboardData, Transaction } from "../../../types/dashboard";
 import {
   Box,
   FormControl,
@@ -14,7 +14,7 @@ import {
 } from "../../../components/ui";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import styles from "./dashboarPage.module.scss";
-import { formatBRL  } from "utils/currency";
+import { formatBRL } from "utils/currency";
 import { useRouter } from "next/navigation";
 import TransactionList from "components/transaction-list/transactionList";
 
@@ -30,6 +30,12 @@ export default function DashboardPage() {
     const weekday = today.toLocaleDateString("pt-BR", options);
     const formattedDate = today.toLocaleDateString("pt-BR");
     return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)}, ${formattedDate}`;
+  };
+
+  /* ───── Callback do TransactionList ───── */
+  const handleSaveTransactions = (tx: Transaction[]) => {
+    console.log("Transações editadas no extrato:", tx);
+    // …enviar p/ API, atualizar contexto, etc.
   };
 
   /* ───── Submit Nova Transação ───── */
@@ -83,16 +89,20 @@ export default function DashboardPage() {
                 <p className={styles.contaCorrenteTitle}>{data.balance.account}</p>
                 <p className={styles.valorSaldoText}>{formatBRL(data.balance.value)}</p>
               </Box>
-
             </Box>
 
             {/* CARD NOVA TRANSAÇÃO */}
             <Box className={`${styles.cardTransacao} w-full min-h-[478px]`}>
               <h3 className={styles.transacaoTitle}>Nova Transação</h3>
 
-              <form onSubmit={(event) => onSubmit(event)}>
+              <form onSubmit={onSubmit}>
                 <FormControl className={styles.transacaoFormControl}>
-                  <Select name="tipo" displayEmpty defaultValue="" className={styles.transacaoSelect}>
+                  <Select
+                    name="tipo"
+                    displayEmpty
+                    defaultValue=""
+                    className={styles.transacaoSelect}
+                  >
                     <MenuItem value="" disabled>
                       Selecione o tipo de transação
                     </MenuItem>
@@ -104,23 +114,31 @@ export default function DashboardPage() {
 
                 <p className={styles.transacaoLabel}>Valor</p>
                 <FormControl className={styles.transacaoFormControl}>
-                  <Input  name="valor"  placeholder="00,00" className={`${styles.transacaoInput} mb-8`} />
+                  <Input
+                    name="valor"
+                    placeholder="00,00"
+                    className={`${styles.transacaoInput} mb-8`}
+                  />
                 </FormControl>
 
                 <Box className="mt-4">
-                  <Button type="submit" className={styles.transacaoButton}>Concluir Transação</Button>
+                  <Button type="submit" className={styles.transacaoButton}>
+                    Concluir Transação
+                  </Button>
                 </Box>
-                </form>
+              </form>
             </Box>
           </Box>
 
           {/* COLUNA DIREITA (Extrato) */}
           <Box className="w-full lg:w-1/3">
-          <TransactionList initialTransactions={data.transactions} />
+            <TransactionList
+              transactions={data.transactions}     // ← prop correta
+              onSave={handleSaveTransactions}       // opcional, se quiser capturar edição
+            />
           </Box>
         </Box>
       </Box>
     </Box>
   );
-
 }

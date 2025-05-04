@@ -28,22 +28,23 @@ export default function Header() {
   const handleCloseNavMenu = () => setAnchorElNav(null);
 
   // ---- flags de rota ----------------------------------------------------
-  const isDashboard        = pathname.startsWith("/dashboard");
-  const isHome             = pathname === "/" || pathname.startsWith("/home");
+  const isDashboard   = pathname.startsWith("/dashboard");
+  const isInvestments = pathname.startsWith("/investments");     // NOVO
+  const isHome        = pathname === "/" || pathname.startsWith("/home");
 
-  // quais grupos de links mostrar
-  const showPublicLinks    = isHome;
-  const showDashboardLinks = isDashboard;      // novo
-  const showDashboardBtn   = !isDashboard;     // oculta "Dashboard" qdo já está nele
+  // quais grupos de links mostrar ----------------------------------------
+  const showPublicLinks   = isHome;
+  const showInternalLinks = isDashboard || isInvestments;        // NOVO
+  const showDashboardBtn  = !(isDashboard || isInvestments);     // AJUSTE
 
   // ---- cor de fundo dinâmica -------------------------------------------
-  const bgColor = isDashboard
+  const bgColor = showInternalLinks
     ? "var(--byte-color-dash)"
     : isHome
     ? "var(--byte-color-black)"
     : undefined;
 
-  // -----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
   return (
     <AppBar
       position="static"
@@ -51,7 +52,7 @@ export default function Header() {
       sx={{ backgroundColor: bgColor }}
     >
       <Toolbar className="max-w-[1280px] w-full mx-auto px-4 tablet:px-6 desktop:px-8">
-        {/* MOBILE (xs) ------------------------------------------------------ */}
+        {/* ===================  MOBILE (xs)  ============================== */}
         <Box
           sx={{
             display: { xs: "flex", sm: "none" },
@@ -79,7 +80,7 @@ export default function Header() {
           </Link>
         </Box>
 
-        {/* DESKTOP/TABLET (sm+) ------------------------------------------- */}
+        {/* ===================  DESKTOP / TABLET (sm+)  =================== */}
         <Box
           sx={{
             display: { xs: "none", sm: "flex" },
@@ -88,7 +89,7 @@ export default function Header() {
             width: "100%",
           }}
         >
-          {/* Esquerda ------------------------------------------------------- */}
+          {/* --------  ESQUERDA  ------------------------------------------ */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Link href="/">
               {/* tablet: ícone; desktop: logo */}
@@ -110,7 +111,7 @@ export default function Header() {
               </Box>
             </Link>
 
-            {/* Dashboard (somente fora dele) */}
+            {/* Botão Dashboard (aparece fora do ambiente interno) */}
             {showDashboardBtn && (
               <Button
                 color="inherit"
@@ -142,13 +143,13 @@ export default function Header() {
               </>
             )}
 
-            {/* Links internos – dashboard */}
-            {showDashboardLinks && (
+            {/* Links internos – dashboard + investments */}
+            {showInternalLinks && (
               <>
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
-                  onClick={() => router.push("/home")}
+                  onClick={() => router.push("/dashboard")}
                   sx={{ textTransform: "none" }}
                 >
                   Início
@@ -163,6 +164,7 @@ export default function Header() {
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
+                  onClick={() => router.push("/investments")}
                   sx={{ textTransform: "none" }}
                 >
                   Investimentos
@@ -178,7 +180,7 @@ export default function Header() {
             )}
           </Box>
 
-          {/* Direita ------------------------------------------------------- */}
+          {/* --------  DIREITA (botões públicos)  ------------------------- */}
           {showPublicLinks && (
             <Box sx={{ display: "flex", gap: 2 }}>
               <Button
@@ -201,7 +203,7 @@ export default function Header() {
           )}
         </Box>
 
-        {/* MENU MOBILE ----------------------------------------------------- */}
+        {/* ===================  MENU MOBILE  ============================== */}
         <Menu
           id="menu-appbar"
           anchorEl={anchorElNav}
@@ -211,7 +213,7 @@ export default function Header() {
           onClose={handleCloseNavMenu}
           sx={{ display: { xs: "block", sm: "none" } }}
         >
-          {/* Dashboard (fora dele) */}
+          {/* Botão Dashboard (fora do ambiente interno) */}
           {showDashboardBtn && (
             <MenuItem onClick={handleCloseNavMenu}>
               <Link href="/dashboard" passHref legacyBehavior>
@@ -257,10 +259,10 @@ export default function Header() {
             </MenuItem>,
           ]}
 
-          {/* Interno – dashboard */}
-          {showDashboardLinks && [
+          {/* Interno – dashboard + investments */}
+          {showInternalLinks && [
             <MenuItem onClick={handleCloseNavMenu} key="inicio">
-              <Link href="/home" passHref legacyBehavior>
+              <Link href="/dashboard" passHref legacyBehavior>
                 <Typography textAlign="center">Início</Typography>
               </Link>
             </MenuItem>,

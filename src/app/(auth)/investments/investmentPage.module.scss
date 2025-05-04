@@ -1,0 +1,114 @@
+.cardTransacao {
+  background-color: var(--byte-gray-200);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: url("../../../../public/dash-card-new-transação/card-pixels-3.svg")
+      no-repeat left bottom / contain;
+    pointer-events: none;
+    z-index: 0 !important;
+  }
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      url("../../../../public/dash-card-new-transação/card-pixels-4.svg") no-repeat
+        right top / 120px 120px;
+  }
+}
+
+.investmentTitle {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 100%;
+  letter-spacing: 0;
+  vertical-align: middle;
+  color: var(--byte-color-black);
+  margin-bottom: 32px;
+}
+
+.totalLabel {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 25px;
+  line-height: 120%;
+  color: var(--byte-color-dash);
+}
+
+
+.statsTitle {
+  font-family: var(--font-inter);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--color-black);
+}
+
+.investmentBox {
+  background-color: var(--byte-color-dash);
+  padding: 16px 32px 16px 32px;
+  border-radius: 8px;
+  display: flex;
+
+  &Stats{
+    height: 184px;
+   // width: 610px;
+  }
+
+  &Type {
+    width: 293px;
+    height: 95px;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &Title {
+    color: var(--byte-gray-50);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 120%;
+  }
+
+  &Value {
+    color: var(--color-white);
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 120%;
+  }
+}
+
+.MuiChartsLegend-root {
+  font-family: var(--font-inter)!important;
+  font-size: 16px!important;
+  font-weight: 400!important;
+  line-height: 120%!important;
+  color: var(--color-white)!important;
+}
+
+.MuiChartsLegend-label {
+  font-family: var(--font-inter)!important;
+  font-size: 16px!important;
+  font-weight: 400!important;
+  line-height: 120%!important;
+  color: var(--color-white)!important;
+}
+

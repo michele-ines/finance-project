@@ -1,13 +1,11 @@
-/* app/dashboard/components/TransactionList.tsx */
 "use client";
 
 import React, { useState } from "react";
-import type { Transaction } from "../../types/dashboard";          // ajuste o alias se precisar
-import {
-  Box,
-  Button,
-  Input,
-} from "../ui/index";                                        // idem
+import type {
+  Transaction,
+  TransactionListProps,
+} from "../../types/dashboard";  // ← importa a interface
+import { Box, Button, Input } from "../../components/ui/index";
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -15,27 +13,25 @@ import clsx from "clsx";
 import styles from "./transactionList.module.scss";
 import { formatBRL, parseBRL } from "utils/currency";
 
-interface TransactionListProps {
-  initialTransactions: Transaction[];
-}
-
-export default function TransactionList({ initialTransactions }: TransactionListProps) {
+export default function TransactionList({
+  transactions,
+  onSave,
+}: TransactionListProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editableTransactions, setEditableTransactions] = useState<Transaction[]>(
-    () => initialTransactions.map((t) => ({ ...t }))
+    () => transactions.map((t) => ({ ...t }))
   );
 
   /* ───── Handlers ───── */
   const handleEditClick = () => setIsEditing(true);
 
   const handleCancelClick = () => {
-    setEditableTransactions(initialTransactions.map((t) => ({ ...t })));
+    setEditableTransactions(transactions.map((t) => ({ ...t })));
     setIsEditing(false);
   };
 
   const handleSaveClick = () => {
-    // aqui você decide o que fazer com os dados (chamar API, subir p/ pai, etc.)
-    console.log("Salvando transações:", editableTransactions);
+    onSave?.(editableTransactions);          // avisa o pai, se existir
     setIsEditing(false);
   };
 
@@ -56,6 +52,7 @@ export default function TransactionList({ initialTransactions }: TransactionList
   /* ───── JSX ───── */
   return (
     <Box className={`${styles.cardExtrato} w-full min-h-[512px]`}>
+      {/* header */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
 
@@ -72,7 +69,7 @@ export default function TransactionList({ initialTransactions }: TransactionList
         </Box>
       </Box>
 
-      {/* Lista */}
+      {/* lista */}
       <ul className="space-y-4">
         {editableTransactions.map((tx, index) => (
           <li key={tx.id}>
