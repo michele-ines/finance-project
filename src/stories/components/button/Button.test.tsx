@@ -1,6 +1,6 @@
 import React from 'react'; // ✅ necessário para JSX
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Button } from './Button';
+import { Button } from './button';
 
 describe('Button component', () => {
   it('renders with the given label', () => {
