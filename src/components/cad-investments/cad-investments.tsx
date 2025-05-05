@@ -1,9 +1,6 @@
 "use client";
 
-import React from "react";
-import { Box } from "../ui";
-import styles from "./cad-investments.module.scss";
-import { PieChart } from "@mui/x-charts/PieChart";
+import { Box, React, PieChart, CadInvestmentsStyles as styles } from "../ui";
 import { CadInvestmentsProps } from "types/dashboard";
 
 export default function CadInvestments({ balance }: CadInvestmentsProps) {
@@ -30,11 +27,15 @@ export default function CadInvestments({ balance }: CadInvestmentsProps) {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Box className={`${styles.investmentBox} ${styles.investmentBoxType}`}>
+          <Box
+            className={`${styles.investmentBox} ${styles.investmentBoxType}`}
+          >
             <span className={styles.investmentBoxTitle}>Renda Fixa</span>
             <span className={styles.investmentBoxValue}>R$ 36.000,00</span>
           </Box>
-          <Box className={`${styles.investmentBox} ${styles.investmentBoxType}`}>
+          <Box
+            className={`${styles.investmentBox} ${styles.investmentBoxType}`}
+          >
             <span className={styles.investmentBoxTitle}>Renda variável</span>
             <span className={styles.investmentBoxValue}>R$ 14.000,00</span>
           </Box>

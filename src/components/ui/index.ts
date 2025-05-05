@@ -1,10 +1,11 @@
 // ——— React ———
-export { default as React } from "react";
+// export { default as React } from "react";
+export { default as React, useState } from "react";
 
 // ——— Next/Navigation (Hooks) ———
 export { usePathname, useRouter, redirect, } from "next/navigation";
 
-// ——————— MUI ———————
+// ——————— MUI Core ———————
 export { default as AppBar } from "@mui/material/AppBar";
 export { default as Box } from "@mui/material/Box";
 export { default as Toolbar } from "@mui/material/Toolbar";
@@ -18,10 +19,13 @@ export { default as Input } from "@mui/material/Input";
 export { default as FormControl } from "@mui/material/FormControl";
 export { default as InputLabel } from "@mui/material/InputLabel";
 
-
 // ————— MUI Icons —————
 export { default as MenuIcon } from "@mui/icons-material/Menu";
 export { default as VisibilityIcon } from "@mui/icons-material/Visibility";
+export { default as EditIcon } from "@mui/icons-material/Edit";
+export { default as DeleteIcon } from "@mui/icons-material/Delete";
+// ——— MUI Charts ———
+export { PieChart } from "@mui/x-charts/PieChart";
 
 // ——— Next/Image & Link ———
 export { default as Image } from "next/image";
@@ -42,3 +46,9 @@ export const geistMono = Roboto_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// ——— SCSS Modules ———
+export { default as CadInvestmentsStyles } from "../../components/cad-investments/cad-investments.module.scss";
+export { default as CardBalanceStyles } from "../../components/card-balance/card-balance.module.scss";
+export { default as CardListExtractStyles } from "../../components/card-list-extract/card-list-extract.module.scss";
+export { default as cardNewTransactionStyles } from "../../components/card-new-transaction/card-new-transaction.module.scss";

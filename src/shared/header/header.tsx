@@ -18,31 +18,36 @@ import {
 import styles from "./header.module.scss";
 
 export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [isMounted, setIsMounted] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 
-  const pathname = usePathname();
-  const router   = useRouter();
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) =>
-    setAnchorElNav(event.currentTarget);
-  const handleCloseNavMenu = () => setAnchorElNav(null);
+  if (!isMounted) return null;
 
   // ---- flags de rota ----------------------------------------------------
-  const isDashboard   = pathname.startsWith("/dashboard");
-  const isInvestments = pathname.startsWith("/investments");     // NOVO
-  const isHome        = pathname === "/" || pathname.startsWith("/home");
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isInvestments = pathname.startsWith("/investments");
+  const isHome = pathname === "/" || pathname.startsWith("/home");
 
-  // quais grupos de links mostrar ----------------------------------------
-  const showPublicLinks   = isHome;
-  const showInternalLinks = isDashboard || isInvestments;        // NOVO
-  const showDashboardBtn  = !(isDashboard || isInvestments);     // AJUSTE
+  const showPublicLinks = isHome;
+  const showInternalLinks = isDashboard || isInvestments;
+  const showDashboardBtn = !(isDashboard || isInvestments);
 
-  // ---- cor de fundo dinâmica -------------------------------------------
   const bgColor = showInternalLinks
     ? "var(--byte-color-dash)"
     : isHome
     ? "var(--byte-color-black)"
     : undefined;
+
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) =>
+    setAnchorElNav(event.currentTarget);
+  const handleCloseNavMenu = () => setAnchorElNav(null);
 
   // ----------------------------------------------------------------------
   return (
@@ -92,7 +97,6 @@ export default function Header() {
           {/* --------  ESQUERDA  ------------------------------------------ */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Link href="/">
-              {/* tablet: ícone; desktop: logo */}
               <Box sx={{ display: { sm: "block", md: "none" } }}>
                 <Image
                   src="/header/icon-group.svg"
@@ -111,7 +115,6 @@ export default function Header() {
               </Box>
             </Link>
 
-            {/* Botão Dashboard (aparece fora do ambiente interno) */}
             {showDashboardBtn && (
               <Button
                 color="inherit"
@@ -123,7 +126,6 @@ export default function Header() {
               </Button>
             )}
 
-            {/* Links públicos – home */}
             {showPublicLinks && (
               <>
                 <Button
@@ -143,7 +145,6 @@ export default function Header() {
               </>
             )}
 
-            {/* Links internos – dashboard + investments */}
             {showInternalLinks && (
               <>
                 <Button
@@ -213,7 +214,6 @@ export default function Header() {
           onClose={handleCloseNavMenu}
           sx={{ display: { xs: "block", sm: "none" } }}
         >
-          {/* Botão Dashboard (fora do ambiente interno) */}
           {showDashboardBtn && (
             <MenuItem onClick={handleCloseNavMenu}>
               <Link href="/dashboard" passHref legacyBehavior>
@@ -222,7 +222,6 @@ export default function Header() {
             </MenuItem>
           )}
 
-          {/* Público – home */}
           {showPublicLinks && [
             <MenuItem onClick={handleCloseNavMenu} key="sobre">
               <Typography textAlign="center">Sobre</Typography>
@@ -259,7 +258,6 @@ export default function Header() {
             </MenuItem>,
           ]}
 
-          {/* Interno – dashboard + investments */}
           {showInternalLinks && [
             <MenuItem onClick={handleCloseNavMenu} key="inicio">
               <Link href="/dashboard" passHref legacyBehavior>

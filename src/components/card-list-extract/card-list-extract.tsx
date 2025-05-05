@@ -1,16 +1,17 @@
 "use client";
-
-import React, { useState } from "react";
-import type {
-  Transaction,
-  TransactionListProps,
-} from "../../types/dashboard";
-import { Box, Button, Input } from "../../components/ui";
-import { IconButton } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  React,
+  useState,
+  Box,
+  Button,
+  Input,
+  IconButton,
+  EditIcon,
+  DeleteIcon,
+  CardListExtractStyles as styles,
+} from "../../components/ui";
+import type { Transaction, TransactionListProps } from "../../types/dashboard";
 import clsx from "clsx";
-import styles from "./card-list-extract.module.scss";
 import { formatBRL, parseBRL } from "utils/currency";
 
 export default function CardListExtract({
@@ -18,9 +19,9 @@ export default function CardListExtract({
   onSave,
 }: TransactionListProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editableTransactions, setEditableTransactions] = useState<Transaction[]>(
-    () => transactions.map((t) => ({ ...t }))
-  );
+  const [editableTransactions, setEditableTransactions] = useState<
+    Transaction[]
+  >(() => transactions.map((t) => ({ ...t })));
 
   const handleEditClick = () => setIsEditing(true);
   const handleCancelClick = () => {

@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import styles from "./card-balance.module.scss";
+import {
+  React,
+  Box,
+  VisibilityIcon,
+  CardBalanceStyles as styles,
+} from "../../components/ui";
 import { formatBRL } from "../../utils/currency";
-import { Box } from "@mui/material";
 import { CardBalanceProps } from "types/dashboard";
 
-
-export default function CardBalance({ user, balance }: CardBalanceProps ) {
+export default function CardBalance({ user, balance }: CardBalanceProps) {
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = { weekday: "long" };
     const today = new Date();
