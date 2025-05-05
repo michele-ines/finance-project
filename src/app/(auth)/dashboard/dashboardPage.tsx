@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import CardBalance from "components/card-balance/card-balance";
 import CardNewTransaction from "components/card-new-transaction/card-new-transaction";
 import CardListExtract from "components/card-list-extract/card-list-extract";
+import { handleRequest } from "@/../utils/errorHandle";
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
@@ -23,27 +24,24 @@ export default function DashboardPage() {
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    const formObject = Object.fromEntries(formData.entries());
-    const jsonPayload = JSON.stringify(formObject);
-
-    try {
+  
+    await handleRequest(async () => {
+      const formData = new FormData(event.currentTarget);
+      const formObject = Object.fromEntries(formData.entries());
+      const jsonPayload = JSON.stringify(formObject);
+  
       const res = await fetch("/api/transacaoService", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: jsonPayload,
       });
-
+  
       if (!res.ok) throw new Error("Falha ao adicionar transação");
-
+  
       const { message } = await res.json();
       alert(message);
       router.push("../");
-    } catch (error) {
-      console.error("Erro ao adicionar transação:", error);
-      alert("Falha ao adicionar transação");
-    }
+    });
   };
 
   return (
