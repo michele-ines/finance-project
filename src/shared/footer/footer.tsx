@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, React, Image } from "../ui/index"; 
+import { usePathname, React, Image } from "../../components/ui/index"; 
 
 import styles from './footer.module.scss';
 

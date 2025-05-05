@@ -14,7 +14,7 @@ import {
   MenuIcon,
   Image,
   Link,
-} from "../ui/index";
+} from "../../components/ui/index";
 import styles from "./header.module.scss";
 
 export default function Header() {

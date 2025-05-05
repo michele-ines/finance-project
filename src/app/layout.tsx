@@ -7,8 +7,8 @@ import {
 import "../styles/globals.css";
 
 // Importe o Header
-import Header from "../components/header/header";
-import Footer from "../components/footer/footer"; 
+import Header from "../shared/header/header";
+import Footer from "../shared/footer/footer"; 
 
 export const metadata: Metadata = {
   title: "ByteBank",
