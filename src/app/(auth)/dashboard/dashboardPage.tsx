@@ -1,4 +1,3 @@
-/* app/dashboard/page.tsx */
 "use client";
 
 import React from "react";
@@ -12,33 +11,20 @@ import {
   Input,
   Button,
 } from "../../../components/ui";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import styles from "./dashboarPage.module.scss";
-import { formatBRL } from "utils/currency";
 import { useRouter } from "next/navigation";
-import TransactionList from "components/transaction-list/transactionList";
+import TransactionList from "../../../components/transaction-list/transactionList";
+import CardBalance from "components/card-balance/card-balance";
 
 export default function DashboardPage() {
-  /* ───── Dados mockados ───── */
   const data = dashboardData as DashboardData;
   const router = useRouter();
 
-  /* ───── Helpers ───── */
-  const getCurrentDate = () => {
-    const options: Intl.DateTimeFormatOptions = { weekday: "long" };
-    const today = new Date();
-    const weekday = today.toLocaleDateString("pt-BR", options);
-    const formattedDate = today.toLocaleDateString("pt-BR");
-    return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)}, ${formattedDate}`;
-  };
-
-  /* ───── Callback do TransactionList ───── */
   const handleSaveTransactions = (tx: Transaction[]) => {
     console.log("Transações editadas no extrato:", tx);
-    // …enviar p/ API, atualizar contexto, etc.
+    // Enviar p/ API ou atualizar contexto.
   };
 
-  /* ───── Submit Nova Transação ───── */
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -64,35 +50,19 @@ export default function DashboardPage() {
     }
   };
 
-  /* ───── UI ───── */
   return (
     <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
       <Box className="font-sans max-w-screen-xl mx-auto">
-        <Box className="flex flex-col gap-6 lg:flex-row">
+        <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
           {/* COLUNA ESQUERDA (Saldo + Nova Transação) */}
-          <Box className="flex flex-col gap-6 w-full lg:w-2/3">
-            {/* CARD SALDO */}
-            <Box className={`${styles.cardSaldo} card-saldo min-h-[402px] mx-auto`}>
-            <Box>
-                <h1 className={styles.nameTitle}>Olá, {data.user.name.split(" ")[0]} :)</h1>
-                <p className={styles.dateText}>{getCurrentDate()}</p>
-              </Box>
+          <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
+            {/* CARD SALDO como componente separado */}
+            <CardBalance user={data.user} balance={data.balance} />
 
-              <Box className={styles.balanceSection}>
-                <div className={styles.saldoHeader}>
-                  <p className={styles.saldoTitle}>
-                    Saldo&nbsp;
-                    <VisibilityIcon fontSize="small" className={styles.eyeIcon} />
-                  </p>
-                  <hr className={styles.hrOrange} />
-                </div>
-                <p className={styles.contaCorrenteTitle}>{data.balance.account}</p>
-                <p className={styles.valorSaldoText}>{formatBRL(data.balance.value)}</p>
-              </Box>
-            </Box>
-
-            {/* CARD NOVA TRANSAÇÃO */}
-            <Box className={`${styles.cardTransacao} cardTransacao w-full min-h-[478px] mx-auto`}>
+            {/* CARD NOVA TRANSAÇÃO (mantido como antes) */}
+            <Box
+              className={`${styles.cardTransacao} cardTransacao w-full min-h-[478px]`}
+            >
               <h3 className={styles.transacaoTitle}>Nova Transação</h3>
 
               <form onSubmit={onSubmit}>
@@ -108,7 +78,9 @@ export default function DashboardPage() {
                     </MenuItem>
                     <MenuItem value="cambio">Câmbio de Moeda</MenuItem>
                     <MenuItem value="deposito">DOC/TED</MenuItem>
-                    <MenuItem value="transferencia">Empréstimo e Financiamento</MenuItem>
+                    <MenuItem value="transferencia">
+                      Empréstimo e Financiamento
+                    </MenuItem>
                   </Select>
                 </FormControl>
 
@@ -131,10 +103,10 @@ export default function DashboardPage() {
           </Box>
 
           {/* COLUNA DIREITA (Extrato) */}
-          <Box className="w-full lg:w-1/3">
+          <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
             <TransactionList
-              transactions={data.transactions}     // ← prop correta
-              onSave={handleSaveTransactions}       // opcional, se quiser capturar edição
+              transactions={data.transactions}
+              onSave={handleSaveTransactions}
             />
           </Box>
         </Box>

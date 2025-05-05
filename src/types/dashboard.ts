@@ -26,7 +26,12 @@ export interface DashboardData {
 }
 
 
-export interface BalanceCardProps {
+export interface CardBalanceProps  {
   user: User;
+  balance: Balance;
+}
+
+
+export interface CadInvestmentsProps {
   balance: Balance;
 }

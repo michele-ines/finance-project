@@ -1,0 +1,104 @@
+.cardSaldo {
+  position: relative;
+  background-color: var(--byte-color-dash);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 283px;
+    height: 228px;
+    background: url("/dash-card-saldo/card-pixels-1.svg") no-repeat left bottom / 246px 228px,
+                url("/dash-card-saldo/card-pixels-2.svg") no-repeat left bottom / 120px 120px;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    background: url("/dash-card-saldo/card-pixels-1.svg") no-repeat right top / contain;
+    pointer-events: none;
+  }
+}
+
+.nameTitle {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-semibold);
+  font-size: 25px;
+  line-height: var(--line-height-tight);
+  margin-bottom: 24px;
+}
+
+.dateText {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.balanceSection {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  transform: translateY(-50%);
+  text-align: left;
+}
+
+.saldoHeader {
+  display: inline-block;
+}
+
+.saldoTitle {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-weight: var(--font-semibold);
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.eyeIcon {
+  margin-left: 25px;
+  color: var(--byte-color-orange-500);
+}
+
+.hrOrange {
+  width: 180px;
+  border: none;
+  border-bottom: 2px solid var(--byte-color-orange-500);
+  margin: 8px 0 0;
+  display: block;
+  margin-left: auto;
+}
+
+.contaCorrenteTitle {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-size: 16px;
+  margin: 16px 0 8px 0;
+}
+
+.valorSaldoText {
+  color: var(--byte-bg-default);
+  font-family: var(--font-inter);
+  font-size: 31px;
+  margin: 4px 0 0;
+}
+
+@media (max-width: 767px) {
+  .cardSaldo::before {
+    background: url("/dash-card-saldo/card-pixels-2.svg")
+      no-repeat left bottom / 120px 120px;
+  }
+}

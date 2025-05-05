@@ -1,21 +1,26 @@
-import React from "react";
-import { Box } from "../ui";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import styles from "../../app/(auth)/dashboard/dashboarPage.module.scss";
-import { formatBRL } from "../../utils/currency";
-import type { BalanceCardProps } from "../../types/dashboard";
+"use client";
 
-export const BalanceCard: React.FC<BalanceCardProps> = ({ user, balance }) => {
+import React from "react";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import styles from "./card-balance.module.scss";
+import { formatBRL } from "../../utils/currency";
+import { Box } from "@mui/material";
+import { CardBalanceProps } from "types/dashboard";
+
+
+export default function CardBalance({ user, balance }: CardBalanceProps ) {
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = { weekday: "long" };
     const today = new Date();
     const weekday = today.toLocaleDateString("pt-BR", options);
     const formattedDate = today.toLocaleDateString("pt-BR");
-    return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)}, ${formattedDate}`;
+    return `${
+      weekday.charAt(0).toUpperCase() + weekday.slice(1)
+    }, ${formattedDate}`;
   };
 
   return (
-    <Box className={`${styles.cardSaldo} card-saldo min-h-[402px] mx-auto`}>
+    <Box className={`${styles.cardSaldo} card-saldo min-h-[402px]`}>
       <Box>
         <h1 className={styles.nameTitle}>Olá, {user.name.split(" ")[0]} :)</h1>
         <p className={styles.dateText}>{getCurrentDate()}</p>
@@ -34,6 +39,4 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ user, balance }) => {
       </Box>
     </Box>
   );
-};
-
-export default BalanceCard;
+}

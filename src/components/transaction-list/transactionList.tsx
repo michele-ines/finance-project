@@ -51,7 +51,7 @@ export default function TransactionList({
 
   /* ───── JSX ───── */
   return (
-    <Box className={`${styles.cardExtrato} w-full min-h-[512px]`}>
+    <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
       {/* header */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>

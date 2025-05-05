@@ -138,18 +138,25 @@ body {
   .cardTransacao {
     width: 690px !important;
   }
+  .cardExtrato {
+    width: 282px !important;
+  }
+
 }
 
-@media (min-width: 768px) and (max-width: 1023px) { /* Tablet */
+@media (min-width: 768px) and (max-width: 1024px) { /* Tablet */
   .card-saldo,
-  .cardTransacao {
-    width: 600px !important;
+  .cardTransacao,
+  .cardExtrato {
+    width: 100% !important; /* pode manter 100% ou o valor desejado */
   }
+
 }
 
 @media (max-width: 767px) { /* Celular - responsivo completo */
   .card-saldo,
-  .cardTransacao {
+  .cardTransacao,
+  .cardExtrato {
     width: 100% !important; /* pode manter 100% ou o valor desejado */
   }
 }
