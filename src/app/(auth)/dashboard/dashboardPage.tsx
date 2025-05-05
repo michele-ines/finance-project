@@ -72,8 +72,8 @@ export default function DashboardPage() {
           {/* COLUNA ESQUERDA (Saldo + Nova Transação) */}
           <Box className="flex flex-col gap-6 w-full lg:w-2/3">
             {/* CARD SALDO */}
-            <Box className={`${styles.cardSaldo} w-full min-h-[402px]`}>
-              <Box>
+            <Box className={`${styles.cardSaldo} card-saldo min-h-[402px] mx-auto`}>
+            <Box>
                 <h1 className={styles.nameTitle}>Olá, {data.user.name.split(" ")[0]} :)</h1>
                 <p className={styles.dateText}>{getCurrentDate()}</p>
               </Box>
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             </Box>
 
             {/* CARD NOVA TRANSAÇÃO */}
-            <Box className={`${styles.cardTransacao} w-full min-h-[478px]`}>
+            <Box className={`${styles.cardTransacao} cardTransacao w-full min-h-[478px] mx-auto`}>
               <h3 className={styles.transacaoTitle}>Nova Transação</h3>
 
               <form onSubmit={onSubmit}>

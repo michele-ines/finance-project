@@ -1,3 +1,6 @@
+/* ------------------------------------------------------------------ */
+/* CARD CONTAINER (fundo cinza + pixels decorativos)                  */
+/* ------------------------------------------------------------------ */
 .cardTransacao {
   background-color: var(--byte-gray-200);
   border-radius: 8px;
@@ -7,6 +10,8 @@
   align-items: flex-start;
   position: relative;
   overflow: hidden;
+
+  /* pixels no canto inferior‑esquerdo */
   &::before {
     content: "";
     position: absolute;
@@ -19,10 +24,8 @@
     pointer-events: none;
     z-index: 0 !important;
   }
-  > * {
-    position: relative;
-    z-index: 1;
-  }
+
+  /* pixels no canto superior‑direito */
   &::after {
     content: "";
     position: absolute;
@@ -32,15 +35,22 @@
       url("../../../../public/dash-card-new-transação/card-pixels-4.svg") no-repeat
         right top / 120px 120px;
   }
+
+  /* garante que o conteúdo fique acima dos pixels */
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 }
 
+/* ------------------------------------------------------------------ */
+/* TIPOGRAFIA                                                         */
+/* ------------------------------------------------------------------ */
 .investmentTitle {
   font-family: var(--font-inter);
   font-weight: 700;
   font-size: 25px;
   line-height: 100%;
-  letter-spacing: 0;
-  vertical-align: middle;
   color: var(--byte-color-black);
   margin-bottom: 32px;
 }
@@ -53,7 +63,6 @@
   color: var(--byte-color-dash);
 }
 
-
 .statsTitle {
   font-family: var(--font-inter);
   font-weight: 400;
@@ -62,25 +71,40 @@
   color: var(--color-black);
 }
 
+/* ------------------------------------------------------------------ */
+/* BOXES AZUIS                                                        */
+/* ------------------------------------------------------------------ */
 .investmentBox {
   background-color: var(--byte-color-dash);
-  padding: 16px 32px 16px 32px;
+  padding: 16px 32px;
   border-radius: 8px;
   display: flex;
 
-  &Stats{
-    height: 184px;
-   // width: 610px;
+  /* ----- VARIAÇÕES ------------------------------------------------- */
+
+  /* Estatísticas (contém o PieChart) */
+  &Stats {
+    height: 184px;          /* altura fixa conforme maquetes          */
+    /* largura agora é controlada no JSX via Tailwind (w-full / md:max-w-[610px]) */
   }
 
+  /* Tipo de renda (Renda Fixa / Variável) */
   &Type {
-    width: 293px;
-    height: 95px;
+    /* MOBILE FIRST: ocupa 100 % da largura e altura automática  -------- */
+    width: 100%;
+    height: auto;
     flex-direction: column;
     align-items: center;
     gap: 16px;
+
+    /* TABLET (≥ 768 px) & DESKTOP (≥ 1024 px) ------------------------ */
+    @media (min-width: 768px) {
+      width: 293px;
+      height: 95px;
+    }
   }
 
+  /* Textos dentro dos boxes */
   &Title {
     color: var(--byte-gray-50);
     font-size: 16px;
@@ -96,19 +120,22 @@
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* AJUSTES DO PIE CHART                                               */
+/* ------------------------------------------------------------------ */
 .MuiChartsLegend-root {
-  font-family: var(--font-inter)!important;
-  font-size: 16px!important;
-  font-weight: 400!important;
-  line-height: 120%!important;
-  color: var(--color-white)!important;
+  font-family: var(--font-inter) !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 120% !important;
+  color: var(--color-white) !important;
 }
 
-.MuiChartsLegend-label {
-  font-family: var(--font-inter)!important;
-  font-size: 16px!important;
-  font-weight: 400!important;
-  line-height: 120%!important;
-  color: var(--color-white)!important;
+.investmentBoxStats :global(.MuiChartsLegend-label) {
+  /* legenda branca sobre fundo azul */
+  color: var(--byte-bg-default) !important;
+  font-family: var(--font-inter) !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 120% !important;
 }
-

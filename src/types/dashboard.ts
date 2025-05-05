@@ -24,3 +24,9 @@ export interface DashboardData {
   balance: Balance;
   transactions: Transaction[];
 }
+
+
+export interface BalanceCardProps {
+  user: User;
+  balance: Balance;
+}

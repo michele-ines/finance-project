@@ -3,12 +3,7 @@ import { Box } from "../ui";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import styles from "../../app/(auth)/dashboard/dashboarPage.module.scss";
 import { formatBRL } from "../../utils/currency";
-import { Balance, User } from "../../types/dashboard";
-
-interface BalanceCardProps {
-  user: User;
-  balance: Balance;
-}
+import type { BalanceCardProps } from "../../types/dashboard";
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({ user, balance }) => {
   const getCurrentDate = () => {
@@ -20,7 +15,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({ user, balance }) => {
   };
 
   return (
-    <Box className={`${styles.cardSaldo} w-full min-h-[402px]`}>
+    <Box className={`${styles.cardSaldo} card-saldo min-h-[402px] mx-auto`}>
       <Box>
         <h1 className={styles.nameTitle}>Olá, {user.name.split(" ")[0]} :)</h1>
         <p className={styles.dateText}>{getCurrentDate()}</p>

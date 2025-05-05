@@ -132,4 +132,25 @@ body {
 }
 
 
+/* Adicione no seu CSS global */
+@media (min-width: 1024px) { /* Desktop */
+  .card-saldo,
+  .cardTransacao {
+    width: 690px !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) { /* Tablet */
+  .card-saldo,
+  .cardTransacao {
+    width: 600px !important;
+  }
+}
+
+@media (max-width: 767px) { /* Celular - responsivo completo */
+  .card-saldo,
+  .cardTransacao {
+    width: 100% !important; /* pode manter 100% ou o valor desejado */
+  }
+}
 
