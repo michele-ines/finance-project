@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import type {
   Transaction,
   TransactionListProps,
-} from "../../types/dashboard";  // ← importa a interface
+} from "../../types/dashboard";  
 import { Box, Button, Input } from "../../components/ui/index";
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";

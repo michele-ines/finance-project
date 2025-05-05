@@ -5,16 +5,12 @@ import dashboardData from "../../../constants/dashboardData.json";
 import type { DashboardData, Transaction } from "../../../types/dashboard";
 import {
   Box,
-  FormControl,
-  Select,
-  MenuItem,
-  Input,
-  Button,
+
 } from "../../../components/ui";
-import styles from "./dashboarPage.module.scss";
 import { useRouter } from "next/navigation";
 import TransactionList from "../../../components/transaction-list/transactionList";
 import CardBalance from "components/card-balance/card-balance";
+import CardNewTransaction from "components/card-new-transaction/card-new-transaction";
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
@@ -60,46 +56,8 @@ export default function DashboardPage() {
             <CardBalance user={data.user} balance={data.balance} />
 
             {/* CARD NOVA TRANSAÇÃO (mantido como antes) */}
-            <Box
-              className={`${styles.cardTransacao} cardTransacao w-full min-h-[478px]`}
-            >
-              <h3 className={styles.transacaoTitle}>Nova Transação</h3>
+            <CardNewTransaction onSubmit={onSubmit} />
 
-              <form onSubmit={onSubmit}>
-                <FormControl className={styles.transacaoFormControl}>
-                  <Select
-                    name="tipo"
-                    displayEmpty
-                    defaultValue=""
-                    className={styles.transacaoSelect}
-                  >
-                    <MenuItem value="" disabled>
-                      Selecione o tipo de transação
-                    </MenuItem>
-                    <MenuItem value="cambio">Câmbio de Moeda</MenuItem>
-                    <MenuItem value="deposito">DOC/TED</MenuItem>
-                    <MenuItem value="transferencia">
-                      Empréstimo e Financiamento
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-
-                <p className={styles.transacaoLabel}>Valor</p>
-                <FormControl className={styles.transacaoFormControl}>
-                  <Input
-                    name="valor"
-                    placeholder="00,00"
-                    className={`${styles.transacaoInput} mb-8`}
-                  />
-                </FormControl>
-
-                <Box className="mt-4">
-                  <Button type="submit" className={styles.transacaoButton}>
-                    Concluir Transação
-                  </Button>
-                </Box>
-              </form>
-            </Box>
           </Box>
 
           {/* COLUNA DIREITA (Extrato) */}

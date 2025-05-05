@@ -1,0 +1,101 @@
+.cardTransacao {
+  background-color: var(--byte-gray-200);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: url("../../../public//dash-card-new-transação/card-pixels-3.svg")
+      no-repeat left bottom / contain;
+    pointer-events: none;
+    z-index: 0 !important;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("../../../public/dash-card-new-transação/Ilustração-2.svg")
+        no-repeat right bottom / 260px 240px,
+      url("../../../public/dash-card-new-transação/card-pixels-4.svg") no-repeat
+        right top / 120px 120px;
+  }
+
+  @media (max-width: 1023px) {
+    &::after {
+      background: url("../../../public/dash-card-new-transação/Ilustração-2.svg")
+          no-repeat right bottom / 239px 131px,
+        url("/_next/static/media/card-pixels-4.fc71ab91.svg") no-repeat right
+          top / 120px 95px;
+    }
+  }
+}
+
+.transacaoTitle,
+.transacaoLabel {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 100%;
+  color: var(--byte-gray-100);
+  margin-top: 32px;
+}
+
+.transacaoTitle {
+  margin-bottom: 32px;
+}
+
+.transacaoFormControl {
+  margin-bottom: 32px;
+}
+
+.transacaoSelect {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px !important;
+  border: 1px solid var(--byte-color-dash);
+}
+
+.transacaoInput {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--byte-color-dash);
+  padding: 0 0.5rem;
+  margin-top: 32px;
+}
+
+.transacaoButton {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px !important;
+  border: 2px solid var(--byte-color-dash);
+  background-color: var(--byte-color-dash) !important;
+  color: var(--byte-bg-default) !important;
+}
+
+@media (max-width: 767px) {
+  .transacaoSelect {
+    width: auto !important;
+  }
+
+  .transacaoInput,
+  .transacaoButton {
+    width: 104px !important;
+  }
+}
