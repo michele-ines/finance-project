@@ -35,5 +35,17 @@
       "date": "21/11/2022",
       "amount": -500
     }
+  ],
+  "investments": [
+    {
+      "id": 1,
+      "label": "Renda Fixa",
+      "value": 36000
+    },
+    {
+      "id": 2,
+      "label": "Renda Variável",
+      "value": 14000
+    }
   ]
 }

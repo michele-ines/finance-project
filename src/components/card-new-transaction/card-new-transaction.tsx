@@ -10,7 +10,6 @@ import {
   Button,
   cardNewTransactionStyles as styles,
 } from "../../components/ui";
-// import styles from "./card-new-transaction.module.scss";
 
 interface CardNewTransactionProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;

@@ -3,7 +3,10 @@
 import { Box, React, PieChart, CadInvestmentsStyles as styles } from "../ui";
 import { CadInvestmentsProps } from "types/dashboard";
 
-export default function CadInvestments({ balance }: CadInvestmentsProps) {
+export default function CadInvestments({
+  balance,
+  investments,
+}: CadInvestmentsProps) {
   const chartData = [
     { value: 5, label: "Fundos de investimento" },
     { value: 10, label: "Tesouro Direto" },
@@ -27,18 +30,20 @@ export default function CadInvestments({ balance }: CadInvestmentsProps) {
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Box
-            className={`${styles.investmentBox} ${styles.investmentBoxType}`}
-          >
-            <span className={styles.investmentBoxTitle}>Renda Fixa</span>
-            <span className={styles.investmentBoxValue}>R$ 36.000,00</span>
-          </Box>
-          <Box
-            className={`${styles.investmentBox} ${styles.investmentBoxType}`}
-          >
-            <span className={styles.investmentBoxTitle}>Renda variável</span>
-            <span className={styles.investmentBoxValue}>R$ 14.000,00</span>
-          </Box>
+          {investments.map(({ id, label, value }) => (
+            <Box
+              key={id}
+              className={`${styles.investmentBox} ${styles.investmentBoxType}`}
+            >
+              <span className={styles.investmentBoxTitle}>{label}</span>
+              <span className={styles.investmentBoxValue}>
+                {value.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })}
+              </span>
+            </Box>
+          ))}
         </div>
       </section>
 

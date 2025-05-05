@@ -14,8 +14,8 @@ import {
   MenuIcon,
   Image,
   Link,
+  HeaderStyles as styles,
 } from "../../components/ui/index";
-import styles from "./header.module.scss";
 
 export default function Header() {
   const router = useRouter();

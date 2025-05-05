@@ -41,7 +41,7 @@ export default function InvestmentPage() {
             <CardBalance user={data.user} balance={data.balance} />
 
             {/* CARD INVESTIMENTOS ----------------------------------------- */}
-            <CadInvestments balance={balanceData} />
+            <CadInvestments balance={balanceData} investments={data.investments} />
 
             {/* ------------------------------------------------------------- */}
           </Box>

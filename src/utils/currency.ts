@@ -1,4 +1,3 @@
-// src/utils/currency.ts
 /**
  * Formata um número para BRL – ex.: 500  -> "R$ 500,00"
  */

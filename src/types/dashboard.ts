@@ -14,24 +14,31 @@ export interface Transaction {
   date: string;
   amount: number;
 }
-export interface TransactionListProps {
-  transactions: Transaction[];
-  onSave?: (tx: Transaction[]) => void;
+
+export interface Investment {
+  id: number;
+  label: string;
+  value: number;
 }
 
 export interface DashboardData {
   user: User;
   balance: Balance;
   transactions: Transaction[];
+  investments: Investment[];
 }
 
+export interface TransactionListProps {
+  transactions: Transaction[];
+  onSave?: (tx: Transaction[]) => void;
+}
 
-export interface CardBalanceProps  {
+export interface CardBalanceProps {
   user: User;
   balance: Balance;
 }
 
-
 export interface CadInvestmentsProps {
   balance: Balance;
+  investments: Investment[];
 }

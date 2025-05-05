@@ -25,7 +25,7 @@ export { default as VisibilityIcon } from "@mui/icons-material/Visibility";
 export { default as EditIcon } from "@mui/icons-material/Edit";
 export { default as DeleteIcon } from "@mui/icons-material/Delete";
 // ——— MUI Charts ———
-export { PieChart } from "@mui/x-charts/PieChart";
+export { PieChart } from "@mui/x-charts";
 
 // ——— Next/Image & Link ———
 export { default as Image } from "next/image";
@@ -48,6 +48,7 @@ export const geistMono = Roboto_Mono({
 });
 
 // ——— SCSS Modules ———
+export { default as HeaderStyles } from "../../shared/header/header.module.scss";
 export { default as CadInvestmentsStyles } from "../../components/cad-investments/cad-investments.module.scss";
 export { default as CardBalanceStyles } from "../../components/card-balance/card-balance.module.scss";
 export { default as CardListExtractStyles } from "../../components/card-list-extract/card-list-extract.module.scss";

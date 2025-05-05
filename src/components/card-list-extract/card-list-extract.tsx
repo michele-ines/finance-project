@@ -12,7 +12,7 @@ import {
 } from "../../components/ui";
 import type { Transaction, TransactionListProps } from "../../types/dashboard";
 import clsx from "clsx";
-import { formatBRL, parseBRL } from "utils/currency";
+import { formatBRL, parseBRL } from "../../utils/currency";
 
 export default function CardListExtract({
   transactions,
