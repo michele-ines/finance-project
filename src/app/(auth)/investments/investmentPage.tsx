@@ -3,10 +3,10 @@
 import React from "react";
 import { Box } from "../../../components/ui";
 import type { Balance, DashboardData, Transaction } from "../../../types/dashboard";
-import TransactionList from "components/transaction-list/transactionList";
 import CardBalance from "../../../components/card-balance/card-balance"; // ← Import correto
 import CadInvestments from "components/cad-investments/cad-investments";
 import dashboardData from "../../../constants/dashboardData.json";
+import CardListExtract from "components/card-list-extract/card-list-extract";
 
 export default function InvestmentPage() {
   /* ------------------------------------------------------------------ */
@@ -48,7 +48,7 @@ export default function InvestmentPage() {
 
           {/* COLUNA DIREITA ------------------------------------------------- */}
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
-          <TransactionList
+          <CardListExtract
               transactions={transactionsData}
               onSave={handleSaveTransactions}
             />

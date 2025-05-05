@@ -8,9 +8,9 @@ import {
 
 } from "../../../components/ui";
 import { useRouter } from "next/navigation";
-import TransactionList from "../../../components/transaction-list/transactionList";
 import CardBalance from "components/card-balance/card-balance";
 import CardNewTransaction from "components/card-new-transaction/card-new-transaction";
+import CardListExtract from "components/card-list-extract/card-list-extract";
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
@@ -62,7 +62,7 @@ export default function DashboardPage() {
 
           {/* COLUNA DIREITA (Extrato) */}
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
-            <TransactionList
+            <CardListExtract
               transactions={data.transactions}
               onSave={handleSaveTransactions}
             />

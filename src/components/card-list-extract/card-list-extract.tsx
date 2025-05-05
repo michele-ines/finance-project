@@ -4,16 +4,16 @@ import React, { useState } from "react";
 import type {
   Transaction,
   TransactionListProps,
-} from "../../types/dashboard";  
-import { Box, Button, Input } from "../../components/ui/index";
+} from "../../types/dashboard";
+import { Box, Button, Input } from "../../components/ui";
 import { IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import clsx from "clsx";
-import styles from "./transactionList.module.scss";
+import styles from "./card-list-extract.module.scss";
 import { formatBRL, parseBRL } from "utils/currency";
 
-export default function TransactionList({
+export default function CardListExtract({
   transactions,
   onSave,
 }: TransactionListProps) {
@@ -22,16 +22,14 @@ export default function TransactionList({
     () => transactions.map((t) => ({ ...t }))
   );
 
-  /* ───── Handlers ───── */
   const handleEditClick = () => setIsEditing(true);
-
   const handleCancelClick = () => {
     setEditableTransactions(transactions.map((t) => ({ ...t })));
     setIsEditing(false);
   };
 
   const handleSaveClick = () => {
-    onSave?.(editableTransactions);          // avisa o pai, se existir
+    onSave?.(editableTransactions);
     setIsEditing(false);
   };
 
@@ -49,10 +47,8 @@ export default function TransactionList({
     );
   };
 
-  /* ───── JSX ───── */
   return (
     <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
-      {/* header */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
 
@@ -62,14 +58,12 @@ export default function TransactionList({
               <EditIcon fontSize="small" />
             </IconButton>
           )}
-
           <IconButton className={styles.actionBtn}>
             <DeleteIcon fontSize="small" />
           </IconButton>
         </Box>
       </Box>
 
-      {/* lista */}
       <ul className="space-y-4">
         {editableTransactions.map((tx, index) => (
           <li key={tx.id}>
