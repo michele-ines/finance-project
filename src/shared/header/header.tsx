@@ -28,8 +28,6 @@ export default function Header() {
     showDashboardBtn,
   } = useHeaderFlags(); 
 
-
-
   const [isMounted, setIsMounted] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
 
@@ -39,21 +37,10 @@ export default function Header() {
 
   if (!isMounted) return null;
 
-  
-  // ---- flags de rota ----------------------------------------------------
-  // const isDashboard = pathname.startsWith("/dashboard");
-  // const isInvestments = pathname.startsWith("/investments");
-  // const isHome = pathname === "/" || pathname.startsWith("/home");
-
-  // const showPublicLinks = isHome;
-  // const showInternalLinks = isDashboard || isInvestments;
-  // const showDashboardBtn = !(isDashboard || isInvestments);
-
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) =>
     setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
 
-  // ----------------------------------------------------------------------
   return (
     <AppBar
       position="static"
