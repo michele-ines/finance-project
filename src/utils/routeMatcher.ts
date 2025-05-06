@@ -1,31 +1,52 @@
-// utils/routeMatcher.ts
 import { ROUTES } from "constants/routes.constant";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { HeaderFlags } from "types/dashboard";
 
+// Novos grupos de rotas
+const publicOnlyRoutes = [ROUTES.ROOT, ROUTES.HOME, ROUTES.NOT_FOUND];
+const internalOnlyRoutes = [
+  ROUTES.DASHBOARD,
+  ROUTES.INVESTMENTS,
+  ROUTES.MY_CARDS,
+  ROUTES.LOGIN,
+  ROUTES.REGISTER,
+  ROUTES.SERVICES,
+  ROUTES.ACCOUNT,
+  ROUTES.OTHER_SERVICES,
+];
+
 /* ---------- helpers de rota isolados ---------- */
 export const isDashboardRoute = (p: string) => p.startsWith(ROUTES.DASHBOARD);
 export const isInvestmentsRoute = (p: string) => p.startsWith(ROUTES.INVESTMENTS);
 export const isHomeRoute = (p: string) => p === ROUTES.ROOT || p.startsWith(ROUTES.HOME);
+export const isLoginRoute = (p: string) => p.startsWith(ROUTES.LOGIN);
+export const isRegisterRoute = (p: string) => p.startsWith(ROUTES.REGISTER);
+export const isServicesRoute = (p: string) => p.startsWith(ROUTES.SERVICES);
+export const isAccountRoute = (p: string) => p.startsWith(ROUTES.ACCOUNT);
+export const isOtherServicesRoute = (p: string) => p.startsWith(ROUTES.OTHER_SERVICES);
 
-/** Função pura — boa para SSR ou testes */
+
+export const isMatchingRoute = (pathname: string, routes: string[]) =>
+  routes.some(r => pathname.startsWith(r));
+
+export const isPublicOnlyRoute = (pathname: string) =>
+  publicOnlyRoutes.some(route => pathname === route);
+
+export const isInternalOnlyRoute = (pathname: string) =>
+  internalOnlyRoutes.some(route => pathname.startsWith(route));
+
 export const getHeaderFlags = (pathname: string): HeaderFlags => {
-  const isDashboard = isDashboardRoute(pathname);
-  const isInvestments = isInvestmentsRoute(pathname);
-  const isHome = isHomeRoute(pathname);
-
   return {
-    isHome,
-    isDashboard,
-    isInvestments,
-    showPublicLinks: isHome,
-    showInternalLinks: isDashboard || isInvestments,
-    showDashboardBtn: !(isDashboard || isInvestments),
+    isHome: isHomeRoute(pathname),
+    isDashboard: isDashboardRoute(pathname),
+    isInvestments: isInvestmentsRoute(pathname),
+    showPublicLinks: isPublicOnlyRoute(pathname),
+    showInternalLinks: isInternalOnlyRoute(pathname),
+    showDashboardBtn: !isInternalOnlyRoute(pathname),
   } as const;
 };
 
-/** Hook para client components — evita repetir usePathname */
 export const useHeaderFlags = (): HeaderFlags => {
   const pathname = usePathname();
   return useMemo(() => getHeaderFlags(pathname), [pathname]);
@@ -38,24 +59,8 @@ export const ByteColor = {
 
 export type ByteColor = (typeof ByteColor)[keyof typeof ByteColor];
 
-export const isMatchingRoute = (pathname: string, routes: string[]) =>
-  routes.some(r => pathname.startsWith(r));
-
-export const isInternalRoute = (pathname: string) =>
-  isMatchingRoute(pathname, [
-    ROUTES.DASHBOARD,
-    ROUTES.INVESTMENTS,
-    ROUTES.MY_CARDS,
-  ]);
-
-export const isHomeOrPublicRoute = (pathname: string) =>
-  pathname === ROUTES.ROOT ||
-  pathname === ROUTES.NOT_FOUND ||
-  pathname.startsWith(ROUTES.HOME);
-
 export const getBgColor = (pathname: string): ByteColor => {
-  if (isInternalRoute(pathname)) return ByteColor.dash;
-  if (isHomeOrPublicRoute(pathname)) return ByteColor.black;
+  if (isInternalOnlyRoute(pathname)) return ByteColor.dash;
   return ByteColor.black;
 };
 

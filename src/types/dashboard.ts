@@ -35,7 +35,8 @@ export interface CadInvestmentsProps {
   balance: Balance;
   investments: Investment[];
 }
-/* ---------- grupo de flags que o Header precisa ---------- */export interface HeaderFlags {
+/* ---------- grupo de flags que o Header precisa ---------- */
+export interface HeaderFlags {
   /** rotas */
   isHome: boolean;
   isDashboard: boolean;
