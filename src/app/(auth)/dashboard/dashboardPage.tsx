@@ -7,7 +7,6 @@ import {
   Box,
 
 } from "../../../components/ui";
-import { useRouter } from "next/navigation";
 import CardBalance from "components/card-balance/card-balance";
 import CardNewTransaction from "components/card-new-transaction/card-new-transaction";
 import CardListExtract from "components/card-list-extract/card-list-extract";
@@ -15,7 +14,6 @@ import { handleRequest } from "@/../utils/errorHandle";
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
-  const router = useRouter();
 
   const handleSaveTransactions = (tx: Transaction[]) => {
     console.log("Transações editadas no extrato:", tx);
@@ -40,7 +38,9 @@ export default function DashboardPage() {
   
       const { message } = await res.json();
       alert(message);
-      router.push("../");
+  
+      // Retorne algo compatível
+      return new Response(null, { status: 200 });
     });
   };
 

@@ -1,15 +1,8 @@
-import { NextResponse } from "next/server";
-
-export async function handleRequest(
-  handler: () => Promise<NextResponse>
-): Promise<NextResponse> {
+export async function handleRequest<T>(handler: () => Promise<T>): Promise<T | void> {
   try {
     return await handler();
   } catch (error) {
-    console.error("Erro na requisição:", error);
-    return NextResponse.json(
-      { message: "Erro interno do servidor", error: (error as Error).message },
-      { status: 500 }
-    );
+    console.error("Erro:", error);
+    alert("Ocorreu um erro. Tente novamente.");
   }
 }

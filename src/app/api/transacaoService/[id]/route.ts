@@ -3,9 +3,14 @@ import transacao from "@/../models/transacao";
 import { NextResponse } from "next/server";
 import { handleRequest } from "@/../utils/errorHandle";
 
-export async function GET(request: Request, context: { params: { id: string } }) {
+// Tipo correto para o contexto de rotas dinâmicas
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
+export async function GET(request: Request, context: RouteContext) {
   return handleRequest(async () => {
-    const { id } = await context.params;
+    const { id } = await context.params; // Use await para acessar os parâmetros
 
     await connectMongoDB();
     const transacaoOb = await transacao.findOne({ _id: id });
@@ -19,9 +24,9 @@ export async function GET(request: Request, context: { params: { id: string } })
   });
 }
 
-export async function PUT(request: Request, context: { params: { id: string } }) {
+export async function PUT(request: Request, context: RouteContext) {
   return handleRequest(async () => {
-    const { id } =await context.params;
+    const { id } = await context.params; // Use await para acessar os parâmetros
     const { tipo, valor } = await request.json();
 
     await connectMongoDB();
@@ -34,9 +39,9 @@ export async function PUT(request: Request, context: { params: { id: string } })
   });
 }
 
-export async function DELETE(request: Request, context: { params: { id: string } }) {
+export async function DELETE(request: Request, context: RouteContext) {
   return handleRequest(async () => {
-    const { id } =await context.params;
+    const { id } = await context.params; // Use await para acessar os parâmetros
 
     await connectMongoDB();
     await transacao.findByIdAndDelete(id);
