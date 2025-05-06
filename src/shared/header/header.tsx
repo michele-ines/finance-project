@@ -16,10 +16,19 @@ import {
   Link,
   HeaderStyles as styles,
 } from "../../components/ui/index";
+import { getBgColor, useHeaderFlags } from "utils/routeMatcher";
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
+  const bgColor  = getBgColor(pathname);
+  const {
+    showPublicLinks,
+    showInternalLinks,
+    showDashboardBtn,
+  } = useHeaderFlags(); 
+
+
 
   const [isMounted, setIsMounted] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
@@ -30,20 +39,15 @@ export default function Header() {
 
   if (!isMounted) return null;
 
+  
   // ---- flags de rota ----------------------------------------------------
-  const isDashboard = pathname.startsWith("/dashboard");
-  const isInvestments = pathname.startsWith("/investments");
-  const isHome = pathname === "/" || pathname.startsWith("/home");
+  // const isDashboard = pathname.startsWith("/dashboard");
+  // const isInvestments = pathname.startsWith("/investments");
+  // const isHome = pathname === "/" || pathname.startsWith("/home");
 
-  const showPublicLinks = isHome;
-  const showInternalLinks = isDashboard || isInvestments;
-  const showDashboardBtn = !(isDashboard || isInvestments);
-
-  const bgColor = showInternalLinks
-    ? "var(--byte-color-dash)"
-    : isHome
-    ? "var(--byte-color-black)"
-    : undefined;
+  // const showPublicLinks = isHome;
+  // const showInternalLinks = isDashboard || isInvestments;
+  // const showDashboardBtn = !(isDashboard || isInvestments);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) =>
     setAnchorElNav(event.currentTarget);
@@ -158,6 +162,14 @@ export default function Header() {
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
+                  onClick={() => router.push("/meus-cartoes")}   // <= aqui
+                  sx={{ textTransform: "none" }}
+                >
+                  Meus cartões
+                </Button>
+                <Button
+                  color="inherit"
+                  className={styles.menuItemText}
                   sx={{ textTransform: "none" }}
                 >
                   Transferências
@@ -264,6 +276,11 @@ export default function Header() {
                 <Typography textAlign="center">Início</Typography>
               </Link>
             </MenuItem>,
+                <MenuItem onClick={handleCloseNavMenu} key="meuscartoes">
+                <Link href="/meus-cartoes" passHref legacyBehavior>
+                  <Typography textAlign="center">Meus Cartões</Typography>
+                </Link>
+              </MenuItem>,
             <MenuItem onClick={handleCloseNavMenu} key="transferencias">
               <Typography textAlign="center">Transferências</Typography>
             </MenuItem>,
