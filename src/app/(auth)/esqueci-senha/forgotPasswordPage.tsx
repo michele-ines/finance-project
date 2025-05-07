@@ -5,7 +5,7 @@ import ForgotPasswordForm from "components/forms/forgot-password-form";
 
 export default function ForgotPasswordPage() {
   return (
-    <Box className="flex items-center justify-center min-h-screen bg-[var(--byte-bg-dashboard)] px-4">
+    <Box className="flex items-center justify-center bg-[var(--byte-bg-dashboard)] px-4">
       <Box className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg max-w-4xl w-full overflow-hidden my-6">
         <Box className="lg:w-1/2 w-full flex items-center justify-center py-12 pl-12">
           <Image
