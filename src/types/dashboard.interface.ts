@@ -26,7 +26,9 @@ export interface CadInvestmentsProps {
   balance: Balance;
   investments: Investment[];
 }
-
+export interface ForgotPasswordData {
+  email: string;
+}
 export interface HeaderFlags {
   isHome: boolean;
   isDashboard: boolean;
