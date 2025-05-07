@@ -7,11 +7,9 @@ import { Box, Input, Button } from "../ui";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { ROUTES } from "constants/routes.constant";
+import { LoginData } from "types/dashboard.interface";
 
-type LoginData = {
-  email: string;
-  password: string;
-};
+
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
