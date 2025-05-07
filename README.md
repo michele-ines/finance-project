@@ -80,6 +80,23 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
   _Exemplo:_ `npm run lint -- --file pages/index.js`
 
 
+# Configuração do Mongoose
+
+Este projeto utiliza o [Mongoose](https://mongoosejs.com/) para conectar e interagir com o banco de dados MongoDB. Siga os passos abaixo para configurar corretamente o ambiente.
+
+## Pré-requisitos
+
+- Certifique-se de ter o [Node.js](https://nodejs.org/) instalado em sua máquina.
+- Um banco de dados MongoDB disponível (local ou na nuvem, como o [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)).
+
+## Configuração do `.env`
+
+1. Crie um arquivo `.env` na raiz do projeto, caso ele ainda não exista.
+2. Adicione a variável de ambiente `MONGODB_URL` com a URL de conexão do MongoDB. Por exemplo:
+
+## .env
+MONGODB_URL=mongodb+srv://marcelomab09:jmiEqK08Of5ciKYx@cluster0.atwgt42.mongodb.net/TECH_CHALLENGE?retryWrites=true&w=majority
+
 ### Testes
 - **npm run test**  
   Executa a suíte de testes utilizando Jest.
