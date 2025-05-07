@@ -2,7 +2,7 @@
 
 import React from "react";
 import dashboardData from "../../../constants/dashboardData.json";
-import type { DashboardData, Transaction } from "../../../types/dashboard";
+import type { DashboardData, Transaction } from "../../../types/dashboard.interface";
 import {
   Box,
 

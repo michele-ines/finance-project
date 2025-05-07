@@ -1,7 +1,7 @@
 import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import CardListExtract from "./card-list-extract";
-import { Transaction } from "../../types/dashboard";
+import { Transaction } from "../../types/dashboard.interface";
 
 jest.mock("next/font/google", () => ({
   Inter: () => ({

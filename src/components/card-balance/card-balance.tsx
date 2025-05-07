@@ -9,7 +9,7 @@ import {
   useState,
 } from "../../components/ui";
 import { formatBRL } from "../../utils/currency";
-import { CardBalanceProps } from "types/dashboard";
+import { CardBalanceProps } from "types/dashboard.interface";
 
 export default function CardBalance({ user, balance }: CardBalanceProps) {
   /* controla se o saldo está visível */

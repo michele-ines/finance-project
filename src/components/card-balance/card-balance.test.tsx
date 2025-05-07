@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { CardBalanceProps } from 'types/dashboard';
+import { CardBalanceProps } from 'types/dashboard.interface';
 import CardBalance from './card-balance';
 import { formatBRL } from '../../utils/currency';
 

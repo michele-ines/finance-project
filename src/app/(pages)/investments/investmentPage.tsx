@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Box } from "../../../components/ui";
-import type { Balance, DashboardData, Transaction } from "../../../types/dashboard";
+import type { Balance, DashboardData, Transaction } from "../../../types/dashboard.interface";
 import CardBalance from "../../../components/card-balance/card-balance"; // ← Import correto
 import CadInvestments from "components/cad-investments/cad-investments";
 import dashboardData from "../../../constants/dashboardData.json";

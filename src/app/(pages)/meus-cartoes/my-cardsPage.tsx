@@ -1,5 +1,5 @@
 "use client";
-import type { DashboardData, Transaction } from "../../../types/dashboard";
+import type { DashboardData, Transaction } from "../../../types/dashboard.interface";
 import { Box } from "../../../components/ui";
 import dashboardData from "../../../constants/dashboardData.json";
 import CardBalance from "components/card-balance/card-balance";

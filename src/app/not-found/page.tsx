@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { Button, Image } from "../components/ui/index"; // Ajuste o import se necessário
+import { Button, Image } from "../../components/ui/index"; // Ajuste o import se necessário
+import { ROUTES } from "constants/routes.constant";
 
 export default function NotFound() {
   return (
@@ -29,8 +30,8 @@ export default function NotFound() {
             background: "var( --byte-color-orange-500)",
             color: "var(--byte-bg-default)",
           }}
-          onClick={() => (window.location.href = "/home")}
-        >
+          onClick={() => window.location.href = ROUTES.HOME}
+          >
           Voltar ao Início
         </Button>
       </div>

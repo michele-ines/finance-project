@@ -10,7 +10,7 @@ import {
   DeleteIcon,
   CardListExtractStyles as styles,
 } from "../../components/ui";
-import type { Transaction, TransactionListProps } from "../../types/dashboard";
+import type { Transaction, TransactionListProps } from "../../types/dashboard.interface";
 import clsx from "clsx";
 import { formatBRL, parseBRL } from "../../utils/currency";
 
