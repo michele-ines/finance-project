@@ -7,6 +7,7 @@ export const ROUTES = {
   NOT_FOUND: "/not-found",
   LOGIN: "/login",
   REGISTER: "/cadastro",
+  FORGOT_PASSWORD: "/esqueci-senha",
   SERVICES: "/servicos",
   ACCOUNT: "/minha-conta",
   OTHER_SERVICES: "/outros-servicos",

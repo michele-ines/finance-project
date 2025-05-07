@@ -23,10 +23,13 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const bgColor = getBgColor(pathname);
-  const { showPublicLinks, showInternalLinks, showDashboardBtn } = useHeaderFlags();
+  const { showPublicLinks, showInternalLinks, showDashboardBtn } =
+    useHeaderFlags();
 
   const [mounted, setMounted] = React.useState(false);
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null
+  );
 
   React.useEffect(() => setMounted(true), []);
   if (!mounted) return null;
@@ -60,7 +63,12 @@ export default function Header() {
             <MenuIcon />
           </IconButton>
           <Link href={ROUTES.ROOT}>
-            <Image src="/header/header-logo.svg" alt="Logo" width={120} height={40} />
+            <Image
+              src="/header/header-logo.svg"
+              alt="Logo"
+              width={120}
+              height={40}
+            />
           </Link>
         </Box>
 
@@ -76,10 +84,20 @@ export default function Header() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Link href={ROUTES.ROOT}>
               <Box sx={{ display: { sm: "block", md: "none" } }}>
-                <Image src="/header/icon-group.svg" alt="Ícone" width={26} height={26} />
+                <Image
+                  src="/header/icon-group.svg"
+                  alt="Ícone"
+                  width={26}
+                  height={26}
+                />
               </Box>
               <Box sx={{ display: { sm: "none", md: "block" } }}>
-                <Image src="/header/header-logo.svg" alt="Logo" width={120} height={40} />
+                <Image
+                  src="/header/header-logo.svg"
+                  alt="Logo"
+                  width={120}
+                  height={40}
+                />
               </Box>
             </Link>
 
@@ -209,7 +227,14 @@ export default function Header() {
           )}
           {showPublicLinks && (
             <MenuItem onClick={closeMenu} key="botoes-mobile">
-              <Box sx={{ display: "flex", gap: 2, justifyContent: "center", width: "100%" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  justifyContent: "center",
+                  width: "100%",
+                }}
+              >
                 <Button
                   variant="contained"
                   color="success"

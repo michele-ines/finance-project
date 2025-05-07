@@ -14,6 +14,7 @@ const publicOnlyRoutes: string[] = [
   ROUTES.HOME,
   ROUTES.LOGIN,
   ROUTES.REGISTER,
+  ROUTES.FORGOT_PASSWORD,
 ];
 
 // Rotas internas (após login) + fundo dash
@@ -27,20 +28,15 @@ const internalOnlyRoutes: string[] = [
 ];
 
 /* ---------- helpers de rota ---------- */
-export const isDashboardRoute = (p: string) =>
-  p.startsWith(ROUTES.DASHBOARD);
-export const isInvestmentsRoute = (p: string) =>
-  p.startsWith(ROUTES.INVESTMENTS);
-export const isHomeRoute = (p: string) =>
-  p === ROUTES.ROOT || p === ROUTES.HOME;
+export const isDashboardRoute = (p: string) => p.startsWith(ROUTES.DASHBOARD);
+export const isInvestmentsRoute = (p: string) => p.startsWith(ROUTES.INVESTMENTS);
+export const isHomeRoute = (p: string) =>  p === ROUTES.ROOT || p === ROUTES.HOME;
 export const isLoginRoute = (p: string) => p === ROUTES.LOGIN;
 export const isRegisterRoute = (p: string) => p === ROUTES.REGISTER;
-export const isServicesRoute = (p: string) =>
-  p.startsWith(ROUTES.SERVICES);
-export const isAccountRoute = (p: string) =>
-  p.startsWith(ROUTES.ACCOUNT);
-export const isOtherServicesRoute = (p: string) =>
-  p.startsWith(ROUTES.OTHER_SERVICES);
+export const isServicesRoute = (p: string) => p.startsWith(ROUTES.SERVICES);
+export const isAccountRoute = (p: string) => p.startsWith(ROUTES.ACCOUNT);
+export const isForgotPasswordRoute = (p: string) => p === ROUTES.FORGOT_PASSWORD;
+export const isOtherServicesRoute = (p: string) => p.startsWith(ROUTES.OTHER_SERVICES);
 
 export const isPublicOnlyRoute = (pathname: string) =>
   publicOnlyRoutes.includes(pathname);
@@ -82,8 +78,7 @@ export const ByteColor = {
   dash: "var(--byte-color-dash)",
   black: "var(--byte-color-black)",
 } as const;
-export type ByteColor =
-  (typeof ByteColor)[keyof typeof ByteColor];
+export type ByteColor = (typeof ByteColor)[keyof typeof ByteColor];
 
 export const getBgColor = (pathname: string): ByteColor => {
   // 404 sempre preto
@@ -91,9 +86,7 @@ export const getBgColor = (pathname: string): ByteColor => {
     return ByteColor.black;
   }
   // rotas públicas têm fundo preto, internas têm dash
-  return isPublicOnlyRoute(pathname)
-    ? ByteColor.black
-    : ByteColor.dash;
+  return isPublicOnlyRoute(pathname) ? ByteColor.black : ByteColor.dash;
 };
 
 export const useBgColor = (): ByteColor => {

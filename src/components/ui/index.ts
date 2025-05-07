@@ -18,6 +18,7 @@ export { default as Select } from "@mui/material/Select";
 export { default as Input } from "@mui/material/Input";
 export { default as FormControl } from "@mui/material/FormControl";
 export { default as InputLabel } from "@mui/material/InputLabel";
+export { default as Checkbox } from "@mui/material/Checkbox";
 
 // ————— MUI Icons —————
 export { default as MenuIcon } from "@mui/icons-material/Menu";
@@ -48,6 +49,7 @@ export const geistMono = Roboto_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
 
 // ——— SCSS Modules ———
 export { default as HeaderStyles } from "../../shared/header/header.module.scss";
