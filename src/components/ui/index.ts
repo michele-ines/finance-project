@@ -3,7 +3,7 @@
 export { default as React, useState } from "react";
 
 // ——— Next/Navigation (Hooks) ———
-export { usePathname, useRouter, redirect, } from "next/navigation";
+export { usePathname, useRouter, redirect } from "next/navigation";
 
 // ——————— MUI Core ———————
 export { default as AppBar } from "@mui/material/AppBar";
@@ -22,7 +22,8 @@ export { default as InputLabel } from "@mui/material/InputLabel";
 // ————— MUI Icons —————
 export { default as MenuIcon } from "@mui/icons-material/Menu";
 export { default as VisibilityIcon } from "@mui/icons-material/Visibility";
-export { default as VisibilityOffIcon  } from "@mui/icons-material/VisibilityOff";
+export { default as VisibilityOffIcon } from "@mui/icons-material/VisibilityOff";
+export { default as PermIdentityIcon } from "@mui/icons-material/PermIdentity";
 
 export { default as EditIcon } from "@mui/icons-material/Edit";
 export { default as DeleteIcon } from "@mui/icons-material/Delete";
