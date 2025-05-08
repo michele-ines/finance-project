@@ -12,6 +12,48 @@ Projeto de aplicação financeira utilizando as seguintes tecnologias:
 - **ESLint** para análise estática e padronização do código.
 - **Jest** para testes unitários e de integração.
 
+# Git Hooks (Husky)
+
+Este projeto usa o Husky para rodar automaticamente npm install sempre que você fizer um git pull ou trocar de branch.
+
+1. Instalação Inicial
+Após clonar o repositório, basta rodar:
+
+  ```bash
+  npm install
+  ```
+O script prepare (definido em package.json) já vai disparar:
+
+"scripts": {
+  "prepare": "husky install",
+  ...
+}
+e criar a pasta .husky/ com os hooks.
+
+2. Hooks disponíveis
+post-merge: dispara sempre que um git pull integra novas mudanças
+
+post-checkout: dispara sempre que você trocar de branch
+
+Ambos rodam:
+  ```bash
+  npm install
+  ```
+
+3. Comandos úteis
+Se você for adicionar novos hooks manualmente:
+  ```bash
+  # Gera a pasta .husky/ (somente na primeira vez)
+  npm run prepare
+
+  # Criar um hook post-merge
+  npx husky add .husky/post-merge "npm install"
+
+  # Criar um hook post-checkout
+  npx husky add .husky/post-checkout "npm install"
+  ```
+  Obs. Estamos usando a versão “sem extensão” dos hooks, então eles são arquivos de shell (#!/usr/bin/env sh) no diretório .husky/, não TypeScript ou JavaScript.
+
 ## Arquitetura usada no projeto Next.js v-15
 
 Modular Architecture / Feature-Based Architecture
