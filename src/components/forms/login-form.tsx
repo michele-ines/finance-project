@@ -9,6 +9,8 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { ROUTES } from "constants/routes.constant";
 import { LoginData } from "types/dashboard.interface";
 
+
+
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -31,37 +33,43 @@ export default function LoginForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col space-y-6 flex-1"
     >
+
       {/* Email */}
-      <Box className="flex flex-col">
-        <label
-          htmlFor="email"
-          className="mb-2 text-sm font-medium text-gray-700"
-        >
-          E-mail cadastrado
-        </label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="Digite seu email cadastrado"
-          disableUnderline
-          className={clsx("w-full px-4 py-3 rounded-lg focus-within:ring-2", {
-            "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
-              !errors.email,
-            "bg-gray-100 border border-red-500 focus-within:ring-red-300":
-              !!errors.email,
-          })}
-          {...register("email", {
-            required: "Email é obrigatório",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Formato de email inválido",
-            },
-          })}
-        />
-        {errors.email && (
-          <span className="text-red-500 text-sm">{errors.email.message}</span>
-        )}
-      </Box>
+          <Box className="flex flex-col">
+            <label
+              htmlFor="email"
+              className="mb-2 text-sm font-medium text-gray-700"
+            >
+              E-mail cadastrado
+            </label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Digite seu email cadastrado"
+              disableUnderline
+              className={clsx(
+                "w-full px-4 py-3 rounded-lg focus-within:ring-2",
+                {
+                  "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
+                    !errors.email,
+                  "bg-gray-100 border border-red-500 focus-within:ring-red-300":
+                    !!errors.email,
+                }
+              )}
+              {...register("email", {
+                required: "Email é obrigatório",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Formato de email inválido",
+                },
+              })}
+            />
+            {errors.email && (
+              <span className="text-red-500 text-sm">
+                {errors.email.message}
+              </span>
+            )}
+          </Box>
 
       {/* Senha */}
       <Box className="flex flex-col">
