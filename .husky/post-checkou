@@ -1,0 +1,3 @@
+# post-checkout
+printf '%s\n' '#!/usr/bin/env sh' 'npm install' > .husky/post-checkout
+chmod +x .husky/post-checkout
