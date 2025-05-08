@@ -11,7 +11,9 @@ export default function ForgotPasswordForm() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ForgotPasswordData>();
+  } = useForm<ForgotPasswordData>({
+    mode: "onBlur",
+  });
 
   const onSubmit = async (data: ForgotPasswordData) => {
     try {

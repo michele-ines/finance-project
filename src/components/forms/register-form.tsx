@@ -43,7 +43,6 @@ export default function RegisterForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col space-y-6 flex-1"
-      noValidate
     >
       {/* Nome */}
       <Box className="flex flex-col">
@@ -88,12 +87,12 @@ export default function RegisterForm() {
           htmlFor="email"
           className="mb-2 text-sm font-medium text-gray-700"
         >
-          Email
+          E-mail cadastrado
         </label>
         <Input
           id="email"
           type="email"
-          placeholder="Digite seu email"
+          placeholder="Digite seu email cadastrado"
           disableUnderline
           className={clsx("w-full px-4 py-3 rounded-lg focus-within:ring-2", {
             "bg-gray-100 border border-gray-200 focus-within:ring-green-500":

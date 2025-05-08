@@ -9,8 +9,6 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { ROUTES } from "constants/routes.constant";
 import { LoginData } from "types/dashboard.interface";
 
-
-
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -18,7 +16,9 @@ export default function LoginForm() {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<LoginData>();
+  } = useForm<LoginData>({
+    mode: "onBlur",
+  });
 
   const passwordValue = watch("password", "");
 
@@ -31,19 +31,18 @@ export default function LoginForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col space-y-6 flex-1"
     >
-
       {/* Email */}
       <Box className="flex flex-col">
         <label
           htmlFor="email"
           className="mb-2 text-sm font-medium text-gray-700"
         >
-          Email
+          E-mail cadastrado
         </label>
         <Input
           id="email"
           type="email"
-          placeholder="Digite seu email"
+          placeholder="Digite seu email cadastrado"
           disableUnderline
           className={clsx("w-full px-4 py-3 rounded-lg focus-within:ring-2", {
             "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
