@@ -1,16 +1,22 @@
 export const ROUTES = {
   ROOT: "/",
   HOME: "/home",
-  DASHBOARD: "/dashboard",
-  INVESTMENTS: "/investments",
-  MY_CARDS: "/meus-cartoes",
-  NOT_FOUND: "/not-found",
-  LOGIN: "/login",
-  REGISTER: "/cadastro",
-  FORGOT_PASSWORD: "/esqueci-senha",
+  ABOUT: "/sobre",
   SERVICES: "/servicos",
+  REGISTER: "/cadastro",
+  LOGIN: "/login",
+  FORGOT_PASSWORD: "/esqueci-senha",
+  DASHBOARD: "/dashboard",
+  PERSONAL_CARDS: "/meus-cartoes",
+  // TRANSFER: "/transferencia",
+  INVESTMENTS: "/investments",
   ACCOUNT: "/minha-conta",
   OTHER_SERVICES: "/outros-servicos",
+  NOT_FOUND: "/not-found",
+  
+  
+  
+  
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

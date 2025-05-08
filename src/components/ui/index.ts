@@ -53,7 +53,7 @@ export const geistMono = Roboto_Mono({
 
 // ——— SCSS Modules ———
 export { default as HeaderStyles } from "../../shared/header/header.module.scss";
-export { default as CadInvestmentsStyles } from "../../components/cad-investments/cad-investments.module.scss";
-export { default as CardBalanceStyles } from "../../components/card-balance/card-balance.module.scss";
-export { default as CardListExtractStyles } from "../../components/card-list-extract/card-list-extract.module.scss";
-export { default as cardNewTransactionStyles } from "../../components/card-new-transaction/card-new-transaction.module.scss";
+export { default as CadInvestmentsStyles } from "../../components/my-cards/cad-investments/cad-investments.module.scss";
+export { default as CardBalanceStyles } from "../../components/my-cards/card-balance/card-balance.module.scss";
+export { default as CardListExtractStyles } from "../../components/my-cards/card-list-extract/card-list-extract.module.scss";
+export { default as cardNewTransactionStyles } from "../../components/my-cards/card-new-transaction/card-new-transaction.module.scss";

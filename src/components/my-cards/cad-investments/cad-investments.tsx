@@ -1,7 +1,7 @@
 "use client";
 
-import { Box, React, PieChart, CadInvestmentsStyles as styles } from "../ui";
-import { CadInvestmentsProps } from "types/dashboard.interface";
+import { Box, React, PieChart, CadInvestmentsStyles as styles } from "../../ui";
+import { CadInvestmentsProps } from "interfaces/dashboard";
 
 export default function CadInvestments({
   balance,

@@ -1,4 +1,4 @@
-import { formatBRL, parseBRL } from "./currency";
+import { formatBRL, parseBRL } from "./currency-formatte";
 
 describe('formatBRL', () => {
   it('deve formatar 500 como R$ 500,00', () => {

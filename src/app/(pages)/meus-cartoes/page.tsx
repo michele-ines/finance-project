@@ -1,5 +1,5 @@
-import MyCardsPage from "./my-cardsPage";
+import PersonalCardsPage from "./personalCardsPage";
 
 export default function Page() {
-    return (<MyCardsPage/>)
+    return (<PersonalCardsPage/>)
 }

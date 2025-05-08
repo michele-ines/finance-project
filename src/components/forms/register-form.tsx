@@ -10,14 +10,8 @@ import {
   VisibilityIcon,
 } from "../ui";
 import clsx from "clsx";
-
-type RegisterData = {
-  name: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  terms: boolean;
-};
+import { registerValidations } from "utils/forms-validations/formValidations";
+import { RegisterData } from "interfaces/dashboard";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,18 +57,7 @@ export default function RegisterForm() {
             "bg-gray-100 border border-red-500 focus-within:ring-red-300":
               !!errors.name,
           })}
-          {...register("name", {
-            required: "Nome é obrigatório",
-            minLength: {
-              value: 3,
-              message: "Nome deve ter ao menos 3 caracteres",
-            },
-            maxLength: { value: 50, message: "Nome muito longo" },
-            pattern: {
-              value: /^[A-Za-zÀ-ÖØ-öø-ÿ'\s]+$/,
-              message: "Nome deve conter apenas letras e espaços",
-            },
-          })}
+          {...register("name", registerValidations.name)}
         />
         {errors.name && (
           <span className="text-red-500 text-sm">{errors.name.message}</span>
@@ -100,13 +83,7 @@ export default function RegisterForm() {
             "bg-gray-100 border border-red-500 focus-within:ring-red-300":
               !!errors.email,
           })}
-          {...register("email", {
-            required: "Email é obrigatório",
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: "Formato de email inválido",
-            },
-          })}
+          {...register("email", registerValidations.email)}
         />
         {errors.email && (
           <span className="text-red-500 text-sm">{errors.email.message}</span>
@@ -135,22 +112,7 @@ export default function RegisterForm() {
             placeholder="Digite sua senha"
             disableUnderline
             className="flex-1 bg-transparent px-4 py-3 placeholder-gray-400 focus:outline-none"
-            {...register("password", {
-              required: "Senha é obrigatória",
-              minLength: {
-                value: 8,
-                message: "Senha deve ter ao menos 8 caracteres",
-              },
-              validate: (value) => {
-                const hasUpper = /[A-Z]/.test(value);
-                const hasLower = /[a-z]/.test(value);
-                const hasNumber = /\d/.test(value);
-                if (!hasUpper || !hasLower || !hasNumber) {
-                  return "Use letras maiúsculas, minúsculas e números";
-                }
-                return true;
-              },
-            })}
+            {...register("password", registerValidations.password)}
           />
           {passwordValue.length > 0 && (
             <button
@@ -195,11 +157,10 @@ export default function RegisterForm() {
             placeholder="Repita sua senha"
             disableUnderline
             className="flex-1 bg-transparent px-4 py-3 placeholder-gray-400 focus:outline-none"
-            {...register("confirmPassword", {
-              required: "Confirmação de senha é obrigatória",
-              validate: (value) =>
-                value === passwordValue || "As senhas não coincidem",
-            })}
+            {...register(
+              "confirmPassword",
+              registerValidations.confirmPassword(passwordValue)
+            )}
           />
           {confirmValue.length > 0 && (
             <button
@@ -226,9 +187,7 @@ export default function RegisterForm() {
       <Box className="flex items-start mt-2">
         <Checkbox
           id="terms"
-          {...register("terms", {
-            required: "Você precisa aceitar os termos",
-          })}
+          {...register("terms", registerValidations.terms)}
         />
         <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
           Li e estou ciente quanto às condições de tratamento dos meus dados

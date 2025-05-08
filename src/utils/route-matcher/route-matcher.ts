@@ -1,42 +1,49 @@
-import { ROUTES } from "constants/routes.constant";
+import { ROUTES } from "config-routes/routes";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
-import { HeaderFlags } from "types/dashboard.interface";
+import { HeaderFlags } from "interfaces/dashboard";
 
-/* --- rotas com comportamento especial --- */
-// Rota 404: esconder tudo e fundo preto
-export const isNotFoundRoute = (p: string) => p === ROUTES.NOT_FOUND;
 
 /* --- grupos de rotas --- */
 // Rotas que exibem SÓ links públicos + fundo preto (exceto 404, que não mostra nem links)
 const publicOnlyRoutes: string[] = [
   ROUTES.ROOT,
   ROUTES.HOME,
-  ROUTES.LOGIN,
+  ROUTES.ABOUT,
+  ROUTES.SERVICES,
   ROUTES.REGISTER,
-  ROUTES.FORGOT_PASSWORD,
+  ROUTES.LOGIN,
+  // ROUTES.TRANSFER,  
+  ROUTES.FORGOT_PASSWORD,  
 ];
 
 // Rotas internas (após login) + fundo dash
 const internalOnlyRoutes: string[] = [
   ROUTES.DASHBOARD,
+  ROUTES.PERSONAL_CARDS,
+  // ROUTES.TRANSFER,
   ROUTES.INVESTMENTS,
-  ROUTES.MY_CARDS,
-  ROUTES.SERVICES,
   ROUTES.ACCOUNT,
   ROUTES.OTHER_SERVICES,
 ];
 
 /* ---------- helpers de rota ---------- */
-export const isDashboardRoute = (p: string) => p.startsWith(ROUTES.DASHBOARD);
-export const isInvestmentsRoute = (p: string) => p.startsWith(ROUTES.INVESTMENTS);
 export const isHomeRoute = (p: string) =>  p === ROUTES.ROOT || p === ROUTES.HOME;
-export const isLoginRoute = (p: string) => p === ROUTES.LOGIN;
-export const isRegisterRoute = (p: string) => p === ROUTES.REGISTER;
+export const isAboutRoute = (p: string) => p.startsWith(ROUTES.ABOUT);
 export const isServicesRoute = (p: string) => p.startsWith(ROUTES.SERVICES);
-export const isAccountRoute = (p: string) => p.startsWith(ROUTES.ACCOUNT);
+export const isRegisterRoute = (p: string) => p === ROUTES.REGISTER;
+export const isLoginRoute = (p: string) => p === ROUTES.LOGIN;
 export const isForgotPasswordRoute = (p: string) => p === ROUTES.FORGOT_PASSWORD;
+export const isDashboardRoute = (p: string) => p.startsWith(ROUTES.DASHBOARD);
+export const isPersonalRoute = (p: string) => p.startsWith(ROUTES.PERSONAL_CARDS);
+// export const isTransferRoute = (p: string) => p.startsWith(ROUTES.TRANSFER);
+export const isInvestmentsRoute = (p: string) => p.startsWith(ROUTES.INVESTMENTS);
+export const isAccountRoute = (p: string) => p.startsWith(ROUTES.ACCOUNT);
 export const isOtherServicesRoute = (p: string) => p.startsWith(ROUTES.OTHER_SERVICES);
+
+/* --- rotas com comportamento especial --- */
+// Rota 404: esconder tudo e fundo preto
+export const isNotFoundRoute = (p: string) => p === ROUTES.NOT_FOUND;
 
 export const isPublicOnlyRoute = (pathname: string) =>
   publicOnlyRoutes.includes(pathname);

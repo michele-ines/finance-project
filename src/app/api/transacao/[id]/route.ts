@@ -1,7 +1,7 @@
 import connectMongoDB from "@/../libs/mongoDB";
 import transacao from "@/../models/transacao";
 import { NextResponse } from "next/server";
-import { handleRequest } from "@/../utils/errorHandle";
+import { handleRequest } from "utils/error-handlers/error-handle";
 
 // Tipo correto para o contexto de rotas dinâmicas
 interface RouteContext {

@@ -1,12 +1,13 @@
 "use client";
-import type { DashboardData, Transaction } from "../../../types/dashboard.interface";
+import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
 import { Box } from "../../../components/ui";
-import dashboardData from "../../../constants/dashboardData.json";
-import CardBalance from "components/card-balance/card-balance";
-import CardListExtract from "components/card-list-extract/card-list-extract";
-import MyCards from "components/my-cards/my-cards";
+import dashboardData from "../../../mocks/dashboard-data.json";
+import CardBalance from "components/my-cards/card-balance/card-balance";
+import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
+import PersonalCards from "components/my-cards/personal-cards/personal-cards";
 
-export default function MyCardsPage() {
+export default function PersonalCardsPage() {
+  
   const data = dashboardData as DashboardData;
 
   const transactionsData: Transaction[] = [
@@ -27,7 +28,7 @@ export default function MyCardsPage() {
           {/* COLUNA ESQUERDA */}
           <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
             <CardBalance user={data.user} balance={data.balance} />
-            <MyCards />
+            <PersonalCards />
           </Box>
 
           {/* COLUNA DIREITA */}

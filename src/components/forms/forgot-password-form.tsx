@@ -3,7 +3,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
 import { Box, Input, Button } from "../ui";
-import { ForgotPasswordData } from "types/dashboard.interface";
+import { ForgotPasswordData } from "interfaces/dashboard";
+import { forgotPasswordValidations } from "utils/forms-validations/formValidations";
+import { ROUTES } from "config-routes/routes";
 
 export default function ForgotPasswordForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -62,13 +64,7 @@ export default function ForgotPasswordForm() {
                     !!errors.email,
                 }
               )}
-              {...register("email", {
-                required: "Email é obrigatório",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Formato de email inválido",
-                },
-              })}
+              {...register("email", forgotPasswordValidations.email)}
             />
             {errors.email && (
               <span className="text-red-500 text-sm">
@@ -88,7 +84,7 @@ export default function ForgotPasswordForm() {
           </Button>
 
           <Box className="text-center my-6">
-            <a href="/login" className="text-sm text-green-600 underline">
+            <a href={ROUTES.HOME} className="text-sm text-green-600 underline">
               Voltar ao login
             </a>
           </Box>

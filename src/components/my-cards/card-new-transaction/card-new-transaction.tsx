@@ -9,7 +9,7 @@ import {
   Input,
   Button,
   cardNewTransactionStyles as styles,
-} from "../../components/ui";
+} from "../../ui";
 
 interface CardNewTransactionProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;

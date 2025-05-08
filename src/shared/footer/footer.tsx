@@ -1,6 +1,6 @@
 "use client";
 
-import { getBgColor } from "utils/routeMatcher";
+import { getBgColor } from "utils/route-matcher/route-matcher";
 import { usePathname, React, Image } from "../../components/ui/index"; 
 
 import styles from './footer.module.scss';
@@ -27,14 +27,14 @@ const pathname = usePathname();
           <p className="text-white font-bold">Contato</p>
           <ul className="space-y-1 text-foreground --font-normal">
             <li className="mb-4">0800 504 3058</li>
-            <li className="mb-4">oi@designedbyalex.art.br</li>
-            <li className="mb-4">studio@bytebank.com.br</li>
+            <li className="mb-4">suporte@bytebank.com</li>
+            <li className="mb-4">contato@bytebank.com</li>
           </ul>
         </div>
 
-        {/* Coluna 3 - Desenvolvido por Alex */}
+        {/* Coluna 3 - Developed by Front-End */}
         <div className="space-y-3 vantagem-description">
-          <p className="text-white font-bold">Desenvolvido por Alex</p>
+          <p className="text-white font-bold">Developed by Front-End</p>
           <div className="space-y-2">
             <Image
               src="/footer/ft-logo.svg"

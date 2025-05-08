@@ -12,6 +12,18 @@ Projeto de aplicação financeira utilizando as seguintes tecnologias:
 - **ESLint** para análise estática e padronização do código.
 - **Jest** para testes unitários e de integração.
 
+## Arquitetura usada no projeto Next.js v-15
+
+Modular Architecture / Feature-Based Architecture
+Com elementos de:
+
+- **✅ Domain-driven structure (DDD-light)**
+Você organiza o código por tipo de funcionalidade/domínio, não só por tipo técnico.
+
+- **✅ Layered responsibilities**
+Pastas como components, services, mocks, shared, utils indicam separação clara de responsabilidades
+
+
 # Financial Project
 
 Este é um projeto de aplicação financeira desenvolvido com as seguintes tecnologias:
@@ -34,36 +46,35 @@ Antes de começar, certifique-se de ter instalado:
 ## 🚀 Como iniciar o projeto
 
 1. Clone o repositório:
+
    ```bash
    git clone <URL_DO_REPOSITORIO>
    cd financial-project
 
-2. Instale as dependências:
-    npm install
+   ```
 
+2. Instale as dependências:
+   npm install
 
 ## Estrutura do Projeto
 
 Uma estrutura básica do projeto pode ser organizada da seguinte forma:
 
-
-
 ## Scripts Disponíveis
 
 No arquivo `package.json`, os seguintes scripts estão configurados:
 
-
 ### Desenvolvimento
+
 - **npm run dev**  
   Inicia o servidor de desenvolvimento com Next.js.
 
-
 ### Build e Produção
+
 - **npm run build**  
   Cria uma versão otimizada da aplicação para produção.
 - **npm run start**  
   Inicia o servidor Next.js em modo produção.
-
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -71,14 +82,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-
 ### Linting
+
 - **npm run lint**  
   Executa o lint em todo o projeto, verificando a qualidade do código utilizando ESLint.
 - **npm run lint:fix**  
   Tenta corrigir automaticamente os problemas encontrados.  
   _Exemplo:_ `npm run lint -- --file pages/index.js`
-
 
 # Configuração do Mongoose
 
@@ -95,9 +105,11 @@ Este projeto utiliza o [Mongoose](https://mongoosejs.com/) para conectar e inter
 2. Adicione a variável de ambiente `MONGODB_URL` com a URL de conexão do MongoDB. Por exemplo:
 
 ## .env
+
 MONGODB_URL=mongodb+srv://marcelomab09:jmiEqK08Of5ciKYx@cluster0.atwgt42.mongodb.net/TECH_CHALLENGE?retryWrites=true&w=majority
 
 ### Testes
+
 - **npm run test**  
   Executa a suíte de testes utilizando Jest.
 - **npm run test:watch**  
@@ -106,13 +118,13 @@ MONGODB_URL=mongodb+srv://marcelomab09:jmiEqK08Of5ciKYx@cluster0.atwgt42.mongodb
   Executa testes que correspondem a um padrão específico.  
   _Exemplo:_ `npm run test:pattern -- Button`
 
-
 ### Desenvolvimento com Storybook
+
 O Storybook permite o desenvolvimento isolado dos componentes. Para iniciar o Storybook, adicione o script correspondente no `package.json` (caso ainda não esteja configurado) e execute:
+
 - **npm run storybook**
 
 > **Observação:** Verifique a configuração do Storybook no diretório `.storybook` para personalizações ou atualizações.
-
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -141,12 +153,6 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## Licença
 

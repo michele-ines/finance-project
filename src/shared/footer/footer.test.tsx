@@ -28,13 +28,13 @@ describe('Footer', () => {
     render(<Footer />);
     expect(screen.getByText(/Contato/i)).toBeInTheDocument();
     expect(screen.getByText('0800 504 3058')).toBeInTheDocument();
-    expect(screen.getByText('oi@designedbyalex.art.br')).toBeInTheDocument();
-    expect(screen.getByText('studio@bytebank.com.br')).toBeInTheDocument();
+    expect(screen.getByText('suporte@bytebank.com')).toBeInTheDocument();
+    expect(screen.getByText('contato@bytebank.com')).toBeInTheDocument();
   });
 
-  it('deve exibir seção Desenvolvido por Alex e imagens', () => {
+  it('deve exibir seção Developed by Front-End e imagens', () => {
     render(<Footer />);
-    expect(screen.getByText(/Desenvolvido por Alex/i)).toBeInTheDocument();
+    expect(screen.getByText(/Developed by Front-End/i)).toBeInTheDocument();
     const images = screen.getAllByRole('img');
     expect(images.length).toBeGreaterThanOrEqual(4);
   });

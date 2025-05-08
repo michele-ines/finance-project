@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Button, Image } from "../../components/ui/index"; // Ajuste o import se necessário
-import { ROUTES } from "constants/routes.constant";
+import { ROUTES } from "config-routes/routes";
 
 export default function NotFound() {
   return (

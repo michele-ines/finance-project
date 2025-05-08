@@ -9,10 +9,10 @@ import {
   EditIcon,
   DeleteIcon,
   CardListExtractStyles as styles,
-} from "../../components/ui";
-import type { Transaction, TransactionListProps } from "../../types/dashboard.interface";
+} from "../../ui";
+import type { Transaction, TransactionListProps } from "../../../interfaces/dashboard";
 import clsx from "clsx";
-import { formatBRL, parseBRL } from "../../utils/currency";
+import { formatBRL, parseBRL } from "../../../utils/currency-formatte/currency-formatte";
 
 export default function CardListExtract({
   transactions,

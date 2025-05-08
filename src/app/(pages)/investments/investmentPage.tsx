@@ -2,11 +2,11 @@
 
 import React from "react";
 import { Box } from "../../../components/ui";
-import type { Balance, DashboardData, Transaction } from "../../../types/dashboard.interface";
-import CardBalance from "../../../components/card-balance/card-balance"; // ← Import correto
-import CadInvestments from "components/cad-investments/cad-investments";
-import dashboardData from "../../../constants/dashboardData.json";
-import CardListExtract from "components/card-list-extract/card-list-extract";
+import type { Balance, DashboardData, Transaction } from "../../../interfaces/dashboard";
+import CardBalance from "../../../components/my-cards/card-balance/card-balance"; // ← Import correto
+import CadInvestments from "components/my-cards/cad-investments/cad-investments";
+import dashboardData from "../../../mocks/dashboard-data.json";
+import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
 
 export default function InvestmentPage() {
   /* ------------------------------------------------------------------ */

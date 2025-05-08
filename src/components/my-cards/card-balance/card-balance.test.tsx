@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { CardBalanceProps } from 'types/dashboard.interface';
+import { CardBalanceProps } from 'interfaces/dashboard';
 import CardBalance from './card-balance';
-import { formatBRL } from '../../utils/currency';
+import { formatBRL } from '../../../utils/currency-formatte/currency-formatte';
 
 jest.mock('../../utils/currency.ts', () => ({
   formatBRL: jest.fn((value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`),

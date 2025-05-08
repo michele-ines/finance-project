@@ -6,10 +6,9 @@ import clsx from "clsx";
 import { Box, Input, Button } from "../ui";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { ROUTES } from "constants/routes.constant";
-import { LoginData } from "types/dashboard.interface";
-
-
+import { ROUTES } from "config-routes/routes";
+import { LoginData } from "interfaces/dashboard";
+import { loginValidations } from "utils/forms-validations/formValidations";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +16,7 @@ export default function LoginForm() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginData>({
     mode: "onBlur",
   });
@@ -33,43 +32,31 @@ export default function LoginForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col space-y-6 flex-1"
     >
-
       {/* Email */}
-          <Box className="flex flex-col">
-            <label
-              htmlFor="email"
-              className="mb-2 text-sm font-medium text-gray-700"
-            >
-              E-mail cadastrado
-            </label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Digite seu email cadastrado"
-              disableUnderline
-              className={clsx(
-                "w-full px-4 py-3 rounded-lg focus-within:ring-2",
-                {
-                  "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
-                    !errors.email,
-                  "bg-gray-100 border border-red-500 focus-within:ring-red-300":
-                    !!errors.email,
-                }
-              )}
-              {...register("email", {
-                required: "Email é obrigatório",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Formato de email inválido",
-                },
-              })}
-            />
-            {errors.email && (
-              <span className="text-red-500 text-sm">
-                {errors.email.message}
-              </span>
-            )}
-          </Box>
+      <Box className="flex flex-col">
+        <label
+          htmlFor="email"
+          className="mb-2 text-sm font-medium text-gray-700"
+        >
+          E-mail cadastrado
+        </label>
+        <Input
+          id="email"
+          type="email"
+          placeholder="Digite seu email cadastrado"
+          disableUnderline
+          className={clsx("w-full px-4 py-3 rounded-lg focus-within:ring-2", {
+            "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
+              !errors.email,
+            "bg-gray-100 border border-red-500 focus-within:ring-red-300":
+              !!errors.email,
+          })}
+          {...register("email", loginValidations.email)}
+        />
+        {errors.email && (
+          <span className="text-red-500 text-sm">{errors.email.message}</span>
+        )}
+      </Box>
 
       {/* Senha */}
       <Box className="flex flex-col">
@@ -93,22 +80,7 @@ export default function LoginForm() {
             placeholder="Digite sua senha"
             disableUnderline
             className="flex-1 bg-transparent px-4 py-3 placeholder-gray-400 focus:outline-none"
-            {...register("password", {
-              required: "Senha é obrigatória",
-              minLength: {
-                value: 8,
-                message: "Senha deve ter ao menos 8 caracteres",
-              },
-              validate: (value) => {
-                const hasUpper = /[A-Z]/.test(value);
-                const hasLower = /[a-z]/.test(value);
-                const hasNumber = /\d/.test(value);
-                if (!hasUpper || !hasLower || !hasNumber) {
-                  return "Use letras maiúsculas, minúsculas e números";
-                }
-                return true;
-              },
-            })}
+            {...register("password", loginValidations.password)}
           />
           {passwordValue.length > 0 && (
             <button
@@ -145,9 +117,10 @@ export default function LoginForm() {
           variant="contained"
           color="success"
           type="submit"
+          disabled={isSubmitting}
           className="w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white"
         >
-          Acessar
+          {isSubmitting ? "Acessando..." : "Acessar"}
         </Button>
       </Box>
     </form>

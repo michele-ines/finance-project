@@ -16,8 +16,8 @@ import {
   Link,
   HeaderStyles as styles,
 } from "../../components/ui/index";
-import { ROUTES } from "constants/routes.constant";
-import { getBgColor, useHeaderFlags } from "utils/routeMatcher";
+import { ROUTES } from "config-routes/routes";
+import { getBgColor, useHeaderFlags } from "utils/route-matcher/route-matcher";
 
 export default function Header() {
   const router = useRouter();
@@ -117,14 +117,14 @@ export default function Header() {
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
-                  onClick={() => router.push(ROUTES.SERVICES)}
+                  onClick={() => router.push(ROUTES.NOT_FOUND)}
                 >
                   Sobre
                 </Button>
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
-                  onClick={() => router.push(ROUTES.SERVICES)}
+                  onClick={() => router.push(ROUTES.NOT_FOUND)}
                 >
                   Serviços
                 </Button>
@@ -143,13 +143,19 @@ export default function Header() {
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
-                  onClick={() => router.push(ROUTES.MY_CARDS)}
+                  onClick={() => router.push(ROUTES.PERSONAL_CARDS)}
                 >
                   Meus cartões
                 </Button>
-                <Button color="inherit" className={styles.menuItemText}>
+
+                {/** NÃO REMOVER, VAI SER ULTILIZADO NO FUTURO */}
+                {/* <Button
+                  color="inherit"
+                  className={styles.menuItemText}
+                  onClick={() => router.push(ROUTES.NOT_FOUND)}
+                >
                   Transferências
-                </Button>
+                </Button> */}
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
@@ -271,16 +277,17 @@ export default function Header() {
           )}
           {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="meus-cartoes-mobile">
-              <Link href={ROUTES.MY_CARDS} passHref legacyBehavior>
+              <Link href={ROUTES.PERSONAL_CARDS} passHref legacyBehavior>
                 <Typography textAlign="center">Meus Cartões</Typography>
               </Link>
             </MenuItem>
           )}
-          {showInternalLinks && (
+          {/** NÃO REMOVER, VAI SER ULTILIZADO NO FUTURO */}
+          {/* {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="transferencias-mobile">
               <Typography textAlign="center">Transferências</Typography>
             </MenuItem>
-          )}
+          )} */}
           {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="investimentos-mobile">
               <Link href={ROUTES.INVESTMENTS} passHref legacyBehavior>
