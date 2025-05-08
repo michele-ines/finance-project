@@ -1,0 +1,3 @@
+# post-merge
+echo "npm install" > .husky/post-merge
+chmod +x .husky/post-merge

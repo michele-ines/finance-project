@@ -1,0 +1,3 @@
+# post-checkout
+echo "npm install" > .husky/post-checkout
+chmod +x .husky/post-checkout
