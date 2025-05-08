@@ -16,11 +16,10 @@ Projeto de aplicação financeira utilizando as seguintes tecnologias:
 
 Este projeto usa o Husky para rodar automaticamente npm install sempre que você fizer um git pull ou trocar de branch.
 
-1. Instalação Inicial
-Após clonar o repositório, basta rodar:
+1. Instale e inicialize o Husky
 
   ```bash
-  npm install
+  npm install --save-dev husky
   ```
 O script prepare (definido em package.json) já vai disparar:
 
@@ -30,17 +29,35 @@ O script prepare (definido em package.json) já vai disparar:
 }
 e criar a pasta .husky/ com os hooks.
 
-2. Hooks disponíveis
-post-merge: dispara sempre que um git pull integra novas mudanças
-
-post-checkout: dispara sempre que você trocar de branch
-
-Ambos rodam:
+2. Crie os hooks
   ```bash
-  npm install
+  # post-merge
+  printf '%s\n' '#!/usr/bin/env sh' 'npm install' > .husky/post-merge
+  chmod +x .husky/post-merge
+
+  # post-checkout
+  printf '%s\n' '#!/usr/bin/env sh' 'npm install' > .husky/post-checkout
+  chmod +x .husky/post-checkout
+  ```
+Agora, se listar o conteúdo de .husky/, verá exatamente:
+
+3. Hooks disponíveis
+post-merge: dispara sempre que um git pull integra novas mudanças
+  ```slq
+  .husky/
+├─ post-merge
+└─ post-checkout
+  ```
+4. Adicione e faça o commit
+Como a pasta agora existe na raiz, você consegue versioná-la:
+Adicione e faça o commit
+
+  ```bash
+  git add .husky
+  git commit -m "chore: adiciona hooks husky para auto-install no pull/checkout"
   ```
 
-3. Comandos úteis
+5. Comandos úteis
 Se você for adicionar novos hooks manualmente:
   ```bash
   # Gera a pasta .husky/ (somente na primeira vez)
@@ -50,9 +67,10 @@ Se você for adicionar novos hooks manualmente:
   npx husky add .husky/post-merge "npm install"
 
   # Criar um hook post-checkout
-  npx husky add .husky/post-checkout "npm install"
+  npm husky add .husky/post-checkout "npm install"
   ```
-  Obs. Estamos usando a versão “sem extensão” dos hooks, então eles são arquivos de shell (#!/usr/bin/env sh) no diretório .husky/, não TypeScript ou JavaScript.
+Obs. Estamos usando a versão “sem extensão” dos hooks, então eles são arquivos de shell (#!/usr/bin/env sh) no diretório .husky/, não TypeScript ou JavaScript.
+
 
 ## Arquitetura usada no projeto Next.js v-15
 
