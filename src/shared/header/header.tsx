@@ -15,6 +15,7 @@ import {
   Image,
   Link,
   HeaderStyles as styles,
+  PermIdentityIcon,
 } from "../../components/ui/index";
 
 export default function Header() {
@@ -22,7 +23,9 @@ export default function Header() {
   const pathname = usePathname();
 
   const [isMounted, setIsMounted] = React.useState(false);
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null
+  );
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -33,11 +36,12 @@ export default function Header() {
   // ---- flags de rota ----------------------------------------------------
   const isDashboard = pathname.startsWith("/dashboard");
   const isInvestments = pathname.startsWith("/investments");
+  const isMyAccount = pathname.startsWith("/my-account");
   const isHome = pathname === "/" || pathname.startsWith("/home");
 
   const showPublicLinks = isHome;
-  const showInternalLinks = isDashboard || isInvestments;
-  const showDashboardBtn = !(isDashboard || isInvestments);
+  const showInternalLinks = isDashboard || isInvestments || isMyAccount;
+  const showDashboardBtn = !(isDashboard || isInvestments || isMyAccount);
 
   const bgColor = showInternalLinks
     ? "var(--byte-color-dash)"
@@ -83,6 +87,21 @@ export default function Header() {
               height={40}
             />
           </Link>
+
+          {showInternalLinks && (
+            <IconButton
+              size="large"
+              aria-label="minha conta"
+              className={styles.userButton}
+              onClick={() => router.push("/my-account")}
+            >
+              <PermIdentityIcon
+                fontSize="small"
+                aria-label="Ícone de usuário"
+                className={styles.userIcon}
+              />
+            </IconButton>
+          )}
         </Box>
 
         {/* ===================  DESKTOP / TABLET (sm+)  =================== */}
@@ -95,7 +114,9 @@ export default function Header() {
           }}
         >
           {/* --------  ESQUERDA  ------------------------------------------ */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}
+          >
             <Link href="/">
               <Box sx={{ display: { sm: "block", md: "none" } }}>
                 <Image
@@ -177,6 +198,31 @@ export default function Header() {
                 >
                   Outros serviços
                 </Button>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: { md: 4, xs: 2 },
+                    marginLeft: "auto",
+                  }}
+                >
+                  <Typography className={styles.userName}>
+                    Joana da Silva Oliveira
+                  </Typography>
+                  <IconButton
+                    size="large"
+                    onClick={() => router.push("/my-account")}
+                    className={styles.userButton}
+                    title="Minha conta"
+                    aria-label="Ícone de usuário"
+                  >
+                    <PermIdentityIcon
+                      fontSize="small"
+                      onClick={() => router.push("/dashboard")}
+                      className={styles.userIcon}
+                    />
+                  </IconButton>
+                </Box>
               </>
             )}
           </Box>
