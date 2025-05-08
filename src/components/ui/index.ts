@@ -56,3 +56,4 @@ export { default as CadInvestmentsStyles } from "../../components/cad-investment
 export { default as CardBalanceStyles } from "../../components/card-balance/card-balance.module.scss";
 export { default as CardListExtractStyles } from "../../components/card-list-extract/card-list-extract.module.scss";
 export { default as cardNewTransactionStyles } from "../../components/card-new-transaction/card-new-transaction.module.scss";
+export { default as CardMyAccountStyles } from "../../components/card-my-account/card-my-account.module.scss";
