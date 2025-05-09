@@ -13,15 +13,20 @@ import {
 import type { Transaction, TransactionListProps } from "../../../interfaces/dashboard";
 import clsx from "clsx";
 import { formatBRL, parseBRL } from "../../../utils/currency-formatte/currency-formatte";
+import { useEffect } from "react";
+import { formatDateBR, getMonthNameBR } from "../../../utils/date-formatte/date-formatte";
 
 export default function CardListExtract({
   transactions,
   onSave,
 }: TransactionListProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editableTransactions, setEditableTransactions] = useState<
-    Transaction[]
-  >(() => transactions.map((t) => ({ ...t })));
+  const [editableTransactions, setEditableTransactions] = useState<Transaction[]>([]);
+
+  // Sincroniza editableTransactions com transactions sempre que transactions mudar
+  useEffect(() => {
+    setEditableTransactions(transactions.map((t) => ({ ...t })));
+  }, [transactions]);
 
   const handleEditClick = () => setIsEditing(true);
   const handleCancelClick = () => {
@@ -36,13 +41,13 @@ export default function CardListExtract({
 
   const handleTransactionChange = (
     index: number,
-    field: keyof Pick<Transaction, "type" | "date" | "amount">,
+    field: keyof Pick<Transaction, "tipo" | "updatedAt" | "valor">,
     value: string
   ) => {
     setEditableTransactions((trans) =>
       trans.map((tx, i) => {
         if (i !== index) return tx;
-        if (field === "amount") return { ...tx, amount: parseBRL(value) };
+        if (field === "valor") return { ...tx, valor: parseBRL(value) };
         return { ...tx, [field]: value };
       })
     );
@@ -67,38 +72,38 @@ export default function CardListExtract({
 
       <ul className="space-y-4">
         {editableTransactions.map((tx, index) => (
-          <li key={tx.id}>
+          <li key={tx._id}>
             <Box
               className={styles.extratoItem}
               style={{ gap: isEditing ? "0px" : undefined }}
             >
-              <p className={styles.mesLabel}>{tx.month}</p>
+              <p className={styles.mesLabel}>{getMonthNameBR(tx.updatedAt)}</p>
 
               <Box className={styles.txRow}>
                 {isEditing ? (
                   <Input
                     disableUnderline
                     className={styles.txType}
-                    value={tx.type}
+                    value={tx.tipo}
                     onChange={(e) =>
-                      handleTransactionChange(index, "type", e.target.value)
+                      handleTransactionChange(index, "tipo", e.target.value)
                     }
                   />
                 ) : (
-                  <span className={styles.txType}>{tx.type}</span>
+                  <span className={styles.txType}>{tx.tipo}</span>
                 )}
 
                 {isEditing ? (
                   <Input
                     disableUnderline
                     className={styles.txDate}
-                    value={tx.date}
+                    value={tx.createdAt}
                     onChange={(e) =>
-                      handleTransactionChange(index, "date", e.target.value)
+                      handleTransactionChange(index, "updatedAt", e.target.value)
                     }
                   />
                 ) : (
-                  <span className={styles.txDate}>{tx.date}</span>
+                  <span className={styles.txDate}>{formatDateBR(tx.updatedAt)}</span>
                 )}
               </Box>
 
@@ -106,16 +111,16 @@ export default function CardListExtract({
                 <Input
                   disableUnderline
                   className={clsx(styles.txValue, styles.txValueEditable)}
-                  value={formatBRL(tx.amount)}
+                  value={formatBRL(tx.valor)}
                   onChange={(e) =>
-                    handleTransactionChange(index, "amount", e.target.value)
+                    handleTransactionChange(index, "valor", e.target.value)
                   }
                   inputProps={{ inputMode: "numeric" }}
                 />
               ) : (
                 <span className={styles.txValue}>
-                  {tx.amount < 0 ? "-" : ""}
-                  {formatBRL(Math.abs(tx.amount))}
+                  {tx.valor < 0 ? "-" : ""}
+                  {formatBRL(Math.abs(tx.valor))}
                 </span>
               )}
             </Box>

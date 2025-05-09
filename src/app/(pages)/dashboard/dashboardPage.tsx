@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dashboardData from "../../../mocks/dashboard-data.json";
 import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
 import {
@@ -14,7 +14,16 @@ import CardNewTransaction from "components/my-cards/card-new-transaction/card-ne
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+  const fetchTransactions = async () => {
+    await handleRequest(async () => {
+      const res = await fetch("/api/transacao");
+      if (!res.ok) throw new Error("Falha ao buscar transações");
+      const { transacoes } = await res.json();
+      setTransactions(transacoes);
+    });
+  };
   const handleSaveTransactions = (tx: Transaction[]) => {
     console.log("Transações editadas no extrato:", tx);
     // Enviar p/ API ou atualizar contexto.
@@ -28,7 +37,7 @@ export default function DashboardPage() {
       const formObject = Object.fromEntries(formData.entries());
       const jsonPayload = JSON.stringify(formObject);
   
-      const res = await fetch("/api/transacaoService", {
+      const res = await fetch("/api/transacao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: jsonPayload,
@@ -43,6 +52,10 @@ export default function DashboardPage() {
       return new Response(null, { status: 200 });
     });
   };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   return (
     <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
@@ -61,7 +74,7 @@ export default function DashboardPage() {
           {/* COLUNA DIREITA (Extrato) */}
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
             <CardListExtract
-              transactions={data.transactions}
+              transactions={transactions}
               onSave={handleSaveTransactions}
             />
           </Box>
