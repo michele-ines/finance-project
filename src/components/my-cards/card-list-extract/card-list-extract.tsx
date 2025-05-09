@@ -8,9 +8,17 @@ import {
   IconButton,
   EditIcon,
   DeleteIcon,
+  Checkbox,
   CardListExtractStyles as styles,
 } from "../../ui";
-import type { Transaction, TransactionListProps } from "../../../interfaces/dashboard";
+import type { Transaction } from "../../../interfaces/dashboard";
+
+// Extended props interface to include onDelete callback
+interface CardListExtractProps {
+  transactions: Transaction[];
+  onSave?: (transactions: Transaction[]) => void;
+  onDelete?: (transactionIds: number[]) => Promise<void>;
+}
 import clsx from "clsx";
 import { formatBRL, parseBRL } from "../../../utils/currency-formatte/currency-formatte";
 import { useEffect } from "react";
@@ -19,10 +27,14 @@ import  SkeletonListExtract  from "../../ui/skeleton-list-extract/skeleton-list-
 export default function CardListExtract({
   transactions,
   onSave,
-}: TransactionListProps) {
+  onDelete,
+}: CardListExtractProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [editableTransactions, setEditableTransactions] = useState<Transaction[]>([]);
+  const [selectedTransactions, setSelectedTransactions] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
+  const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
 
   // Sincroniza editableTransactions com transactions sempre que transactions mudar
   useEffect(() => {
@@ -41,9 +53,53 @@ export default function CardListExtract({
     setIsEditing(false);
   };
 
-  const handleSaveClick = () => {
-    onSave?.(editableTransactions);
-    setIsEditing(false);
+  const handleDeleteClick = () => {
+    setIsDeleting(true);
+    setSelectedTransactions([]);
+  };
+
+  const handleCancelDeleteClick = () => {
+    setIsDeleting(false);
+    setSelectedTransactions([]);
+  };
+
+  const handleSaveClick = async () => {
+    if (isEditing) {
+      // Modo de edição
+      onSave?.(editableTransactions);
+      setIsEditing(false);
+    } else if (isDeleting) {
+      // Modo de exclusão
+      if (selectedTransactions.length === 0) {
+        setIsDeleting(false);
+        return;
+      }
+
+      setIsDeletingInProgress(true);
+
+      try {
+        // Chamar o método de exclusão do componente pai
+        if (onDelete) {
+          await onDelete(selectedTransactions);
+        }
+      } catch (error) {
+        console.error("Erro ao excluir transações:", error);
+      } finally {
+        setIsDeletingInProgress(false);
+        setIsDeleting(false);
+        setSelectedTransactions([]);
+      }
+    }
+  };
+
+  const handleCheckboxChange = (id: number) => {
+    setSelectedTransactions((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((txId) => txId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
   };
 
   const handleTransactionChange = (
@@ -66,14 +122,16 @@ export default function CardListExtract({
         <h3 className={styles.extratoTitle}>Extrato</h3>
 
         <Box className={styles.extratoActions}>
-          {!isEditing && (
+          {!isEditing && !isDeleting && (
             <IconButton className={styles.actionBtn} onClick={handleEditClick}>
               <EditIcon fontSize="small" />
             </IconButton>
           )}
-          <IconButton className={styles.actionBtn}>
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+          {!isEditing && !isDeleting && (
+            <IconButton className={styles.actionBtn} onClick={handleDeleteClick}>
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
         </Box>
       </Box>
 
@@ -107,7 +165,7 @@ export default function CardListExtract({
                     <Input
                       disableUnderline
                       className={styles.txDate}
-                      value={tx.createdAt}
+                      value={tx.createdAt || ''}
                       onChange={(e) =>
                         handleTransactionChange(index, "updatedAt", e.target.value)
                       }
@@ -128,10 +186,20 @@ export default function CardListExtract({
                     inputProps={{ inputMode: "numeric" }}
                   />
                 ) : (
-                  <span className={styles.txValue}>
-                    {tx.valor < 0 ? "-" : ""}
-                    {formatBRL(Math.abs(tx.valor))}
-                  </span>
+                  <Box className="flex items-center">
+                    {isDeleting && (
+                      <Checkbox
+                        checked={selectedTransactions.includes(tx._id)}
+                        onChange={() => handleCheckboxChange(tx._id)}
+                        size="small"
+                        className="mr-2"
+                      />
+                    )}
+                    <span className={styles.txValue}>
+                      {tx.valor < 0 ? "-" : ""}
+                      {formatBRL(Math.abs(tx.valor))}
+                    </span>
+                  </Box>
                 )}
               </Box>
             </li>
@@ -139,12 +207,21 @@ export default function CardListExtract({
         </ul>
       )}
 
-      {isEditing && (
-        <Box className="flex gap-2 justify-between">
-          <Button onClick={handleSaveClick} className={styles.botaoSalvar}>
-            Salvar
+      {(isEditing || isDeleting) && (
+        <Box className="flex gap-2 justify-between mt-4">
+          <Button 
+            onClick={handleSaveClick} 
+            className={styles.botaoSalvar}
+            disabled={isDeleting && (isDeletingInProgress || selectedTransactions.length === 0)}
+          >
+            {isEditing ? 'Salvar' : 
+              isDeletingInProgress ? 'Excluindo...' : 'Excluir'}
           </Button>
-          <Button onClick={handleCancelClick} className={styles.botaoCancelar}>
+          <Button 
+            onClick={isEditing ? handleCancelClick : handleCancelDeleteClick} 
+            className={styles.botaoCancelar}
+            disabled={isDeleting && isDeletingInProgress}
+          >
             Cancelar
           </Button>
         </Box>
