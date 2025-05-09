@@ -45,9 +45,9 @@ export default function DashboardPage() {
   
       if (!res.ok) throw new Error("Falha ao adicionar transação");
   
-      const { message } = await res.json();
+      const { message, transacao } = await res.json();
       alert(message);
-  
+      setTransactions((prevTransactions) => [...prevTransactions, transacao]);
       // Retorne algo compatível
       return new Response(null, { status: 200 });
     });
