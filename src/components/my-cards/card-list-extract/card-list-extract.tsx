@@ -15,17 +15,24 @@ import clsx from "clsx";
 import { formatBRL, parseBRL } from "../../../utils/currency-formatte/currency-formatte";
 import { useEffect } from "react";
 import { formatDateBR, getMonthNameBR } from "../../../utils/date-formatte/date-formatte";
-
+import  SkeletonListExtract  from "../../ui/skeleton-list-extract/skeleton-list-extract";
 export default function CardListExtract({
   transactions,
   onSave,
 }: TransactionListProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editableTransactions, setEditableTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
 
   // Sincroniza editableTransactions com transactions sempre que transactions mudar
   useEffect(() => {
-    setEditableTransactions(transactions.map((t) => ({ ...t })));
+    setIsLoading(true); 
+    const timeout = setTimeout(() => {
+      setEditableTransactions(transactions.map((t) => ({ ...t })));
+      setIsLoading(false); // Desativa o estado de carregamento
+    }, 1000); // Simula um atraso no carregamento (ajuste conforme necessário)
+
+    return () => clearTimeout(timeout); // Limpa o timeout ao desmontar
   }, [transactions]);
 
   const handleEditClick = () => setIsEditing(true);
@@ -70,63 +77,67 @@ export default function CardListExtract({
         </Box>
       </Box>
 
-      <ul className="space-y-4">
-        {editableTransactions.map((tx, index) => (
-          <li key={tx._id}>
-            <Box
-              className={styles.extratoItem}
-              style={{ gap: isEditing ? "0px" : undefined }}
-            >
-              <p className={styles.mesLabel}>{getMonthNameBR(tx.updatedAt)}</p>
+      {isLoading ? (
+        <SkeletonListExtract rows={5} />
+      ) : (
+        <ul className="space-y-4">
+          {editableTransactions.map((tx, index) => (
+            <li key={tx._id}>
+              <Box
+                className={styles.extratoItem}
+                style={{ gap: isEditing ? "0px" : undefined }}
+              >
+                <p className={styles.mesLabel}>{getMonthNameBR(tx.updatedAt)}</p>
 
-              <Box className={styles.txRow}>
+                <Box className={styles.txRow}>
+                  {isEditing ? (
+                    <Input
+                      disableUnderline
+                      className={styles.txType}
+                      value={tx.tipo}
+                      onChange={(e) =>
+                        handleTransactionChange(index, "tipo", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <span className={styles.txType}>{tx.tipo}</span>
+                  )}
+
+                  {isEditing ? (
+                    <Input
+                      disableUnderline
+                      className={styles.txDate}
+                      value={tx.createdAt}
+                      onChange={(e) =>
+                        handleTransactionChange(index, "updatedAt", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <span className={styles.txDate}>{formatDateBR(tx.updatedAt)}</span>
+                  )}
+                </Box>
+
                 {isEditing ? (
                   <Input
                     disableUnderline
-                    className={styles.txType}
-                    value={tx.tipo}
+                    className={clsx(styles.txValue, styles.txValueEditable)}
+                    value={formatBRL(tx.valor)}
                     onChange={(e) =>
-                      handleTransactionChange(index, "tipo", e.target.value)
+                      handleTransactionChange(index, "valor", e.target.value)
                     }
+                    inputProps={{ inputMode: "numeric" }}
                   />
                 ) : (
-                  <span className={styles.txType}>{tx.tipo}</span>
-                )}
-
-                {isEditing ? (
-                  <Input
-                    disableUnderline
-                    className={styles.txDate}
-                    value={tx.createdAt}
-                    onChange={(e) =>
-                      handleTransactionChange(index, "updatedAt", e.target.value)
-                    }
-                  />
-                ) : (
-                  <span className={styles.txDate}>{formatDateBR(tx.updatedAt)}</span>
+                  <span className={styles.txValue}>
+                    {tx.valor < 0 ? "-" : ""}
+                    {formatBRL(Math.abs(tx.valor))}
+                  </span>
                 )}
               </Box>
-
-              {isEditing ? (
-                <Input
-                  disableUnderline
-                  className={clsx(styles.txValue, styles.txValueEditable)}
-                  value={formatBRL(tx.valor)}
-                  onChange={(e) =>
-                    handleTransactionChange(index, "valor", e.target.value)
-                  }
-                  inputProps={{ inputMode: "numeric" }}
-                />
-              ) : (
-                <span className={styles.txValue}>
-                  {tx.valor < 0 ? "-" : ""}
-                  {formatBRL(Math.abs(tx.valor))}
-                </span>
-              )}
-            </Box>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {isEditing && (
         <Box className="flex gap-2 justify-between">
