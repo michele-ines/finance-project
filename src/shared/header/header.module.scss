@@ -4,14 +4,6 @@
   box-shadow: none;
 }
 
-// .bg-dash {
-//   background-color: var(--byte-color-dash);
-// }
-
-// .bg-black {
-//   background-color: var(--byte-color-black);
-// }
-
 .toolbarOverride {
   padding-left: 0 !important;
   padding-right: 0 !important;
@@ -37,4 +29,28 @@
   border: 2px solid var(--byte-color-green-500) !important;
   color: var(--byte-color-green-500) !important;
   text-transform: none !important;
+}
+
+.userButton {
+  color: var(--byte-color-orange-500);
+  border: 1px solid var(--byte-color-orange-500) !important;
+  border-radius: 1rem;
+  padding: 5px !important;
+}
+
+.userIcon {
+  color: var(--byte-color-orange-500) !important;
+  font-size: 1.2rem !important;
+}
+
+.userName {
+  font-family: Inter, sans-serif !important;
+  font-style: normal !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  line-height: 100% !important;
+  letter-spacing: 0% !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  color: #ffffff !important;
 }

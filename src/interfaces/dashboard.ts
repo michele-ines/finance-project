@@ -70,6 +70,12 @@ export interface RegisterData {
   terms: boolean
 }
 
+export interface UserInfo  {
+  name: string;
+  email: string;
+  password: string;
+};
+
 // --- Flags de Navegação / Layout ---
 export interface HeaderFlags {
   isHome: boolean

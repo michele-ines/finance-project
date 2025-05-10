@@ -10,7 +10,7 @@ export default function LoginPage() {
         {/* Ilustração */}
         <Box className="w-full flex items-center justify-center bg-[var(--byte-bg-light)] pt-6 px-6">
           <Image
-            src="/login/ilustração-login.svg"
+            src="/login/ilustracao-login.svg"
             alt="Ilustração de login"
             width={250}
             height={250}

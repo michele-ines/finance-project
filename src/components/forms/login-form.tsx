@@ -38,7 +38,7 @@ export default function LoginForm() {
           htmlFor="email"
           className="mb-2 text-sm font-medium text-gray-700"
         >
-          E-mail cadastrado
+          E-mail
         </label>
         <Input
           id="email"

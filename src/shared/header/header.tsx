@@ -15,6 +15,7 @@ import {
   Image,
   Link,
   HeaderStyles as styles,
+  PermIdentityIcon,
 } from "../../components/ui/index";
 import { ROUTES } from "config-routes/routes";
 import { getBgColor, useHeaderFlags } from "utils/route-matcher/route-matcher";
@@ -81,7 +82,7 @@ export default function Header() {
             width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1  }}>
             <Link href={ROUTES.ROOT}>
               <Box sx={{ display: { sm: "block", md: "none" } }}>
                 <Image
@@ -163,13 +164,13 @@ export default function Header() {
                 >
                   Investimentos
                 </Button>
-                <Button
+                {/* <Button
                   color="inherit"
                   className={styles.menuItemText}
-                  onClick={() => router.push(ROUTES.ACCOUNT)}
+                  onClick={() => router.push(ROUTES.MY_ACCOUNT)}
                 >
                   Minha Conta
-                </Button>
+                </Button> */}
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
@@ -177,6 +178,34 @@ export default function Header() {
                 >
                   Outros serviços
                 </Button>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: { md: 4, xs: 2 },
+                    marginLeft: "auto",
+                  }}
+                >
+                  <Typography 
+                  className={styles.userName}
+                  onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+                  >
+                    Joana da Silva Oliveira
+                  </Typography>
+                  <IconButton
+                    size="large"
+                  onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+                    className={styles.userButton}
+                    title="Minha conta"
+                    aria-label="Ícone de usuário"
+                  >
+                    <PermIdentityIcon
+                      fontSize="small"
+                      onClick={() => router.push("/dashboard")}
+                      className={styles.userIcon}
+                    />
+                  </IconButton>
+                </Box>
               </>
             )}
           </Box>
@@ -296,16 +325,18 @@ export default function Header() {
             </MenuItem>
           )}
           {showInternalLinks && (
-            <MenuItem onClick={closeMenu} key="minha-conta-mobile">
-              <Link href={ROUTES.ACCOUNT} passHref legacyBehavior>
-                <Typography textAlign="center">Minha Conta</Typography>
-              </Link>
-            </MenuItem>
-          )}
-          {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="outros-mobile">
               <Link href={ROUTES.OTHER_SERVICES} passHref legacyBehavior>
                 <Typography textAlign="center">Outros serviços</Typography>
+              </Link>
+            </MenuItem>
+          )}
+            {showInternalLinks && (
+            <MenuItem onClick={closeMenu} key="minha-conta-mobile">
+              <Link href={ROUTES.MY_ACCOUNT} passHref legacyBehavior>
+                <Typography className={styles.userName}>
+                    Joana da Silva Oliveira
+                  </Typography>
               </Link>
             </MenuItem>
           )}

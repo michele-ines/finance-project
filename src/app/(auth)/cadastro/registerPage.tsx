@@ -11,7 +11,7 @@ export default function RegisterPage() {
         {/* Ilustração centralizada */}
         <Box className=" lg:flex lg:items-center lg:justify-center lg:w-1/2 py-12 pl-12">
           <Image
-            src="/cadastro/ilustração-cadastro.svg"
+            src="/cadastro/ilustracao-cadastro.svg"
             alt="Ilustração de cadastro"
             width={600}
             height={600}

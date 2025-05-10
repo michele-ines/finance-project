@@ -24,6 +24,7 @@ export { default as Checkbox } from "@mui/material/Checkbox";
 export { default as MenuIcon } from "@mui/icons-material/Menu";
 export { default as VisibilityIcon } from "@mui/icons-material/Visibility";
 export { default as VisibilityOffIcon  } from "@mui/icons-material/VisibilityOff";
+export { default as PermIdentityIcon } from "@mui/icons-material/PermIdentity";
 
 export { default as EditIcon } from "@mui/icons-material/Edit";
 export { default as DeleteIcon } from "@mui/icons-material/Delete";
@@ -57,3 +58,4 @@ export { default as CadInvestmentsStyles } from "../../components/my-cards/cad-i
 export { default as CardBalanceStyles } from "../../components/my-cards/card-balance/card-balance.module.scss";
 export { default as CardListExtractStyles } from "../../components/my-cards/card-list-extract/card-list-extract.module.scss";
 export { default as cardNewTransactionStyles } from "../../components/my-cards/card-new-transaction/card-new-transaction.module.scss";
+export { default as CardMyAccountStyles } from "../../components/my-cards/card-my-account/card-my-account.module.scss";
