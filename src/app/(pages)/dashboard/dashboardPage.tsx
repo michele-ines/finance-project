@@ -15,6 +15,7 @@ import CardNewTransaction from "components/my-cards/card-new-transaction/card-ne
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loadingTransaction, setLoadingTransaction] = useState<boolean>(false);
 
   const fetchTransactions = async () => {
     await handleRequest(async () => {
@@ -24,32 +25,25 @@ export default function DashboardPage() {
       setTransactions(transacoes);
     });
   };
-  const handleSaveTransactions = (tx: Transaction[]) => {
-    console.log("Transações editadas no extrato:", tx);
-    // Enviar p/ API ou atualizar contexto.
-  };
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  
+
+  const onSubmit = async (data: DashboardData) => {
     await handleRequest(async () => {
-      const formData = new FormData(event.currentTarget);
-      const formObject = Object.fromEntries(formData.entries());
-      const jsonPayload = JSON.stringify(formObject);
-  
+      const jsonPayload = JSON.stringify(data);
+      setLoadingTransaction(true);
       const res = await fetch("/api/transacao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: jsonPayload,
       });
   
+      
       if (!res.ok) throw new Error("Falha ao adicionar transação");
-  
+      
       const { message, transacao } = await res.json();
+      setLoadingTransaction(false);
       alert(message);
       setTransactions((prevTransactions) => [...prevTransactions, transacao]);
-      // Retorne algo compatível
-      return new Response(null, { status: 200 });
     });
   };
 
@@ -67,7 +61,7 @@ export default function DashboardPage() {
             <CardBalance user={data.user} balance={data.balance} />
 
             {/* CARD NOVA TRANSAÇÃO (mantido como antes) */}
-            <CardNewTransaction onSubmit={onSubmit} />
+            <CardNewTransaction onSubmit={onSubmit} isLoading={loadingTransaction} />
 
           </Box>
 
@@ -75,7 +69,6 @@ export default function DashboardPage() {
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
             <CardListExtract
               transactions={transactions}
-              onSave={handleSaveTransactions}
             />
           </Box>
         </Box>

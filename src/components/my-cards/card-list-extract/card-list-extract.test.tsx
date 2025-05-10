@@ -18,7 +18,7 @@ describe("CardListExtract", () => {
   const mockTransactions: Transaction[] = [
     {
       _id: 1,
-      tipo: "Receita",
+      tipo: "Receita", // Certifique-se de que este valor está correto
       createdAt: "2025-05-05T17:41:58.092+00:00",
       updatedAt: "2025-05-05T17:41:58.092+00:00",
       valor: 1200,

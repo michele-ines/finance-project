@@ -128,10 +128,10 @@ export default function CardListExtract({
                     inputProps={{ inputMode: "numeric" }}
                   />
                 ) : (
-                  <span className={styles.txValue}>
+                    <span className={styles.txValue}>
                     {tx.valor < 0 ? "-" : ""}
-                    {formatBRL(Math.abs(tx.valor))}
-                  </span>
+                    {formatBRL(tx.valor)}
+                    </span>
                 )}
               </Box>
             </li>

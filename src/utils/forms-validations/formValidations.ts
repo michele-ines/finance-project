@@ -3,6 +3,7 @@ import {
   LoginData,
   RegisterData,
   ForgotPasswordData,
+  Transaction,
 } from "../../interfaces/dashboard";
 
 // Regras de validação para o RegisterForm
@@ -72,4 +73,24 @@ export const forgotPasswordValidations = {
     ForgotPasswordData,
     "email"
   >,
+};
+
+export const transactionValidations = {
+  valor: {
+    required: "O valor é obrigatório",
+    pattern: {
+      value: /^\d+(\,\d+)?$/, // Aceita apenas números inteiros ou floats
+      message: "O valor deve ser um número válido",
+    },
+    validate: (value: string) => {
+      const numericValue = parseFloat(value.replace(',', '.'));
+      return numericValue >= 10 || "O valor deve ser maior que R$ 10,00";
+    },
+  } as RegisterOptions<Transaction, "valor">,
+
+  tipo: {
+    required: "O tipo de transação é obrigatório",
+    validate: (value: string) =>
+      value !== "" || "Você deve selecionar um tipo de transação",
+  } as RegisterOptions<Transaction, "tipo">,
 };
