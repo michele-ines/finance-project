@@ -134,7 +134,7 @@ export function CardMyAccount() {
       <section className="flex flex-col gap-6 w-full h-full">
         <h3 className={styles.myAccountTitle}>Minha conta</h3>
         <Box className="flex flex-col lg:flex-row-reverse w-full h-full">
-          <Box className="flex flex-col gap-6 w-full h-full mx-3">
+          <Box className="flex flex-col gap-6 w-full h-full">
      {/* Nome */}
       <FormControl variant="outlined" fullWidth error={!!errors.name}>
         <label
