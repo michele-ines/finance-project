@@ -45,7 +45,8 @@ export interface CardBalanceProps {
 }
 
 export interface CardNewTransactionProps {
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+  onSubmit: (data: NewTransactionData) => Promise<void>;
+  isLoading: boolean;
 }
 
 export interface EmailField {
@@ -72,6 +73,10 @@ export interface UserInfo  {
   password: string;
 };
 
+export interface NewTransactionData {
+  tipo: string;
+  valor: string;
+}
 export interface HeaderFlags {
   isHome: boolean
   isDashboard: boolean

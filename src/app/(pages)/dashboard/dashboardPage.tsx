@@ -6,7 +6,7 @@ import CardListExtract from "components/my-cards/card-list-extract/card-list-ext
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
 
 import { Box } from "../../../components/ui";
-import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
+import type { DashboardData, NewTransactionData, Transaction } from "../../../interfaces/dashboard";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import dashboardData from "../../../mocks/dashboard-data.json";
 
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const data: DashboardData = dashboardData;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loadingTransaction, setLoadingTransaction] = useState<boolean>(false);
 
   const fetchTransactions = async () => {
     await handleRequest(async () => {
@@ -46,7 +47,6 @@ export default function DashboardPage() {
 
       await Promise.all(deletePromises);
       
-      // Atualizar a lista de transações após a exclusão
       const updatedTransactions = transactions.filter(
         (tx) => !transactionIds.includes(tx._id)
       );
@@ -55,33 +55,29 @@ export default function DashboardPage() {
       console.log("Transações excluídas com sucesso:", transactionIds);
     } catch (error) {
       console.error("Erro ao excluir transações:", error);
-      throw error; // Propagar o erro para o componente filho tratar
+      throw error; 
     }
   };
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  
-    await handleRequest(async () => {
-      const formData = new FormData(event.currentTarget);
-      const formObject = Object.fromEntries(formData.entries());
-      const jsonPayload = JSON.stringify(formObject);
-  
-      const res = await fetch("/api/transacao", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: jsonPayload,
-      });
-  
-      if (!res.ok) throw new Error("Falha ao adicionar transação");
-  
-      const { message, transacao } = await res.json();
-      alert(message);
-      setTransactions((prevTransactions) => [...prevTransactions, transacao]);
-      // Retorne algo compatível
-      return new Response(null, { status: 200 });
+const onSubmit = async (data: NewTransactionData) => {
+  await handleRequest(async () => {
+    setLoadingTransaction(true);
+
+    const res = await fetch("/api/transacao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
-  };
+
+    if (!res.ok) throw new Error("Falha ao adicionar transação");
+
+    const { message, transacao } = await res.json();
+    setLoadingTransaction(false);
+    alert(message);
+    setTransactions((prev) => [...prev, transacao]);
+  });
+};
+
 
   useEffect(() => {
     fetchTransactions();
@@ -97,7 +93,7 @@ export default function DashboardPage() {
             <CardBalance user={data.user} balance={data.balance} />
 
             {/* CARD NOVA TRANSAÇÃO (mantido como antes) */}
-            <CardNewTransaction onSubmit={onSubmit} />
+            <CardNewTransaction onSubmit={onSubmit} isLoading={loadingTransaction} />
 
           </Box>
 
