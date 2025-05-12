@@ -1,14 +1,19 @@
+// utils/date-formatte/date-formatte.ts
 export const formatDateBR = (isoDate: string): string => {
-    const date = new Date(isoDate);
-    return date.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
 
-  export const getMonthNameBR = (isoDate: string): string => {
-    const date = new Date(isoDate);
-    const month = date.toLocaleDateString("pt-BR", { month: "long" });
-    return month.charAt(0).toUpperCase() + month.slice(1);
-  };
+/** Recebe "dd/MM/yyyy" e devolve ISO string (“2025-05-10T00:00:00.000Z”) */
+export const parseDateBR = (brDate: string): string => {
+  const [day, month, year] = brDate.split("/");
+  return new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+  ).toISOString();
+};

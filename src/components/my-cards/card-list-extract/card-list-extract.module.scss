@@ -42,13 +42,7 @@
   gap: 8px;
 }
 
-.mesLabel {
-  font-family: var(--font-inter);
-  font-weight: 600;
-  font-size: 13px;
-  line-height: var(--line-height-tight);
-  color: var(--byte-color-green-500);
-}
+
 
 .txRow {
   display: flex;
@@ -56,15 +50,17 @@
   align-items: center;
 }
 
-.txType {
+.txType,
+.txType input {
   font-family: var(--font-inter);
   font-weight: 400;
   font-size: 16px;
   line-height: var(--line-height-tight);
-  color: var(--byte-color-black);
+  color: var(--byte-color-green-500);
 }
 
-.txDate {
+.txDate,
+.txDate input {
   font-family: var(--font-inter);
   font-weight: 400;
   font-size: 13px;
