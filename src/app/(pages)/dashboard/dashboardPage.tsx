@@ -8,23 +8,11 @@ import CardNewTransaction from "components/my-cards/card-new-transaction/card-ne
 import { Box } from "../../../components/ui";
 import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
 import { handleRequest } from "utils/error-handlers/error-handle";
-import rawData from "../../../mocks/dashboard-data.json";
-
-const data: DashboardData = {
-  user: rawData.user,
-  balance: rawData.balance,
-  investments: rawData.investments,
-  transactions: rawData.transactions.map((tx) => ({
-    _id: tx.id,
-    tipo: tx.type,
-    valor: tx.amount,
-    createdAt: tx.date,
-    updatedAt: tx.date,
-  })),
-};
+import dashboardData from "../../../mocks/dashboard-data.json";
 
 export default function DashboardPage() {
-  // const data = dashboardData as DashboardData;
+  const data: DashboardData = dashboardData;
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const fetchTransactions = async () => {
@@ -37,7 +25,38 @@ export default function DashboardPage() {
   };
   const handleSaveTransactions = (tx: Transaction[]) => {
     console.log("Transações editadas no extrato:", tx);
-    // Enviar p/ API ou atualizar contexto.
+    setTransactions(tx);
+    // Aqui poderia ter uma lógica para enviar as alterações para a API
+  };
+
+  const handleDeleteTransactions = async (transactionIds: number[]) => {
+    try {
+      // Realizar as chamadas DELETE para cada transação selecionada
+      const deletePromises = transactionIds.map(async (id) => {
+        const response = await fetch(`/api/transacao/${id}`, {
+          method: 'DELETE',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Erro ao excluir transação ${id}`);
+        }
+        
+        return response.json();
+      });
+
+      await Promise.all(deletePromises);
+      
+      // Atualizar a lista de transações após a exclusão
+      const updatedTransactions = transactions.filter(
+        (tx) => !transactionIds.includes(tx._id)
+      );
+      
+      setTransactions(updatedTransactions);
+      console.log("Transações excluídas com sucesso:", transactionIds);
+    } catch (error) {
+      console.error("Erro ao excluir transações:", error);
+      throw error; // Propagar o erro para o componente filho tratar
+    }
   };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -87,6 +106,7 @@ export default function DashboardPage() {
             <CardListExtract
               transactions={transactions}
               onSave={handleSaveTransactions}
+              onDelete={handleDeleteTransactions}
             />
           </Box>
         </Box>
