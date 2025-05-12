@@ -60,3 +60,4 @@ export { default as CardMyAccountStyles } from "../../components/my-cards/card-m
 export { default as CardsOtherServiceStyles } from "../../components/my-cards/card-other-services/card-other-services.module.scss";
 export { default as cardNewTransactionStyles } from "../../components/my-cards/card-new-transaction/card-new-transaction.module.scss";
 export { default as HeaderStyles } from "../../shared/header/header.module.scss";
+export { default as PersonalCardsStyles } from "../../components/my-cards/personal-cards/personal-cards.module.scss";
