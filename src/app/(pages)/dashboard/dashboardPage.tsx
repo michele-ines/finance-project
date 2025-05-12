@@ -1,21 +1,40 @@
 "use client";
 
-import React from "react";
-
+import { useEffect, useState } from "react";
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
 
 import { Box } from "../../../components/ui";
 import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
-import dashboardData from "../../../mocks/dashboard-data.json";
-
 import { handleRequest } from "utils/error-handlers/error-handle";
+import rawData from "../../../mocks/dashboard-data.json";
 
+const data: DashboardData = {
+  user: rawData.user,
+  balance: rawData.balance,
+  investments: rawData.investments,
+  transactions: rawData.transactions.map((tx) => ({
+    _id: tx.id,
+    tipo: tx.type,
+    valor: tx.amount,
+    createdAt: tx.date,
+    updatedAt: tx.date,
+  })),
+};
 
 export default function DashboardPage() {
-  const data = dashboardData as DashboardData;
+  // const data = dashboardData as DashboardData;
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
+  const fetchTransactions = async () => {
+    await handleRequest(async () => {
+      const res = await fetch("/api/transacao");
+      if (!res.ok) throw new Error("Falha ao buscar transações");
+      const { transacoes } = await res.json();
+      setTransactions(transacoes);
+    });
+  };
   const handleSaveTransactions = (tx: Transaction[]) => {
     console.log("Transações editadas no extrato:", tx);
     // Enviar p/ API ou atualizar contexto.
@@ -29,7 +48,7 @@ export default function DashboardPage() {
       const formObject = Object.fromEntries(formData.entries());
       const jsonPayload = JSON.stringify(formObject);
   
-      const res = await fetch("/api/transacaoService", {
+      const res = await fetch("/api/transacao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: jsonPayload,
@@ -37,13 +56,17 @@ export default function DashboardPage() {
   
       if (!res.ok) throw new Error("Falha ao adicionar transação");
   
-      const { message } = await res.json();
+      const { message, transacao } = await res.json();
       alert(message);
-  
+      setTransactions((prevTransactions) => [...prevTransactions, transacao]);
       // Retorne algo compatível
       return new Response(null, { status: 200 });
     });
   };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   return (
     <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
@@ -62,7 +85,7 @@ export default function DashboardPage() {
           {/* COLUNA DIREITA (Extrato) */}
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
             <CardListExtract
-              transactions={data.transactions}
+              transactions={transactions}
               onSave={handleSaveTransactions}
             />
           </Box>

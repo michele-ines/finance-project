@@ -17,18 +17,18 @@ jest.mock("next/font/google", () => ({
 describe("CardListExtract", () => {
   const mockTransactions: Transaction[] = [
     {
-      id: 1,
-      type: "Receita",
-      date: "2025-05-01",
-      amount: 1200,
-      month: "Mai",
+      _id: 1,
+      tipo: "Receita",
+      createdAt: "2025-05-05T17:41:58.092+00:00",
+      updatedAt: "2025-05-05T17:41:58.092+00:00",
+      valor: 1200,
     },
     {
-      id: 2,
-      type: "Despesa",
-      date: "2025-05-03",
-      amount: -200,
-      month: "Mai",
+      _id: 2,
+      tipo: "Despesa",
+      createdAt: "2025-05-06T17:41:58.092+00:00",
+      updatedAt: "2025-05-06T17:41:58.092+00:00",
+      valor: 200,
     },
   ];
 
@@ -39,7 +39,7 @@ describe("CardListExtract", () => {
 
     expect(getByText("Receita")).toBeInTheDocument();
     expect(getByText("Despesa")).toBeInTheDocument();
-    expect(getByText("2025-05-01")).toBeInTheDocument();
+    expect(getByText("05/05/2025")).toBeInTheDocument(); // Data formatada no formato BR
   });
 
   it("permite editar, salvar alterações e aciona onSave", () => {
@@ -57,7 +57,7 @@ describe("CardListExtract", () => {
       });
     }
 
-    const inputs = getAllByDisplayValue(/Receita|Despesa|2025/);
+    const inputs = getAllByDisplayValue("Receita");
     if (inputs[0]) {
       act(() => {
         fireEvent.change(inputs[0], { target: { value: "Nova Receita" } });
@@ -72,7 +72,7 @@ describe("CardListExtract", () => {
     }
 
     expect(handleSave).toHaveBeenCalledWith([
-      expect.objectContaining({ type: "Nova Receita" }),
+      expect.objectContaining({ tipo: "Nova Receita" }),
       expect.any(Object),
     ]);
   });
@@ -90,7 +90,7 @@ describe("CardListExtract", () => {
       });
     }
 
-    const inputs = getAllByDisplayValue(/Receita|Despesa|2025/);
+    const inputs = getAllByDisplayValue("Receita");
     if (inputs[0]) {
       act(() => {
         fireEvent.change(inputs[0], { target: { value: "Alterada" } });
@@ -104,6 +104,6 @@ describe("CardListExtract", () => {
       });
     }
 
-    expect(getByText("Receita")).toBeInTheDocument();
+    expect(getByText("Receita")).toBeInTheDocument(); // Verifica que a alteração foi descartada
   });
 });

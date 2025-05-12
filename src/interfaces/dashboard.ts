@@ -9,11 +9,12 @@ export interface Balance extends ValueField {
   account: string
 }
 
-export interface Transaction extends Entity {
-  month: string
-  type: string
-  date: string
-  amount: number
+export interface Transaction {
+  _id: number
+  tipo: string
+  valor: number
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Investment extends Entity, Labelled, ValueField {}

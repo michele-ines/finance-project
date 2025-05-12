@@ -11,18 +11,30 @@ import {
   useState,
   CardListExtractStyles as styles,
 } from "../../ui";
-
-import clsx from "clsx";
 import type { Transaction, TransactionListProps } from "../../../interfaces/dashboard";
+import clsx from "clsx";
 import { formatBRL, parseBRL } from "../../../utils/currency-formatte/currency-formatte";
+import { useEffect } from "react";
+import { formatDateBR, getMonthNameBR } from "../../../utils/date-formatte/date-formatte";
+import  SkeletonListExtract  from "../../ui/skeleton-list-extract/skeleton-list-extract";
 export default function CardListExtract({
   transactions,
   onSave,
 }: TransactionListProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editableTransactions, setEditableTransactions] = useState<
-    Transaction[]
-  >(() => transactions.map((t) => ({ ...t })));
+  const [editableTransactions, setEditableTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
+
+  // Sincroniza editableTransactions com transactions sempre que transactions mudar
+  useEffect(() => {
+    setIsLoading(true); 
+    const timeout = setTimeout(() => {
+      setEditableTransactions(transactions.map((t) => ({ ...t })));
+      setIsLoading(false); // Desativa o estado de carregamento
+    }, 1000); // Simula um atraso no carregamento (ajuste conforme necessário)
+
+    return () => clearTimeout(timeout); // Limpa o timeout ao desmontar
+  }, [transactions]);
 
   const handleEditClick = () => setIsEditing(true);
   const handleCancelClick = () => {
@@ -37,13 +49,13 @@ export default function CardListExtract({
 
   const handleTransactionChange = (
     index: number,
-    field: keyof Pick<Transaction, "type" | "date" | "amount">,
+    field: keyof Pick<Transaction, "tipo" | "updatedAt" | "valor">,
     value: string
   ) => {
     setEditableTransactions((trans) =>
       trans.map((tx, i) => {
         if (i !== index) return tx;
-        if (field === "amount") return { ...tx, amount: parseBRL(value) };
+        if (field === "valor") return { ...tx, valor: parseBRL(value) };
         return { ...tx, [field]: value };
       })
     );
@@ -66,63 +78,67 @@ export default function CardListExtract({
         </Box>
       </Box>
 
-      <ul className="space-y-4">
-        {editableTransactions.map((tx, index) => (
-          <li key={tx.id}>
-            <Box
-              className={styles.extratoItem}
-              style={{ gap: isEditing ? "0px" : undefined }}
-            >
-              <p className={styles.mesLabel}>{tx.month}</p>
+      {isLoading ? (
+        <SkeletonListExtract rows={5} />
+      ) : (
+        <ul className="space-y-4">
+          {editableTransactions.map((tx, index) => (
+            <li key={tx._id}>
+              <Box
+                className={styles.extratoItem}
+                style={{ gap: isEditing ? "0px" : undefined }}
+              >
+                <p className={styles.mesLabel}>{getMonthNameBR(tx.updatedAt)}</p>
 
-              <Box className={styles.txRow}>
+                <Box className={styles.txRow}>
+                  {isEditing ? (
+                    <Input
+                      disableUnderline
+                      className={styles.txType}
+                      value={tx.tipo}
+                      onChange={(e) =>
+                        handleTransactionChange(index, "tipo", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <span className={styles.txType}>{tx.tipo}</span>
+                  )}
+
+                  {isEditing ? (
+                    <Input
+                      disableUnderline
+                      className={styles.txDate}
+                      value={tx.createdAt}
+                      onChange={(e) =>
+                        handleTransactionChange(index, "updatedAt", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <span className={styles.txDate}>{formatDateBR(tx.updatedAt)}</span>
+                  )}
+                </Box>
+
                 {isEditing ? (
                   <Input
                     disableUnderline
-                    className={styles.txType}
-                    value={tx.type}
+                    className={clsx(styles.txValue, styles.txValueEditable)}
+                    value={formatBRL(tx.valor)}
                     onChange={(e) =>
-                      handleTransactionChange(index, "type", e.target.value)
+                      handleTransactionChange(index, "valor", e.target.value)
                     }
+                    inputProps={{ inputMode: "numeric" }}
                   />
                 ) : (
-                  <span className={styles.txType}>{tx.type}</span>
-                )}
-
-                {isEditing ? (
-                  <Input
-                    disableUnderline
-                    className={styles.txDate}
-                    value={tx.date}
-                    onChange={(e) =>
-                      handleTransactionChange(index, "date", e.target.value)
-                    }
-                  />
-                ) : (
-                  <span className={styles.txDate}>{tx.date}</span>
+                  <span className={styles.txValue}>
+                    {tx.valor < 0 ? "-" : ""}
+                    {formatBRL(Math.abs(tx.valor))}
+                  </span>
                 )}
               </Box>
-
-              {isEditing ? (
-                <Input
-                  disableUnderline
-                  className={clsx(styles.txValue, styles.txValueEditable)}
-                  value={formatBRL(tx.amount)}
-                  onChange={(e) =>
-                    handleTransactionChange(index, "amount", e.target.value)
-                  }
-                  inputProps={{ inputMode: "numeric" }}
-                />
-              ) : (
-                <span className={styles.txValue}>
-                  {tx.amount < 0 ? "-" : ""}
-                  {formatBRL(Math.abs(tx.amount))}
-                </span>
-              )}
-            </Box>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {isEditing && (
         <Box className="flex gap-2 justify-between">
