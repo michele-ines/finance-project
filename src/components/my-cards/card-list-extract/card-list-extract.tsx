@@ -21,10 +21,17 @@ interface CardListExtractProps {
   onDelete?: (transactionIds: number[]) => Promise<void>;
 }
 import clsx from "clsx";
-import { formatBRL, parseBRL } from "../../../utils/currency-formatte/currency-formatte";
+import {
+  formatBRL,
+  parseBRL,
+} from "../../../utils/currency-formatte/currency-formatte";
 import { useEffect } from "react";
-import { formatDateBR, getMonthNameBR } from "../../../utils/date-formatte/date-formatte";
-import  SkeletonListExtract  from "../../ui/skeleton-list-extract/skeleton-list-extract";
+import {
+  formatDateBR,
+  getMonthNameBR,
+} from "../../../utils/date-formatte/date-formatte";
+import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
+import { InputAdornment } from "@mui/material";
 export default function CardListExtract({
   transactions,
   onSave,
@@ -32,14 +39,18 @@ export default function CardListExtract({
 }: CardListExtractProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [editableTransactions, setEditableTransactions] = useState<Transaction[]>([]);
-  const [selectedTransactions, setSelectedTransactions] = useState<number[]>([]);
+  const [editableTransactions, setEditableTransactions] = useState<
+    Transaction[]
+  >([]);
+  const [selectedTransactions, setSelectedTransactions] = useState<number[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true); // Estado de carregamento
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
 
   // Sincroniza editableTransactions com transactions sempre que transactions mudar
   useEffect(() => {
-    setIsLoading(true); 
+    setIsLoading(true);
     const timeout = setTimeout(() => {
       setEditableTransactions(transactions.map((t) => ({ ...t })));
       setIsLoading(false); // Desativa o estado de carregamento
@@ -129,7 +140,10 @@ export default function CardListExtract({
             </IconButton>
           )}
           {!isEditing && !isDeleting && (
-            <IconButton className={styles.actionBtn} onClick={handleDeleteClick}>
+            <IconButton
+              className={styles.actionBtn}
+              onClick={handleDeleteClick}
+            >
               <DeleteIcon fontSize="small" />
             </IconButton>
           )}
@@ -146,7 +160,9 @@ export default function CardListExtract({
                 className={styles.extratoItem}
                 style={{ gap: isEditing ? "0px" : undefined }}
               >
-                <p className={styles.mesLabel}>{getMonthNameBR(tx.updatedAt)}</p>
+                <p className={styles.mesLabel}>
+                  {getMonthNameBR(tx.updatedAt)}
+                </p>
 
                 <Box className={styles.txRow}>
                   {isEditing ? (
@@ -166,13 +182,19 @@ export default function CardListExtract({
                     <Input
                       disableUnderline
                       className={styles.txDate}
-                      value={tx.createdAt || ''}
+                      value={tx.createdAt || ""}
                       onChange={(e) =>
-                        handleTransactionChange(index, "updatedAt", e.target.value)
+                        handleTransactionChange(
+                          index,
+                          "updatedAt",
+                          e.target.value
+                        )
                       }
                     />
                   ) : (
-                    <span className={styles.txDate}>{formatDateBR(tx.updatedAt)}</span>
+                    <span className={styles.txDate}>
+                      {formatDateBR(tx.updatedAt)}
+                    </span>
                   )}
                 </Box>
 
@@ -180,11 +202,14 @@ export default function CardListExtract({
                   <Input
                     disableUnderline
                     className={clsx(styles.txValue, styles.txValueEditable)}
-                    value={formatBRL(tx.valor)}
+                    value={tx.valor.toString().replace(".", ",")}
                     onChange={(e) =>
                       handleTransactionChange(index, "valor", e.target.value)
                     }
                     inputProps={{ inputMode: "numeric" }}
+                    startAdornment={
+                      <InputAdornment position="start">R$</InputAdornment>
+                    }
                   />
                 ) : (
                   <Box className="flex items-center">
@@ -210,16 +235,28 @@ export default function CardListExtract({
 
       {(isEditing || isDeleting) && (
         <Box className="flex gap-2 justify-between mt-4">
-          <Button 
-            onClick={handleSaveClick} 
-            className={styles.botaoSalvar}
-            disabled={isDeleting && (isDeletingInProgress || selectedTransactions.length === 0)}
+          <Button
+            onClick={handleSaveClick}
+            className={clsx(
+              styles.botaoSalvar,
+              isDeleting &&
+                (isDeletingInProgress || selectedTransactions.length === 0) &&
+                "opacity-50 cursor-not-allowed"
+            )}
+            disabled={
+              isDeleting &&
+              (isDeletingInProgress || selectedTransactions.length === 0)
+            }
           >
-            {isEditing ? 'Salvar' : 
-              isDeletingInProgress ? 'Excluindo...' : 'Excluir'}
+            {isEditing
+              ? "Salvar"
+              : isDeletingInProgress
+              ? "Excluindo..."
+              : "Excluir"}
           </Button>
-          <Button 
-            onClick={isEditing ? handleCancelClick : handleCancelDeleteClick} 
+
+          <Button
+            onClick={isEditing ? handleCancelClick : handleCancelDeleteClick}
             className={styles.botaoCancelar}
             disabled={isDeleting && isDeletingInProgress}
           >
