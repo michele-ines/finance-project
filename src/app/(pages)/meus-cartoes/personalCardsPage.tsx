@@ -1,10 +1,13 @@
 "use client";
-import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
-import { Box } from "../../../components/ui";
-import dashboardData from "../../../mocks/dashboard-data.json";
+
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
 import PersonalCards from "components/my-cards/personal-cards/personal-cards";
+
+import { Box } from "../../../components/ui";
+import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
+import dashboardData from "../../../mocks/dashboard-data.json";
+
 
 export default function PersonalCardsPage() {
   

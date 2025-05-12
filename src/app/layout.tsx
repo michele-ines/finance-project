@@ -1,14 +1,16 @@
 import {
-  geistSans,
-  geistMono,
   Metadata,
   React,
+  geistMono,
+  geistSans,
 } from "../components/ui/index";
+
 import "../styles/globals.css";
 
 // Importe o Header
+import Footer from "../shared/footer/footer";
 import Header from "../shared/header/header";
-import Footer from "../shared/footer/footer"; 
+ 
 
 export const metadata: Metadata = {
   title: "ByteBank",

@@ -1,15 +1,16 @@
 "use client";
 
 import {
-  React,
   Box,
+  CardBalanceStyles as styles,
+  React,
+  useState,
   VisibilityIcon,
   VisibilityOffIcon,
-  CardBalanceStyles as styles,
-  useState,
 } from "../../ui";
-import { formatBRL } from "../../../utils/currency-formatte/currency-formatte";
+
 import { CardBalanceProps } from "interfaces/dashboard";
+import { formatBRL } from "../../../utils/currency-formatte/currency-formatte";
 
 export default function CardBalance({ user, balance }: CardBalanceProps) {
   /* controla se o saldo está visível */

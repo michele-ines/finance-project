@@ -1,8 +1,8 @@
 "use client";
-import Image from "next/image";
-import { Box } from "../../../components/ui";
-// import MyAccoutForm from "components/forms/my-account-form/my-account-form";
+
 import { CardMyAccount } from "components/my-cards/card-my-account/card-my-account";
+import { Box } from "../../../components/ui";
+import Image from "next/image";
 
 export default function MyAccountPage() {
   return (

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import clsx from "clsx";
-import { Box, Input, Button } from "../ui";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+
+import { Box, Button, Input } from "../ui";
+
 import { ROUTES } from "config-routes/routes";
 import { LoginData } from "interfaces/dashboard";
 import { loginValidations } from "utils/forms-validations/formValidations";

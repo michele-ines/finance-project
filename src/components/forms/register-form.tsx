@@ -1,17 +1,20 @@
 "use client";
-import { useState } from "react";
+
+import clsx from "clsx";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+
 import {
   Box,
-  Input,
-  Checkbox,
   Button,
-  VisibilityOffIcon,
+  Checkbox,
+  Input,
   VisibilityIcon,
+  VisibilityOffIcon,
 } from "../ui";
-import clsx from "clsx";
-import { registerValidations } from "utils/forms-validations/formValidations";
+
 import { RegisterData } from "interfaces/dashboard";
+import { registerValidations } from "utils/forms-validations/formValidations";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);

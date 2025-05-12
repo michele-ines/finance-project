@@ -20,15 +20,8 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 import { registerValidations } from "utils/forms-validations/formValidations";
-import { RegisterData } from "interfaces/dashboard";
+import { RegisterData, UserInfo } from "interfaces/dashboard";
 import { useForm } from "react-hook-form";
-
-type UserInfo = {
-  name: string;
-  email: string;
-  password: string;
-};
-
 
 const initialUser: UserInfo = {
   name: "Joana da Silva Oliveira",

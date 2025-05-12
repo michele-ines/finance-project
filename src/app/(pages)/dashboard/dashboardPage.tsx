@@ -1,16 +1,17 @@
 "use client";
 
 import React from "react";
-import dashboardData from "../../../mocks/dashboard-data.json";
-import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
-import {
-  Box,
 
-} from "../../../components/ui";
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
-import { handleRequest } from "utils/error-handlers/error-handle";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
+
+import { Box } from "../../../components/ui";
+import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
+import dashboardData from "../../../mocks/dashboard-data.json";
+
+import { handleRequest } from "utils/error-handlers/error-handle";
+
 
 export default function DashboardPage() {
   const data = dashboardData as DashboardData;

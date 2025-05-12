@@ -5,7 +5,6 @@ import {
   ForgotPasswordData,
 } from "../../interfaces/dashboard";
 
-// Regras de validação para o RegisterForm
 export const registerValidations = {
   name: {
     required: "Nome é obrigatório",

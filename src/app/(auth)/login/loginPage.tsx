@@ -1,7 +1,9 @@
 "use client";
+
+import LoginForm from "components/forms/login-form";
 import Image from "next/image";
 import { Box, Typography } from "../../../components/ui";
-import LoginForm from "components/forms/login-form";
+
 
 export default function LoginPage() {
   return (

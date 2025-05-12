@@ -1,7 +1,9 @@
 "use client";
+
+import ForgotPasswordForm from "components/forms/forgot-password-form";
 import Image from "next/image";
 import { Box, Typography } from "../../../components/ui";
-import ForgotPasswordForm from "components/forms/forgot-password-form";
+
 
 export default function ForgotPasswordPage() {
   return (

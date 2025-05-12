@@ -1,14 +1,15 @@
-
 "use client";
-import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
-import { Box } from "../../../components/ui";
-import dashboardData from "../../../mocks/dashboard-data.json";
+
 import CardBalance from "components/my-cards/card-balance/card-balance";
-import CardsOtherService from "components/my-cards/card-other-services/card-other-services";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
+import CardsOtherService from "components/my-cards/card-other-services/card-other-services";
+
+import { Box } from "../../../components/ui";
+import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
+import dashboardData from "../../../mocks/dashboard-data.json";
+
 
 export default function OtherServicesPage() {
-   
   const data = dashboardData as DashboardData;
 
   const transactionsData: Transaction[] = [

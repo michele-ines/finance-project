@@ -1,8 +1,9 @@
 "use client";
+
 import Image from "next/image";
-import { Box, Typography } from "../../../components/ui";
 import RegisterForm from "components/forms/register-form";
-// import { ROUTES } from "constants/routes.constant";
+import { Box, Typography } from "../../../components/ui";
+
 
 export default function RegisterPage() {
   return (

@@ -1,19 +1,14 @@
-"use client";
-
+import { CardNewTransactionProps } from "interfaces/dashboard";
 import {
-  React,
   Box,
-  FormControl,
-  Select,
-  MenuItem,
-  Input,
   Button,
+  FormControl,
+  Input,
+  MenuItem,
+  React,
+  Select,
   cardNewTransactionStyles as styles,
 } from "../../ui";
-
-interface CardNewTransactionProps {
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-}
 
 export default function CardNewTransaction({ onSubmit }: CardNewTransactionProps) {
   return (
