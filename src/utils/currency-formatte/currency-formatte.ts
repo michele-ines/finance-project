@@ -14,7 +14,9 @@ export const parseBRL = (input: string): number =>
  * Formata o tipo de transação – ex.: "deposito" -> "Depósito"
  * Se o tipo não estiver mapeado, apenas coloca a primeira letra maiúscula.
  */
-export const formatTipo = (raw: string): string => {
+export const formatTipo = (raw?: string): string => {
+  if (!raw) return ""; // ou "Desconhecido", se preferir um fallback visível
+
   const map: Record<string, string> = {
     deposito: "Depósito",
     retirada: "Retirada",
@@ -25,3 +27,4 @@ export const formatTipo = (raw: string): string => {
   const lower = raw.toLowerCase();
   return map[lower] ?? lower.charAt(0).toUpperCase() + lower.slice(1);
 };
+

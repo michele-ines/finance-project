@@ -196,7 +196,7 @@ export default function CardListExtract({
       ) : (
         <ul className="space-y-4">
           {editableTransactions.map((tx, index) => (
-            <li key={tx._id}>
+            <li key={tx._id ?? `tx-${index}`}>
               <Box
                 className={styles.extratoItem}
                 style={{ gap: isEditing ? "0px" : undefined }}

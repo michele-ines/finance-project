@@ -24,6 +24,7 @@ export default function DashboardPage() {
       setTransactions(transacoes);
     });
   };
+
   const handleSaveTransactions = (tx: Transaction[]) => {
     console.log("Transações editadas no extrato:", tx);
     setTransactions(tx);
@@ -59,25 +60,24 @@ export default function DashboardPage() {
     }
   };
 
-const onSubmit = async (data: NewTransactionData) => {
-  await handleRequest(async () => {
-    setLoadingTransaction(true);
+  const onSubmit = async (data: NewTransactionData) => {
+    await handleRequest(async () => {
+      setLoadingTransaction(true);
 
-    const res = await fetch("/api/transacao", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      const res = await fetch("/api/transacao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) throw new Error("Falha ao adicionar transação");
+
+      const { message, transacao } = await res.json();
+      setLoadingTransaction(false);
+      alert(message);
+      setTransactions((prev) => [...prev, transacao]);
     });
-
-    if (!res.ok) throw new Error("Falha ao adicionar transação");
-
-    const { message, transacao } = await res.json();
-    setLoadingTransaction(false);
-    alert(message);
-    setTransactions((prev) => [...prev, transacao]);
-  });
-};
-
+  };
 
   useEffect(() => {
     fetchTransactions();

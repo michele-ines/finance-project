@@ -7,23 +7,60 @@ import PersonalCards from "components/my-cards/personal-cards/personal-cards";
 import { Box } from "../../../components/ui";
 import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
 import dashboardData from "../../../mocks/dashboard-data.json";
-
+import { useEffect, useState } from "react";
+import { handleRequest } from "utils/error-handlers/error-handle";
 
 export default function PersonalCardsPage() {
-  
   const data = dashboardData as DashboardData;
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const transactionsData: Transaction[] = [
-    { id: 1, month: "Abril", type: "Compra de Ações", date: "15/04/2025", amount: -1500 },
-    { id: 2, month: "Abril", type: "Dividendos", date: "20/04/2025", amount: 350 },
-    { id: 3, month: "Março", type: "Tesouro Direto", date: "10/03/2025", amount: -2000 },
-    { id: 4, month: "Março", type: "Resgate CDB", date: "05/03/2025", amount: 1200 },
-  ];
-
-  const handleSaveTransactions = (tx: Transaction[]): void => {
-    console.log("Salvando transações de investimentos:", tx);
+  const fetchTransactions = async () => {
+    await handleRequest(async () => {
+      const res = await fetch("/api/transacao");
+      if (!res.ok) throw new Error("Falha ao buscar transações");
+      const { transacoes } = await res.json();
+      setTransactions(transacoes);
+    });
   };
 
+  const handleSaveTransactions = (tx: Transaction[]) => {
+    console.log("Transações editadas no extrato:", tx);
+    setTransactions(tx);
+    // Aqui poderia ter uma lógica para enviar as alterações para a API
+  };
+
+  const handleDeleteTransactions = async (transactionIds: number[]) => {
+    try {
+      // Realizar as chamadas DELETE para cada transação selecionada
+      const deletePromises = transactionIds.map(async (id) => {
+        const response = await fetch(`/api/transacao/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro ao excluir transação ${id}`);
+        }
+
+        return response.json();
+      });
+
+      await Promise.all(deletePromises);
+
+      const updatedTransactions = transactions.filter(
+        (tx) => !transactionIds.includes(tx._id)
+      );
+
+      setTransactions(updatedTransactions);
+      console.log("Transações excluídas com sucesso:", transactionIds);
+    } catch (error) {
+      console.error("Erro ao excluir transações:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
   return (
     <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
       <Box className="font-sans max-w-screen-xl mx-auto">
@@ -37,8 +74,9 @@ export default function PersonalCardsPage() {
           {/* COLUNA DIREITA */}
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
             <CardListExtract
-              transactions={transactionsData}
+              transactions={transactions}
               onSave={handleSaveTransactions}
+              onDelete={handleDeleteTransactions}
             />
           </Box>
         </Box>
