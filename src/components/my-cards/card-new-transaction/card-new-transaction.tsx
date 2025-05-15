@@ -1,21 +1,136 @@
+// import {
+//   Box,
+//   Button,
+//   FormControl,
+//   Input,
+//   InputAdornment,
+//   MenuItem,
+//   Select,
+//   cardNewTransactionStyles as styles,
+// } from "../../ui";
+// import { transactionValidations } from "utils/forms-validations/formValidations";
+// import {
+//   CardNewTransactionProps,
+//   NewTransactionData,
+// } from "interfaces/dashboard";
+// import { useForm } from "react-hook-form";
+// import clsx from "clsx";
 
-import { Box, Button, FormControl, Input, MenuItem, Select } from "../../ui";
-import { cardNewTransactionStyles as styles } from "../../ui";
+// export default function CardNewTransaction({
+//   onSubmit,
+//   isLoading,
+// }: CardNewTransactionProps) {
+//   const {
+//     register,
+//     handleSubmit,
+//     formState: { errors },
+//   } = useForm<NewTransactionData>();
+
+//   const handleFormSubmit = (data: NewTransactionData) => {
+//     onSubmit(data);
+//   };
+
+//   return (
+//     <Box
+//       className={`${styles.cardTransacao} cardTransacao w-full min-h-[478px]`}
+//     >
+//       <h3 className={styles.transacaoTitle}>Nova Transação</h3>
+
+//       <form onSubmit={handleSubmit(handleFormSubmit)}>
+//         <FormControl className={styles.transacaoFormControl}>
+//           <Select
+//             displayEmpty
+//             defaultValue=""
+//             className={clsx(`${styles.transacaoSelect}`, {
+//               "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
+//                 !errors.tipo,
+//               "bg-gray-100 border border-red-500 focus-within:ring-red-300":
+//                 !!errors.tipo,
+//             })}
+//             {...register("tipo", transactionValidations.tipo)}
+//           >
+//             <MenuItem value="" disabled>
+//               Selecione o tipo de transação
+//             </MenuItem>
+//             <MenuItem value="cambio">Câmbio</MenuItem>
+//             <MenuItem value="deposito">Depósito</MenuItem>
+//             <MenuItem value="transferencia">Transferência</MenuItem>
+//           </Select>
+//           {errors.tipo && (
+//             <span className="text-red-500 text-sm">{errors.tipo.message}</span>
+//           )}
+//         </FormControl>
+
+//         <p className={styles.transacaoLabel}>Valor</p>
+//         <FormControl className={styles.transacaoFormControl}>
+//           <Input
+//             placeholder="00,00"
+//             className={clsx(styles.transacaoInput, {
+//               "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
+//                 !errors.valor,
+//               "bg-gray-100 border border-red-500 focus-within:ring-red-300":
+//                 !!errors.valor,
+//             })}
+//             startAdornment={
+//               <InputAdornment position="start">R$</InputAdornment>
+//             }
+//             inputProps={{
+//               inputMode: "decimal",
+//               maxLength: 15, // 6 inteiros + vírgula/ponto + 1 decimais
+//               pattern: "\\d{1,9}(?:[.,]\\d{0,2})?",
+//               title: "Até 999.999,99 (máx. 1 casas decimais)",
+//             }}
+//             {...register("valor", transactionValidations.valor)}
+//           />
+//           {errors.valor && (
+//             <span className="text-red-500 text-sm">{errors.valor.message}</span>
+//           )}
+//         </FormControl>
+
+//         <Box className="mt-4">
+//           <Button
+//             type="submit"
+//             className={clsx(styles.transacaoButton, {
+//               "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400":
+//                 isLoading,
+//             })}
+//             disabled={isLoading}
+//             aria-disabled={isLoading}
+//           >
+//             {isLoading ? "Concluindo Transação…" : "Concluir Transação"}
+//           </Button>
+//         </Box>
+//       </form>
+//     </Box>
+//   );
+// }
+import {
+  Box,
+  Button,
+  FormControl,
+  Input,
+  InputAdornment,
+  MenuItem,
+  Select,
+  cardNewTransactionStyles as styles,
+} from "../../ui";
 import { transactionValidations } from "utils/forms-validations/formValidations";
-import { CardNewTransactionProps, NewTransactionData } from "interfaces/dashboard";
+import {
+  CardNewTransactionProps,
+  NewTransactionData,
+} from "interfaces/dashboard";
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
 
-export default function CardNewTransaction({ onSubmit, isLoading }: CardNewTransactionProps) {
-const {
+export default function CardNewTransaction({
+  onSubmit,
+  isLoading,
+}: CardNewTransactionProps) {
+  const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<NewTransactionData>();
-
-  const handleFormSubmit = (data: NewTransactionData) => {
-  onSubmit(data);
-};
 
   return (
     <Box
@@ -23,49 +138,72 @@ const {
     >
       <h3 className={styles.transacaoTitle}>Nova Transação</h3>
 
-    <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <FormControl className={styles.transacaoFormControl}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* ---------- SELECT ---------- */}
+        <FormControl
+          fullWidth
+          className={styles.transacaoFormControl}
+          sx={{ width: "100%", boxSizing: "border-box" }}
+        >
           <Select
+            fullWidth
             displayEmpty
             defaultValue=""
-            className={clsx(`${styles.transacaoSelect}`, {
-              "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
-                !errors.tipo,
-              "bg-gray-100 border border-red-500 focus-within:ring-red-300":
-                !!errors.tipo,
-            })}
+            variant="outlined"
+            sx={{
+              "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+              border: "1px solid",
+              borderColor: errors.tipo ? "#ef4444" : "#e5e7eb",
+              borderRadius: 2,
+              "&.Mui-focused": {
+                borderColor: errors.tipo ? "#ef4444" : "#22c55e",
+                boxShadow: `0 0 0 2px ${errors.tipo ? "#fecaca" : "#6ee7b7"}`,
+              },
+              width: "100%",
+            }}
+            error={!!errors.tipo}
             {...register("tipo", transactionValidations.tipo)}
-            // className={styles.transacaoSelect}
           >
             <MenuItem value="" disabled>
               Selecione o tipo de transação
             </MenuItem>
-            <MenuItem value="cambio">Câmbio de Moeda</MenuItem>
-            <MenuItem value="deposito">DOC/TED</MenuItem>
-            <MenuItem value="transferencia">
-              Empréstimo e Financiamento
-            </MenuItem>
+            <MenuItem value="cambio">Câmbio</MenuItem>
+            <MenuItem value="deposito">Depósito</MenuItem>
+            <MenuItem value="transferencia">Transferência</MenuItem>
           </Select>
-          {/* {errors.tipo && (
-            <Typography color="error" variant="caption">
-              {errors.tipo.message}
-            </Typography>
-          )} */}
           {errors.tipo && (
             <span className="text-red-500 text-sm">{errors.tipo.message}</span>
           )}
         </FormControl>
 
+        {/* ---------- INPUT ---------- */}
         <p className={styles.transacaoLabel}>Valor</p>
-        <FormControl className={styles.transacaoFormControl}>
+        <FormControl
+          fullWidth
+          className={styles.transacaoFormControl}
+          sx={{ width: "100%", boxSizing: "border-box" }}
+        >
           <Input
+            fullWidth
             placeholder="00,00"
-            className={clsx(`${styles.transacaoInput}`, {
-              "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
-                !errors.valor,
-              "bg-gray-100 border border-red-500 focus-within:ring-red-300":
-                !!errors.valor,
-            })}
+            disableUnderline
+            sx={{
+              border: "1px solid",
+              borderColor: errors.valor ? "#ef4444" : "#e5e7eb",
+              borderRadius: 2,
+              pl: 1.5,
+              py: 1,
+              my: 3,
+              width: "100%",
+              boxSizing: "border-box",
+              "&:focus-within": {
+                borderColor: errors.valor ? "#ef4444" : "#22c55e",
+                boxShadow: `0 0 0 2px ${errors.valor ? "#fecaca" : "#6ee7b7"}`,
+              },
+            }}
+            startAdornment={
+              <InputAdornment position="start">R$</InputAdornment>
+            }
             {...register("valor", transactionValidations.valor)}
           />
           {errors.valor && (
@@ -73,15 +211,16 @@ const {
           )}
         </FormControl>
 
+        {/* ---------- BOTÃO ---------- */}
         <Box className="mt-4">
           <Button
             type="submit"
             className={clsx(styles.transacaoButton, {
-              "bg-gray-400 cursor-not-allowed": isLoading,
-              "hover:bg-gray-400": isLoading, // Prevent hover effects when disabled
+              "opacity-50 cursor-not-allowed bg-gray-400 hover:bg-gray-400":
+                isLoading,
             })}
             disabled={isLoading}
-            aria-disabled={isLoading} // Add ARIA attribute for accessibility
+            aria-disabled={isLoading}
           >
             {isLoading ? "Concluindo Transação…" : "Concluir Transação"}
           </Button>

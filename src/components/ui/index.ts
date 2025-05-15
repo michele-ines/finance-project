@@ -14,6 +14,7 @@ export { default as Checkbox } from "@mui/material/Checkbox";
 export { default as FormControl } from "@mui/material/FormControl";
 export { default as IconButton } from "@mui/material/IconButton";
 export { default as Input } from "@mui/material/Input";
+export { default as InputAdornment } from "@mui/material/InputAdornment"; 
 export { default as InputLabel } from "@mui/material/InputLabel";
 export { default as Menu } from "@mui/material/Menu";
 export { default as MenuItem } from "@mui/material/MenuItem";
@@ -26,6 +27,7 @@ export { default as DeleteIcon } from "@mui/icons-material/Delete";
 export { default as EditIcon } from "@mui/icons-material/Edit";
 export { default as MenuIcon } from "@mui/icons-material/Menu";
 export { default as PermIdentityIcon } from "@mui/icons-material/PermIdentity";
+export { default as ReceiptLongOutlinedIcon } from "@mui/icons-material/ReceiptLongOutlined"; 
 export { default as VisibilityIcon } from "@mui/icons-material/Visibility";
 export { default as VisibilityOffIcon } from "@mui/icons-material/VisibilityOff";
 

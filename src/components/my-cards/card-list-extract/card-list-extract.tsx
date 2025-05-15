@@ -7,11 +7,14 @@ import {
   EditIcon,
   IconButton,
   Input,
-  React,
-  useState,
+  React, 
+  useState, 
   Checkbox,
+  Typography,        
+  InputAdornment,    
+  ReceiptLongOutlinedIcon,
   CardListExtractStyles as styles,
-} from "../../ui";
+} from "../../ui"; 
 import type { Transaction } from "../../../interfaces/dashboard";
 
 // Extended props interface to include onDelete callback
@@ -29,11 +32,10 @@ import {
 } from "../../../utils/currency-formatte/currency-formatte";
 import { useEffect } from "react";
 import {
-  formatDateBR, // já existia
-  parseDateBR, //  <-- novo  utils/date-formatte/date-formatte.ts
+  formatDateBR, 
+  parseDateBR, 
 } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
-import { InputAdornment } from "@mui/material";
 
 export default function CardListExtract({
   transactions,
@@ -167,11 +169,15 @@ export default function CardListExtract({
   /* -------------------------------------------------------------------- */
   /*  5.  Render                                                          */
   /* -------------------------------------------------------------------- */
+  const hasTransactions = !isLoading && editableTransactions.length > 0;
+
   return (
     <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
       {/* Header */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
+
+      {hasTransactions && !isEditing && !isDeleting && (
 
         <Box className={styles.extratoActions}>
           {!isEditing && !isDeleting && (
@@ -188,11 +194,25 @@ export default function CardListExtract({
             </IconButton>
           )}
         </Box>
+      )}
       </Box>
 
       {/* Lista / Skeleton */}
       {isLoading ? (
         <SkeletonListExtract rows={5} />
+      ) : editableTransactions.length === 0 ? (
+        /* Empty-state */
+        <Box className="flex flex-col items-center justify-center text-center gap-4 py-10">
+          <ReceiptLongOutlinedIcon
+            sx={{ fontSize: 56, color: "text.secondary" }}
+          />
+
+          <Typography variant="h6">Nenhuma transação por aqui</Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            Adicione uma Nova transação para começar.
+          </Typography>
+        </Box>
       ) : (
         <ul className="space-y-4">
           {editableTransactions.map((tx, index) => (
@@ -208,7 +228,7 @@ export default function CardListExtract({
                     <Input
                       disableUnderline
                       className={styles.txType}
-                      fullWidth /* ocupa todo o espaço restante */
+                      fullWidth
                       value={formatTipo(tx.tipo)}
                       onChange={(e) =>
                         handleTransactionChange(index, "tipo", e.target.value)
@@ -253,7 +273,12 @@ export default function CardListExtract({
                     onChange={(e) =>
                       handleTransactionChange(index, "valor", e.target.value)
                     }
-                    inputProps={{ inputMode: "numeric" }}
+                    inputProps={{
+                      inputMode: "decimal",
+                      maxLength: 15, // 6 inteiros + vírgula/ponto + 1 decimais
+                      pattern: "\\d{1,9}(?:[.,]\\d{0,2})?",
+                      title: "Até 999.999,99 (máx. 1 casas decimais)",
+                    }}
                     startAdornment={
                       <InputAdornment position="start">R$</InputAdornment>
                     }
