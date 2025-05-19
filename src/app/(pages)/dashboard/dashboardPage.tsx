@@ -15,6 +15,8 @@ export default function DashboardPage() {
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTransaction, setLoadingTransaction] = useState<boolean>(false);
+  const [balanceValue, setBalanceValue] = useState<number | null>(null);
+  const [loadingBalance, setLoadingBalance] = useState<boolean>(false);
 
   const fetchTransactions = async () => {
     await handleRequest(async () => {
@@ -25,15 +27,17 @@ export default function DashboardPage() {
     });
   };
 
-    const [balanceValue, setBalanceValue] = useState<number | null>(null);
+    
 
   // Função para buscar o saldo atualizado
   const fetchBalance = useCallback(async () => {
     await handleRequest(async () => {
+      setLoadingBalance(true);
       const res = await fetch("/api/transacao/soma-depositos");
       if (!res.ok) throw new Error("Falha ao buscar o saldo");
       const { total } = await res.json();
       setBalanceValue(total);
+      setLoadingBalance(false);
     });
   }, []);
 
@@ -102,6 +106,7 @@ export default function DashboardPage() {
       setLoadingTransaction(false);
       alert(message);
       setTransactions((prev) => [...prev, transacao]);
+      fetchBalance();
     });
   };
 
@@ -130,6 +135,7 @@ export default function DashboardPage() {
               transactions={transactions}
               onSave={handleSaveTransactions}
               onDelete={handleDeleteTransactions}
+              atualizaSaldo={fetchBalance}
             />
           </Box>
         </Box>

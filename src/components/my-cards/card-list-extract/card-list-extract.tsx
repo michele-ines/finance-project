@@ -22,6 +22,7 @@ interface CardListExtractProps {
   transactions: Transaction[];
   onSave?: (transactions: Transaction[]) => void;
   onDelete?: (transactionIds: number[]) => Promise<void>;
+  atualizaSaldo?: () => Promise<void>;
 }
 
 import clsx from "clsx";
@@ -41,6 +42,7 @@ export default function CardListExtract({
   transactions,
   onSave,
   onDelete,
+  atualizaSaldo
 }: CardListExtractProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -139,6 +141,7 @@ export default function CardListExtract({
         setIsDeletingInProgress(false);
         setIsDeleting(false);
         setSelectedTransactions([]);
+        atualizaSaldo?.();
       }
     }
   };

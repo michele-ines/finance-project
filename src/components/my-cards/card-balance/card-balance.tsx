@@ -11,8 +11,7 @@ import {
 
 import { CardBalanceProps } from "interfaces/dashboard";
 import { formatBRL } from "../../../utils/currency-formatte/currency-formatte";
-import { useEffect } from "react";
-import { handleRequest } from "utils/error-handlers/error-handle";
+
 
 export default function CardBalance({ user, balance }: CardBalanceProps) {
   const [showBalance, setShowBalance] = useState<boolean>(true);
