@@ -239,29 +239,10 @@ export default function CardListExtract({
                     <span className={styles.txType}>{formatTipo(tx.tipo)}</span>
                   )}
 
-                  {/* ---------- data ---------- */}
-                  {isEditing ? (
-                    <Input
-                      disableUnderline
-                      className={styles.txDate}
-                      value={tx.updatedAt}
-                      onChange={(e) =>
-                        handleTransactionChange(
-                          index,
-                          "updatedAt",
-                          e.target.value
-                        )
-                      }
-                      inputProps={{
-                        maxLength: 10,
-                        style: { textAlign: "right" },
-                      }}
-                    />
-                  ) : (
-                    <span className={styles.txDate}>
-                      {formatDateBR(tx.updatedAt)}
-                    </span>
-                  )}
+                
+                  <span className={styles.txDate}>
+                    {formatDateBR(tx.createdAt)}
+                  </span>
                 </Box>
 
                 {/* valor */}
