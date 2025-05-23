@@ -19,7 +19,7 @@ import clsx from "clsx";
 export default function CardNewTransaction({
   onSubmit,
   isLoading,
-}: CardNewTransactionProps) {
+}: Readonly<CardNewTransactionProps>) {
   const {
     register,
     handleSubmit,
@@ -30,7 +30,7 @@ export default function CardNewTransaction({
     <Box
       className={`${styles.cardTransacao} cardTransacao w-full min-h-[478px]`}
     >
-      <h3 className={styles.transacaoTitle}>Nova Transação</h3>
+      <h3 className={styles.transacaoTitle}>Nova transação</h3>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* ---------- SELECT ---------- */}
