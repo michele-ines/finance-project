@@ -15,6 +15,7 @@ import {
 } from "interfaces/dashboard";
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
+import { maskCurrency } from "utils/currency-formatte/currency-formatte";
 
 export default function CardNewTransaction({
   onSubmit,
@@ -99,6 +100,10 @@ export default function CardNewTransaction({
               <InputAdornment position="start">R$</InputAdornment>
             }
             {...register("valor", transactionValidations.valor)}
+            onChange={(e) => {
+              const value = e.target.value;
+              e.target.value = maskCurrency(value);
+            }}
           />
           {errors.valor && (
             <span className="text-red-500 text-sm">{errors.valor.message}</span>

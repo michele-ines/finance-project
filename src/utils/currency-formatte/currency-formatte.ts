@@ -46,3 +46,27 @@ export const formatTipo = (raw?: string): string => {
   const lower = raw.toLowerCase();
   return map[lower] ?? lower.charAt(0).toUpperCase() + lower.slice(1);
 };
+
+/**
+ * Máscara de campo do tipo texto para formatar um valor monetário.
+ * Aceita até 9 dígitos inteiros e 2 decimais.
+ */
+export const maskCurrency = (valor?: string): string => {
+  if (!valor) return "";
+
+  // Remove tudo que não for número
+  let numeros = valor.replace(/\D/g, "");
+
+  // Limita a 11 dígitos (9 inteiros + 2 decimais)
+  numeros = numeros.slice(0, 11);
+
+  const inteiro = numeros.slice(0, -2) || "0"; // pelo menos 1 inteiro
+  const decimal = numeros.slice(-2).padStart(2, "0"); // sempre 2 decimais
+
+  const numeroFinal = `${inteiro}.${decimal}`;
+
+  return Number(numeroFinal).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
