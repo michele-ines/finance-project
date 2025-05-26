@@ -184,12 +184,13 @@ export default function CardListExtract({
 
         <Box className={styles.extratoActions}>
           {!isEditing && !isDeleting && (
-            <IconButton className={styles.actionBtn} onClick={handleEditClick}>
+            <IconButton aria-label="editar" className={styles.actionBtn} onClick={handleEditClick}>
               <EditIcon fontSize="small" />
             </IconButton>
           )}
           {!isEditing && !isDeleting && (
             <IconButton
+            aria-label="excluir" 
               className={styles.actionBtn}
               onClick={handleDeleteClick}
             >

@@ -17,8 +17,8 @@ import {
   HeaderStyles as styles,
   PermIdentityIcon,
 } from "../../components/ui/index";
-import { ROUTES } from "config-routes/routes";
-import { getBgColor, useHeaderFlags } from "utils/route-matcher/route-matcher";
+import { ROUTES } from "../../config-routes/routes";
+import { getBgColor, useHeaderFlags } from "../../utils/route-matcher/route-matcher";
 
 export default function Header() {
   const router = useRouter();

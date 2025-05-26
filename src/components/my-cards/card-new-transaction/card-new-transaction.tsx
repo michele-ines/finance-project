@@ -8,7 +8,7 @@ import {
   Select,
   cardNewTransactionStyles as styles,
 } from "../../ui";
-import { transactionValidations } from "utils/forms-validations/formValidations";
+import { transactionValidations } from "../../../utils/forms-validations/formValidations";
 import {
   CardNewTransactionProps,
   NewTransactionData,
