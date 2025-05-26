@@ -14,7 +14,7 @@
     left: 0;
     width: 120px;
     height: 120px;
-    background: url("/dash-card-new-transação/card-pixels-3.svg")
+    background: url("/dash-card-new-transacao/card-pixels-3.svg")
       no-repeat left bottom / contain;
     pointer-events: none;
     z-index: 0 !important;
@@ -30,15 +30,15 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: url("/dash-card-new-transação/Ilustração-2.svg")
+    background: url("/dash-card-new-transacao/Ilustracao-2.svg")
         no-repeat right bottom / 260px 240px,
-      url("/dash-card-new-transação/card-pixels-4.svg") no-repeat
+      url("/dash-card-new-transacao/card-pixels-4.svg") no-repeat
         right top / 120px 120px;
   }
 
   @media (max-width: 1023px) {
     &::after {
-      background: url("/dash-card-new-transação/Ilustração-2.svg")
+      background: url("/dash-card-new-transacao/Ilustracao-2.svg")
           no-repeat right bottom / 239px 131px,
         url("/_next/static/media/card-pixels-4.svg") no-repeat right
           top / 120px 95px;

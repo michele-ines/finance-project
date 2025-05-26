@@ -3,9 +3,12 @@ import {
   LoginData,
   RegisterData,
   ForgotPasswordData,
+  NewTransactionData, // adicione essa interface no seu dashboard.ts
 } from "../../interfaces/dashboard";
 
-// Regras de validação para o RegisterForm
+/* ------------------------------------------------------------------ */
+/* 1. Validações do formulário de registro                            */
+/* ------------------------------------------------------------------ */
 export const registerValidations = {
   name: {
     required: "Nome é obrigatório",
@@ -33,7 +36,7 @@ export const registerValidations = {
       const hasLower = /[a-z]/.test(value);
       const hasNumber = /\d/.test(value);
       return (
-        hasUpper && hasLower && hasNumber ||
+        (hasUpper && hasLower && hasNumber) ||
         "Use letras maiúsculas, minúsculas e números"
       );
     },
@@ -51,7 +54,9 @@ export const registerValidations = {
   } as RegisterOptions<RegisterData, "terms">,
 };
 
-// Regras de validação para o LoginForm
+/* ------------------------------------------------------------------ */
+/* 2. Validações do LoginForm                                         */
+/* ------------------------------------------------------------------ */
 export const loginValidations = {
   email: {
     required: "Email é obrigatório",
@@ -66,10 +71,36 @@ export const loginValidations = {
   } as RegisterOptions<LoginData, "password">,
 };
 
-// Regras de validação para o ForgotPasswordForm
+/* ------------------------------------------------------------------ */
+/* 3. Validações do ForgotPasswordForm                                */
+/* ------------------------------------------------------------------ */
 export const forgotPasswordValidations = {
-  email: loginValidations.email as RegisterOptions< // reaproveita a mesma regra de email
+  email: loginValidations.email as RegisterOptions<
     ForgotPasswordData,
     "email"
   >,
+};
+
+/* ------------------------------------------------------------------ */
+/* 4. Validações do formulário de Nova Transação                      */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Até 999 999 999,99 → 9 dígitos inteiros + 1 separador + 2 decimais.
+ * Aceita ponto ou vírgula como separador decimal.
+ */
+const currencyRegex = /^\d{1,9}(?:[.,]\d{1,2})?$/;
+
+export const transactionValidations = {
+  tipo: {
+    required: "Tipo de transação é obrigatório",
+  } as RegisterOptions<NewTransactionData, "tipo">,
+
+  valor: {
+    required: "Valor é obrigatório",
+    pattern: {
+      value: currencyRegex,
+      message: "Digite um valor até 999.999.999,99 (máx. 2 casas decimais)",
+    },
+  } as RegisterOptions<NewTransactionData, "valor">,
 };

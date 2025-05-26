@@ -15,9 +15,10 @@ import {
   Image,
   Link,
   HeaderStyles as styles,
+  PermIdentityIcon,
 } from "../../components/ui/index";
-import { ROUTES } from "config-routes/routes";
-import { getBgColor, useHeaderFlags } from "utils/route-matcher/route-matcher";
+import { ROUTES } from "../../config-routes/routes";
+import { getBgColor, useHeaderFlags } from "../../utils/route-matcher/route-matcher";
 
 export default function Header() {
   const router = useRouter();
@@ -25,6 +26,9 @@ export default function Header() {
   const bgColor = getBgColor(pathname);
   const { showPublicLinks, showInternalLinks, showDashboardBtn } =
     useHeaderFlags();
+
+  const isActive = (route: string) =>
+    pathname === route || pathname.startsWith(route + "/");
 
   const [mounted, setMounted] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -37,6 +41,12 @@ export default function Header() {
   const openMenu = (e: React.MouseEvent<HTMLElement>) =>
     setAnchorElNav(e.currentTarget);
   const closeMenu = () => setAnchorElNav(null);
+
+  const underlineStyle = {
+    borderBottom: `2px solid var(--byte-color-green-500)`,
+    borderRadius: 0,
+    paddingBottom: "4px",
+  };
 
   return (
     <AppBar
@@ -81,7 +91,9 @@ export default function Header() {
             width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}
+          >
             <Link href={ROUTES.ROOT}>
               <Box sx={{ display: { sm: "block", md: "none" } }}>
                 <Image
@@ -106,7 +118,9 @@ export default function Header() {
                 color="inherit"
                 className={styles.menuItemText}
                 onClick={() => router.push(ROUTES.DASHBOARD)}
-                sx={{ textTransform: "none" }}
+                sx={{
+                  ...(isActive(ROUTES.NOT_FOUND) ? underlineStyle : {}),
+                }}
               >
                 Dashboard
               </Button>
@@ -118,6 +132,9 @@ export default function Header() {
                   color="inherit"
                   className={styles.menuItemText}
                   onClick={() => router.push(ROUTES.NOT_FOUND)}
+                  sx={{
+                    ...(isActive(ROUTES.NOT_FOUND) ? underlineStyle : {}),
+                  }}
                 >
                   Sobre
                 </Button>
@@ -125,6 +142,9 @@ export default function Header() {
                   color="inherit"
                   className={styles.menuItemText}
                   onClick={() => router.push(ROUTES.NOT_FOUND)}
+                  sx={{
+                    ...(isActive(ROUTES.NOT_FOUND) ? underlineStyle : {}),
+                  }}
                 >
                   Serviços
                 </Button>
@@ -137,6 +157,9 @@ export default function Header() {
                   color="inherit"
                   className={styles.menuItemText}
                   onClick={() => router.push(ROUTES.DASHBOARD)}
+                  sx={{
+                    ...(isActive(ROUTES.DASHBOARD) ? underlineStyle : {}),
+                  }}
                 >
                   Início
                 </Button>
@@ -144,6 +167,9 @@ export default function Header() {
                   color="inherit"
                   className={styles.menuItemText}
                   onClick={() => router.push(ROUTES.PERSONAL_CARDS)}
+                  sx={{
+                    ...(isActive(ROUTES.PERSONAL_CARDS) ? underlineStyle : {}),
+                  }}
                 >
                   Meus cartões
                 </Button>
@@ -160,23 +186,50 @@ export default function Header() {
                   color="inherit"
                   className={styles.menuItemText}
                   onClick={() => router.push(ROUTES.INVESTMENTS)}
+                  sx={{
+                    ...(isActive(ROUTES.INVESTMENTS) ? underlineStyle : {}),
+                  }}
                 >
                   Investimentos
                 </Button>
                 <Button
                   color="inherit"
                   className={styles.menuItemText}
-                  onClick={() => router.push(ROUTES.ACCOUNT)}
-                >
-                  Minha Conta
-                </Button>
-                <Button
-                  color="inherit"
-                  className={styles.menuItemText}
                   onClick={() => router.push(ROUTES.OTHER_SERVICES)}
+                  sx={{
+                    ...(isActive(ROUTES.OTHER_SERVICES) ? underlineStyle : {}),
+                  }}
                 >
                   Outros serviços
                 </Button>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: { md: 4, xs: 2 },
+                    marginLeft: "auto",
+                  }}
+                >
+                  <Typography
+                    className={styles.userName}
+                    onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+                  >
+                    Joana da Silva Oliveira
+                  </Typography>
+                  <IconButton
+                    size="large"
+                    onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+                    className={styles.userButton}
+                    title="Minha conta"
+                    aria-label="Ícone de usuário"
+                  >
+                    <PermIdentityIcon
+                      fontSize="small"
+                      onClick={() => router.push("/dashboard")}
+                      className={styles.userIcon}
+                    />
+                  </IconButton>
+                </Box>
               </>
             )}
           </Box>
@@ -188,6 +241,9 @@ export default function Header() {
                 color="success"
                 className={styles.openAccountButton}
                 onClick={() => router.push(ROUTES.REGISTER)}
+                sx={{
+                  ...(isActive(ROUTES.REGISTER) ? underlineStyle : {}),
+                }}
               >
                 Abrir Conta
               </Button>
@@ -215,7 +271,12 @@ export default function Header() {
           {showDashboardBtn && (
             <MenuItem onClick={closeMenu} key="dashboard">
               <Link href={ROUTES.DASHBOARD} passHref legacyBehavior>
-                <Typography textAlign="center">Dashboard</Typography>
+                <Typography
+                  textAlign="center"
+                  sx={isActive(ROUTES.DASHBOARD) ? underlineStyle : {}}
+                >
+                  Dashboard
+                </Typography>
               </Link>
             </MenuItem>
           )}
@@ -223,12 +284,22 @@ export default function Header() {
           {/* Links Públicos */}
           {showPublicLinks && (
             <MenuItem onClick={closeMenu} key="sobre-mobile">
-              <Typography textAlign="center">Sobre</Typography>
+              <Typography
+                textAlign="center"
+                sx={isActive(ROUTES.ABOUT) ? underlineStyle : {}}
+              >
+                Sobre
+              </Typography>
             </MenuItem>
           )}
           {showPublicLinks && (
             <MenuItem onClick={closeMenu} key="servicos-mobile">
-              <Typography textAlign="center">Serviços</Typography>
+              <Typography
+                textAlign="center"
+                sx={isActive(ROUTES.SERVICES) ? underlineStyle : {}}
+              >
+                Serviços
+              </Typography>
             </MenuItem>
           )}
           {showPublicLinks && (
@@ -249,6 +320,7 @@ export default function Header() {
                     closeMenu();
                     router.push(ROUTES.REGISTER);
                   }}
+                  sx={isActive(ROUTES.REGISTER) ? underlineStyle : {}}
                 >
                   Abrir Conta
                 </Button>
@@ -260,6 +332,7 @@ export default function Header() {
                     closeMenu();
                     router.push(ROUTES.LOGIN);
                   }}
+                  sx={isActive(ROUTES.LOGIN) ? underlineStyle : {}}
                 >
                   Já tenho conta
                 </Button>
@@ -270,16 +343,24 @@ export default function Header() {
           {/* Links Internos */}
           {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="inicio-mobile">
-              <Link href={ROUTES.DASHBOARD} passHref legacyBehavior>
-                <Typography textAlign="center">Início</Typography>
-              </Link>
+              <Typography
+                textAlign="center"
+                sx={isActive(ROUTES.DASHBOARD) ? underlineStyle : {}}
+                onClick={() => router.push(ROUTES.DASHBOARD)}
+              >
+                Início
+              </Typography>
             </MenuItem>
           )}
           {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="meus-cartoes-mobile">
-              <Link href={ROUTES.PERSONAL_CARDS} passHref legacyBehavior>
-                <Typography textAlign="center">Meus Cartões</Typography>
-              </Link>
+              <Typography
+                textAlign="center"
+                sx={isActive(ROUTES.PERSONAL_CARDS) ? underlineStyle : {}}
+                onClick={() => router.push(ROUTES.PERSONAL_CARDS)}
+              >
+                Meus Cartões
+              </Typography>
             </MenuItem>
           )}
           {/** NÃO REMOVER, VAI SER ULTILIZADO NO FUTURO */}
@@ -290,23 +371,36 @@ export default function Header() {
           )} */}
           {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="investimentos-mobile">
-              <Link href={ROUTES.INVESTMENTS} passHref legacyBehavior>
-                <Typography textAlign="center">Investimentos</Typography>
-              </Link>
-            </MenuItem>
-          )}
-          {showInternalLinks && (
-            <MenuItem onClick={closeMenu} key="minha-conta-mobile">
-              <Link href={ROUTES.ACCOUNT} passHref legacyBehavior>
-                <Typography textAlign="center">Minha Conta</Typography>
-              </Link>
+              <Typography
+                textAlign="center"
+                sx={isActive(ROUTES.INVESTMENTS) ? underlineStyle : {}}
+                onClick={() => router.push(ROUTES.INVESTMENTS)}
+              >
+                Investimentos
+              </Typography>
             </MenuItem>
           )}
           {showInternalLinks && (
             <MenuItem onClick={closeMenu} key="outros-mobile">
-              <Link href={ROUTES.OTHER_SERVICES} passHref legacyBehavior>
-                <Typography textAlign="center">Outros serviços</Typography>
-              </Link>
+              <Typography
+                textAlign="center"
+                sx={isActive(ROUTES.OTHER_SERVICES) ? underlineStyle : {}}
+                onClick={() => router.push(ROUTES.OTHER_SERVICES)}
+              >
+                Outros serviços
+              </Typography>
+            </MenuItem>
+          )}
+          {showInternalLinks && (
+            <MenuItem onClick={closeMenu} key="minha-conta-mobile">
+              <Typography
+                className={styles.userName}
+                textAlign="center"
+                sx={isActive(ROUTES.MY_ACCOUNT) ? underlineStyle : {}}
+                onClick={() => router.push(ROUTES.MY_ACCOUNT)}
+              >
+                Joana da Silva Oliveira
+              </Typography>
             </MenuItem>
           )}
         </Menu>

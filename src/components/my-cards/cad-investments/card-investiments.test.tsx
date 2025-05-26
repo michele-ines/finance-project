@@ -48,7 +48,7 @@ type PieChartProps = {
 };
 
 // Mock dos componentes do UI
-jest.mock("../ui/index.ts", () => ({
+jest.mock("../../ui/index.ts", () => ({
   Box: ({ children, className }: BoxProps) => (
     <div className={className}>{children}</div>
   ),

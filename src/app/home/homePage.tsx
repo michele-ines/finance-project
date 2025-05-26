@@ -1,5 +1,6 @@
 "use client";
-import { React, Button, Image } from "../../components/ui/index";
+
+import { Button, Image, React } from "../../components/ui/index";
 
 export default function Home() {
   return (

@@ -10,13 +10,9 @@ export const ROUTES = {
   PERSONAL_CARDS: "/meus-cartoes",
   // TRANSFER: "/transferencia",
   INVESTMENTS: "/investments",
-  ACCOUNT: "/minha-conta",
+  MY_ACCOUNT: "/minha-conta",
   OTHER_SERVICES: "/outros-servicos",
   NOT_FOUND: "/not-found",
-  
-  
-  
-  
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

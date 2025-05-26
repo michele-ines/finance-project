@@ -1,7 +1,10 @@
 "use client";
+
 import React from "react";
-import { Button, Image } from "../../components/ui/index"; // Ajuste o import se necessário
+
+import { Button, Image } from "../../components/ui/index";
 import { ROUTES } from "config-routes/routes";
+
 
 export default function NotFound() {
   return (
@@ -38,7 +41,7 @@ export default function NotFound() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 py-8">
         {/* Ilustração do OVNI 404 */}
         <Image
-          src="/page/ilustração-error-404.svg"
+          src="/page/ilustracao-error-404.svg"
           alt="Ilustração de OVNI para página 404"
           width={470}
           height={354}

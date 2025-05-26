@@ -1,4 +1,4 @@
-import { ROUTES } from "config-routes/routes";
+import { ROUTES } from "../../config-routes/routes";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { HeaderFlags } from "interfaces/dashboard";
@@ -23,7 +23,7 @@ const internalOnlyRoutes: string[] = [
   ROUTES.PERSONAL_CARDS,
   // ROUTES.TRANSFER,
   ROUTES.INVESTMENTS,
-  ROUTES.ACCOUNT,
+  ROUTES.MY_ACCOUNT,
   ROUTES.OTHER_SERVICES,
 ];
 
@@ -38,7 +38,7 @@ export const isDashboardRoute = (p: string) => p.startsWith(ROUTES.DASHBOARD);
 export const isPersonalRoute = (p: string) => p.startsWith(ROUTES.PERSONAL_CARDS);
 // export const isTransferRoute = (p: string) => p.startsWith(ROUTES.TRANSFER);
 export const isInvestmentsRoute = (p: string) => p.startsWith(ROUTES.INVESTMENTS);
-export const isAccountRoute = (p: string) => p.startsWith(ROUTES.ACCOUNT);
+export const isMyAccountRoute = (p: string) => p.startsWith(ROUTES.MY_ACCOUNT);
 export const isOtherServicesRoute = (p: string) => p.startsWith(ROUTES.OTHER_SERVICES);
 
 /* --- rotas com comportamento especial --- */

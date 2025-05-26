@@ -1,7 +1,9 @@
 "use client";
+
+import ForgotPasswordForm from "components/forms/forgot-password-form";
 import Image from "next/image";
 import { Box, Typography } from "../../../components/ui";
-import ForgotPasswordForm from "components/forms/forgot-password-form";
+
 
 export default function ForgotPasswordPage() {
   return (
@@ -9,7 +11,7 @@ export default function ForgotPasswordPage() {
       <Box className="flex flex-col lg:flex-row bg-white rounded-2xl shadow-lg max-w-4xl w-full overflow-hidden my-6">
         <Box className="lg:w-1/2 w-full flex items-center justify-center py-12 pl-12">
           <Image
-            src="/login/ilustração-esqueci-senha.svg"
+            src="/login/ilustracao-esqueci-senha.svg"
             alt="Ilustração de esqueci senha"
             width={600}
             height={600}

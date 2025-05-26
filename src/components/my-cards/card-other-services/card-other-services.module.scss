@@ -1,0 +1,53 @@
+/* ------------------------------------------------------------------ */
+/* CARD CONTAINER (fundo cinza + pixels decorativos)                  */
+/* ------------------------------------------------------------------ */
+.cardTransacao {
+  background-color: var(--byte-gray-200);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+
+  /* pixels no canto inferior‑esquerdo */
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: url("/dash-card-new-transacao/card-pixels-3.svg")
+    no-repeat left bottom / contain;
+    pointer-events: none;
+    z-index: 0 !important;
+  }
+
+  /* pixels no canto superior‑direito */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      url("/dash-card-new-transacao/card-pixels-4.svg") no-repeat
+        right top / 120px 120px;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.serviceLabel {
+  font-family: var(--font-inter);
+  font-weight: var(--font-bold);       
+  font-size: var(--text-sm);           
+  line-height: var(--line-height-tight); 
+  letter-spacing: var(--letter-spacing-none); 
+  text-align: center;
+  vertical-align: middle;
+}

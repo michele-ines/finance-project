@@ -4,36 +4,44 @@
   },
   "balance": {
     "account": "Conta Corrente",
-    "value": 2500
+    "value": 0
   },
   "transactions": [
     {
-      "id": 1,
+      "_id": 1,
       "month": "Novembro",
-      "type": "Depósito",
+      "tipo": "Depósito",
       "date": "18/11/2022",
-      "amount": 150
+      "valor": 150,
+      "createdAt": "",
+      "updatedAt": ""
     },
     {
-      "id": 2,
+      "_id": 2,
       "month": "Novembro",
-      "type": "Depósito",
+      "tipo": "Depósito",
       "date": "21/11/2022",
-      "amount": 100
+      "valor": 100,
+      "createdAt": "",
+      "updatedAt": ""
     },
     {
-      "id": 3,
+      "_id": 3,
       "month": "Novembro",
-      "type": "Depósito",
+      "tipo": "Depósito",
       "date": "21/11/2022",
-      "amount": 50
+      "valor": 50,
+      "createdAt": "",
+      "updatedAt": ""
     },
     {
-      "id": 4,
+      "_id": 4,
       "month": "Novembro",
-      "type": "Transferência",
+      "tipo": "Transferência",
       "date": "21/11/2022",
-      "amount": -500
+      "valor": -500,
+      "createdAt": "",
+      "updatedAt": ""
     }
   ],
   "investments": [

@@ -1,11 +1,15 @@
 "use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+
 import clsx from "clsx";
-import { Box, Input, Button } from "../ui";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+
+import { Box, Button, Input } from "../ui";
+
+import { ROUTES } from "config-routes/routes";
 import { ForgotPasswordData } from "interfaces/dashboard";
 import { forgotPasswordValidations } from "utils/forms-validations/formValidations";
-import { ROUTES } from "config-routes/routes";
+
 
 export default function ForgotPasswordForm() {
   const [submitted, setSubmitted] = useState(false);

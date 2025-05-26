@@ -1,3 +1,7 @@
+<<<<<<< HEAD
 # post-merge
 printf '%s\n' '#!/usr/bin/env sh' 'npm install' > .husky/post-merge
 chmod +x .husky/post-merge
+=======
+npm install
+>>>>>>> developer

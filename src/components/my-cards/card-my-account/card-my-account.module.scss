@@ -1,0 +1,72 @@
+/* ------------------------------------------------------------------ */
+/* CARD CONTAINER (fundo cinza + pixels decorativos)                  */
+/* ------------------------------------------------------------------ */
+.cardContainer {
+  background-color: var(--byte-gray-200);
+  border-radius: 8px;
+  // padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+
+  /* pixels no canto inferior‑esquerdo */
+  &::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: url("/dash-card-my-account/card-pixels-4.svg") no-repeat left
+      bottom / contain;
+    pointer-events: none;
+    z-index: 0 !important;
+  }
+
+  /* pixels no canto superior‑direito */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("/dash-card-my-account/card-pixels-3.svg") no-repeat right
+      top / 120px 120px;
+  }
+
+  /* garante que o conteúdo fique acima dos pixels */
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* TIPOGRAFIA                                                         */
+/* ------------------------------------------------------------------ */
+.myAccountTitle {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 100%;
+  color: var(--byte-color-black);
+  margin-bottom: 0;
+}
+
+.myAccountLabel {
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 100%;
+  color: var(--byte-color-black);
+  margin-bottom: 8px;
+}
+
+.myAccountInput {
+  width: 355px;
+  height: 48px;
+  border-radius: 8px;
+  padding: 0 0.5rem;
+  margin-top: 32px;
+}
