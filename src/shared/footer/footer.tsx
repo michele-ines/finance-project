@@ -1,6 +1,6 @@
 "use client";
 
-import { getBgColor } from "utils/route-matcher/route-matcher";
+import { getBgColor } from '../../utils/route-matcher/route-matcher';
 import { usePathname, React, Image } from "../../components/ui/index"; 
 
 import styles from './footer.module.scss';

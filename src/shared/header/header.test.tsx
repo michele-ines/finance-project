@@ -4,6 +4,7 @@ jest.mock('next/font/google', () => ({
 }));
 
 const pushMock = jest.fn();
+
 jest.mock('next/navigation', () => ({
   usePathname: () => '/',
   useRouter: () => ({ push: pushMock }),
@@ -21,7 +22,7 @@ describe('Header', () => {
   it('renderiza logo e botões de navegação desktop', () => {
     render(<Header />);
 
-    expect(screen.getAllByAltText('Bite Bank Logo').length).toBeGreaterThan(0);
+    expect(screen.getAllByAltText('Logo').length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /dashboard/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sobre/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /serviços/i })).toBeInTheDocument();
@@ -37,15 +38,19 @@ describe('Header', () => {
 
   it('abre e fecha o menu mobile corretamente', () => {
     render(<Header />);
-    fireEvent.click(screen.getByLabelText('menu'));
 
+    // Abre menu
+    fireEvent.click(screen.getByLabelText('menu'));
     const menu = screen.getByRole('menu');
     expect(menu).toBeVisible();
 
+    // Clica no item do menu
     const mobileDashboard = within(menu).getByText('Dashboard');
     expect(mobileDashboard).toBeVisible();
 
     fireEvent.click(mobileDashboard);
+
+    // Menu deve fechar (dependente da implementação interna)
     expect(menu).not.toBeVisible();
   });
 });

@@ -1,41 +1,76 @@
-import React from 'react';
-import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
+import Footer from './footer';
+import * as routeMatcher from '../../utils/route-matcher/route-matcher';
+import * as ui from '../../components/ui/index';
 
-// Mock do next/font/google antes de carregar o ui/index
-jest.mock('next/font/google', () => ({
-  Inter: () => ({ className: '' }),
-  Roboto_Mono: () => ({ className: '' }),
+// Mock do componente de imagem e hook usePathname usado no projeto
+jest.mock('../../components/ui/index', () => ({
+  Image: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+  usePathname: jest.fn(),
 }));
 
-import Footer from './footer';
+// Mock da função getBgColor
+jest.mock('../../utils/route-matcher/route-matcher', () => ({
+  getBgColor: jest.fn(),
+}));
 
 describe('Footer', () => {
-  it('deve renderizar o footer', () => {
-    const { baseElement } = render(<Footer />);
-    expect(baseElement).toBeInTheDocument();
+  const mockPathname = '/home';
+  const mockBgColor = '#123456';
+
+  beforeEach(() => {
+    (ui.usePathname as jest.Mock).mockReturnValue(mockPathname);
+    (routeMatcher.getBgColor as jest.Mock).mockReturnValue(mockBgColor);
   });
 
-  it('deve exibir seção Serviços', () => {
-    render(<Footer />);
-    expect(screen.getByText(/Serviços/i)).toBeInTheDocument();
-    expect(screen.getByText(/Conta corrente/i)).toBeInTheDocument();
-    expect(screen.getByText(/Conta PJ/i)).toBeInTheDocument();
-    expect(screen.getByText(/Cartão de crédito/i)).toBeInTheDocument();
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('deve exibir seção Contato', () => {
+  it('should render all section titles', () => {
     render(<Footer />);
-    expect(screen.getByText(/Contato/i)).toBeInTheDocument();
+
+    expect(screen.getByText('Serviços')).toBeInTheDocument();
+    expect(screen.getByText('Contato')).toBeInTheDocument();
+    expect(screen.getByText('Developed by Front-End')).toBeInTheDocument();
+  });
+
+  it('should render all service items', () => {
+    render(<Footer />);
+
+    expect(screen.getByText('Conta corrente')).toBeInTheDocument();
+    expect(screen.getByText('Conta PJ')).toBeInTheDocument();
+    expect(screen.getByText('Cartão de crédito')).toBeInTheDocument();
+  });
+
+  it('should render all contact items', () => {
+    render(<Footer />);
+
     expect(screen.getByText('0800 504 3058')).toBeInTheDocument();
     expect(screen.getByText('suporte@bytebank.com')).toBeInTheDocument();
     expect(screen.getByText('contato@bytebank.com')).toBeInTheDocument();
   });
 
-  it('deve exibir seção Developed by Front-End e imagens', () => {
+  it('should render all images with correct alt texts', () => {
     render(<Footer />);
-    expect(screen.getByText(/Developed by Front-End/i)).toBeInTheDocument();
-    const images = screen.getAllByRole('img');
-    expect(images.length).toBeGreaterThanOrEqual(4);
+
+    expect(screen.getByAltText('Bytebank Logo')).toBeInTheDocument();
+    expect(screen.getByAltText('Instagram')).toBeInTheDocument();
+    expect(screen.getByAltText('YouTube')).toBeInTheDocument();
+    expect(screen.getByAltText('Whatsapp')).toBeInTheDocument();
+  });
+
+  it('should apply the correct background color', () => {
+    const { container } = render(<Footer />);
+
+    const footer = container.querySelector('footer');
+    expect(footer).toHaveStyle(`background-color: ${mockBgColor}`);
+  });
+
+  it('should call usePathname and getBgColor with correct values', () => {
+    render(<Footer />);
+
+    expect(ui.usePathname).toHaveBeenCalled();
+    expect(routeMatcher.getBgColor).toHaveBeenCalledWith(mockPathname);
   });
 });

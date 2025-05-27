@@ -1,4 +1,4 @@
-import { ROUTES } from "config-routes/routes";
+import { ROUTES } from "../../config-routes/routes";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { HeaderFlags } from "interfaces/dashboard";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
@@ -15,6 +15,8 @@ export default function DashboardPage() {
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTransaction, setLoadingTransaction] = useState<boolean>(false);
+  const [balanceValue, setBalanceValue] = useState<number | null>(null);
+  const [loadingBalance, setLoadingBalance] = useState<boolean>(false);
 
   const fetchTransactions = async () => {
     await handleRequest(async () => {
@@ -25,10 +27,38 @@ export default function DashboardPage() {
     });
   };
 
-  const handleSaveTransactions = (tx: Transaction[]) => {
-    console.log("Transações editadas no extrato:", tx);
-    setTransactions(tx);
-    // Aqui poderia ter uma lógica para enviar as alterações para a API
+    
+
+  // Função para buscar o saldo atualizado
+  const fetchBalance = useCallback(async () => {
+    await handleRequest(async () => {
+      setLoadingBalance(true);
+      const res = await fetch("/api/transacao/soma-depositos");
+      if (!res.ok) throw new Error("Falha ao buscar o saldo");
+      const { total } = await res.json();
+      setBalanceValue(total);
+      setLoadingBalance(false);
+    });
+  }, []);
+
+  const handleSaveTransactions = async (txs: Transaction[]) => {
+    await handleRequest(async () => {
+      for (const tx of txs) {
+        await handleRequest(async () => {
+          await fetch(`/api/transacao/${tx._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tipo: tx.tipo,
+              valor: tx.valor,
+              // adicione outros campos se necessário
+            }),
+          });
+        });
+      }
+      setTransactions(txs);
+      fetchBalance();
+    });
   };
 
   const handleDeleteTransactions = async (transactionIds: number[]) => {
@@ -76,11 +106,13 @@ export default function DashboardPage() {
       setLoadingTransaction(false);
       alert(message);
       setTransactions((prev) => [...prev, transacao]);
+      fetchBalance();
     });
   };
 
   useEffect(() => {
     fetchTransactions();
+    fetchBalance();
   }, []);
 
   return (
@@ -90,7 +122,7 @@ export default function DashboardPage() {
           {/* COLUNA ESQUERDA (Saldo + Nova Transação) */}
           <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
             {/* CARD SALDO como componente separado */}
-            <CardBalance user={data.user} balance={data.balance} />
+           <CardBalance user={data.user} balance={{ ...data.balance, value: balanceValue ?? data.balance.value }} />
 
             {/* CARD NOVA TRANSAÇÃO (mantido como antes) */}
             <CardNewTransaction onSubmit={onSubmit} isLoading={loadingTransaction} />
@@ -103,6 +135,7 @@ export default function DashboardPage() {
               transactions={transactions}
               onSave={handleSaveTransactions}
               onDelete={handleDeleteTransactions}
+              atualizaSaldo={fetchBalance}
             />
           </Box>
         </Box>

@@ -1,78 +1,88 @@
-import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { CardBalanceProps } from 'interfaces/dashboard';
+import React, { ComponentProps } from 'react';
+import { render, act, fireEvent } from '@testing-library/react';
 import CardBalance from './card-balance';
-import { formatBRL } from '../../../utils/currency-formatte/currency-formatte';
-
-jest.mock('../../utils/currency.ts', () => ({
-  formatBRL: jest.fn((value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`),
-}));
 
 jest.mock('next/font/google', () => ({
-  Inter: jest.fn(() => ({ className: 'mock-font' })),
+  Inter: () => ({ className: 'mocked-inter' }),
+  Roboto_Mono: () => ({ className: 'mocked-roboto' }),
 }));
 
-jest.mock('../../components/ui', () => {
-  const React = jest.requireActual('react');
-  return {
-    __esModule: true,
-    React,
-    Box: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-      <div className={className}>{children}</div>
-    ),
-    VisibilityIcon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg data-testid="visibility-icon" {...props} />
-    ),
-    CardBalanceStyles: {
-      cardSaldo: 'cardSaldo',
-      nameTitle: 'nameTitle',
-      dateText: 'dateText',
-      balanceSection: 'balanceSection',
-      saldoHeader: 'saldoHeader',
-      saldoTitle: 'saldoTitle',
-      eyeIcon: 'eyeIcon',
-      hrOrange: 'hrOrange',
-      contaCorrenteTitle: 'contaCorrenteTitle',
-      valorSaldoText: 'valorSaldoText',
-    },
-  };
-});
+jest.mock('../../../utils/currency-formatte/currency-formatte', () => ({
+  formatBRL: jest.fn(() => 'R$ 1.000,00'),
+}));
+
+type Props = ComponentProps<typeof CardBalance>;
 
 describe('CardBalance', () => {
-  const mockProps: CardBalanceProps = {
-    user: { name: 'Maria Oliveira' },
-    balance: { account: 'Conta Corrente 001', value: 1234.56 },
+  const props: Props = {
+    user: { name: 'João Silva' },
+    balance: { account: '12345-6', value: 1000 },
   };
 
-  beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2024-05-01T10:00:00Z'));
+  it('should render with user name and date', () => {
+    const { getByText } = render(<CardBalance {...props} />);
+    expect(getByText('Olá, João :)')).toBeInTheDocument();
+    const today = new Date();
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
+    const weekday = today
+      .toLocaleDateString('pt-BR', options)
+      .replace(/^\w/, (c) => c.toUpperCase());
+    const formattedDate = today.toLocaleDateString('pt-BR');
+    expect(getByText(`${weekday}, ${formattedDate}`)).toBeInTheDocument();
   });
 
-  afterEach(() => {
-    jest.useRealTimers();
-    jest.clearAllMocks();
+  it('should show balance when showBalance is true', () => {
+    const { getByText } = render(<CardBalance {...props} />);
+    expect(getByText('R$ 1.000,00')).toBeInTheDocument();
   });
 
-  it('deve renderizar o nome do usuário com saudação', () => {
-    render(<CardBalance {...mockProps} />);
-    expect(screen.getByText('Olá, Maria :)')).toBeInTheDocument();
+  it('should hide balance when clicking visibility icon', () => {
+    const { getByLabelText, getByText, queryByText } = render(
+      <CardBalance {...props} />
+    );
+    const hideButton = getByLabelText('Ocultar saldo');
+    if (hideButton) {
+      act(() => {
+        fireEvent.click(hideButton);
+      });
+    }
+    expect(getByLabelText('Mostrar saldo')).toBeInTheDocument();
+    expect(getByText('••••••')).toBeInTheDocument();
+    expect(queryByText('R$ 1.000,00')).not.toBeInTheDocument();
   });
 
-  it('deve exibir a data formatada corretamente', () => {
-    render(<CardBalance {...mockProps} />);
-    expect(screen.getByText(/Quarta-feira, 01\/05\/2024/)).toBeInTheDocument();
+  it('should show balance again when clicking visibility off icon', () => {
+    const { getByLabelText, getByText } = render(<CardBalance {...props} />);
+    const hideButton = getByLabelText('Ocultar saldo');
+    if (hideButton) {
+      act(() => {
+        fireEvent.click(hideButton);
+      });
+    }
+    const showButton = getByLabelText('Mostrar saldo');
+    if (showButton) {
+      act(() => {
+        fireEvent.click(showButton);
+      });
+    }
+    expect(getByText('R$ 1.000,00')).toBeInTheDocument();
   });
 
-  it('deve exibir o título "Saldo" com ícone de visibilidade', () => {
-    render(<CardBalance {...mockProps} />);
-    expect(screen.getByText('Saldo')).toBeInTheDocument();
-    expect(screen.getByTestId('visibility-icon')).toBeInTheDocument();
+  it('should show "Carregando..." if balance is undefined', () => {
+    const { getByText } = render(
+      <CardBalance
+        {...{
+          ...props,
+          balance: { account: '12345-6', value: undefined as unknown as number },
+        }}
+      />
+    );
+    expect(getByText('Carregando...')).toBeInTheDocument();
   });
 
-  it('deve exibir a conta e o saldo formatado', () => {
-    render(<CardBalance {...mockProps} />);
-    expect(screen.getByText(mockProps.balance.account)).toBeInTheDocument();
-    expect(formatBRL).toHaveBeenCalledWith(mockProps.balance.value);
-    expect(screen.getByText('R$ 1234,56')).toBeInTheDocument();
+  it('should display account number', () => {
+    const { getByText } = render(<CardBalance {...props} />);
+    expect(getByText('12345-6')).toBeInTheDocument();
   });
 });

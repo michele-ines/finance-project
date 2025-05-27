@@ -12,14 +12,12 @@ import {
 import { CardBalanceProps } from "interfaces/dashboard";
 import { formatBRL } from "../../../utils/currency-formatte/currency-formatte";
 
+
 export default function CardBalance({ user, balance }: CardBalanceProps) {
-  /* controla se o saldo está visível */
   const [showBalance, setShowBalance] = useState<boolean>(true);
 
-  /* alterna o estado ao clicar no ícone */
   const handleToggleBalance = () => setShowBalance((prev) => !prev);
 
-  /* data de hoje, capitalizando o dia da semana */
   const getCurrentDate = () => {
     const options: Intl.DateTimeFormatOptions = { weekday: "long" };
     const today = new Date();
@@ -41,7 +39,6 @@ export default function CardBalance({ user, balance }: CardBalanceProps) {
         <div className={styles.saldoHeader}>
           <p className={styles.saldoTitle}>
             Saldo&nbsp;
-            {/* ícone muda conforme o estado */}
             {showBalance ? (
               <VisibilityIcon
                 fontSize="small"
@@ -63,12 +60,13 @@ export default function CardBalance({ user, balance }: CardBalanceProps) {
           <hr className={styles.hrOrange} />
         </div>
 
-        {/* conta corrente sempre aparece */}
         <p className={styles.contaCorrenteTitle}>{balance.account}</p>
-
-        {/* valor do saldo aparece ou não, dependendo do estado */}
         <p className={styles.valorSaldoText}>
-          {showBalance ? formatBRL(balance.value) : "••••••"}
+          {showBalance
+            ? typeof balance.value === "number"
+              ? formatBRL(balance.value)
+              : "Carregando..."
+            : "••••••"}
         </p>
       </Box>
     </Box>

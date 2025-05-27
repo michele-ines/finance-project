@@ -21,6 +21,7 @@ interface CardListExtractProps {
   transactions: Transaction[];
   onSave?: (transactions: Transaction[]) => void;
   onDelete?: (transactionIds: number[]) => Promise<void>;
+  atualizaSaldo?: () => Promise<void>;
 }
 
 import clsx from "clsx";
@@ -41,6 +42,7 @@ export default function CardListExtract({
   transactions,
   onSave,
   onDelete,
+  atualizaSaldo,
 }: CardListExtractProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -139,6 +141,7 @@ export default function CardListExtract({
         setIsDeletingInProgress(false);
         setIsDeleting(false);
         setSelectedTransactions([]);
+        atualizaSaldo?.();
       }
     }
   };
@@ -181,6 +184,7 @@ export default function CardListExtract({
           <Box className={styles.extratoActions}>
             {!isEditing && !isDeleting && (
               <IconButton
+                aria-label="editar"
                 className={styles.actionBtn}
                 onClick={handleEditClick}
               >
@@ -189,6 +193,7 @@ export default function CardListExtract({
             )}
             {!isEditing && !isDeleting && (
               <IconButton
+                aria-label="excluir"
                 className={styles.actionBtn}
                 onClick={handleDeleteClick}
               >
@@ -241,29 +246,9 @@ export default function CardListExtract({
                     <span className={styles.txType}>{formatTipo(tx.tipo)}</span>
                   )}
 
-                  {/* ---------- data ---------- */}
-                  {isEditing ? (
-                    <Input
-                      disableUnderline
-                      className={styles.txDate}
-                      value={tx.updatedAt}
-                      onChange={(e) =>
-                        handleTransactionChange(
-                          index,
-                          "updatedAt",
-                          e.target.value
-                        )
-                      }
-                      inputProps={{
-                        maxLength: 10,
-                        style: { textAlign: "right" },
-                      }}
-                    />
-                  ) : (
-                    <span className={styles.txDate}>
-                      {formatDateBR(tx.updatedAt)}
-                    </span>
-                  )}
+                  <span className={styles.txDate}>
+                    {formatDateBR(tx.createdAt)}
+                  </span>
                 </Box>
 
                 {/* valor */}
