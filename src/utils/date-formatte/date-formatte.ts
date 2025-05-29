@@ -1,5 +1,3 @@
-// utils/date-formatte/date-formatte.ts
-
 export function getMonthNameBR(dateString: string): string {
   const date = new Date(dateString);
   const monthNames = [

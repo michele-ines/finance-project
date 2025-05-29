@@ -15,7 +15,7 @@ import {
 } from "interfaces/dashboard";
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
-import { maskCurrency } from "utils/currency-formatte/currency-formatte";
+import { maskCurrency } from "../../../utils/currency-formatte/currency-formatte";
 
 export default function CardNewTransaction({
   onSubmit,
