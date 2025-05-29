@@ -75,10 +75,7 @@ export const loginValidations = {
 /* 3. Validações do ForgotPasswordForm                                */
 /* ------------------------------------------------------------------ */
 export const forgotPasswordValidations = {
-  email: loginValidations.email as RegisterOptions<
-    ForgotPasswordData,
-    "email"
-  >,
+  email: loginValidations.email as RegisterOptions<ForgotPasswordData, "email">,
 };
 
 /* ------------------------------------------------------------------ */
@@ -89,7 +86,7 @@ export const forgotPasswordValidations = {
  * Até 999 999 999,99 → 9 dígitos inteiros + 1 separador + 2 decimais.
  * Aceita ponto ou vírgula como separador decimal.
  */
-const currencyRegex = /^\d{1,9}(?:[.,]\d{1,2})?$/;
+const currencyRegex = /^(?:\d{1,3}(\.\d{3}){0,2})(,\d{1,2})?$/;
 
 export const transactionValidations = {
   tipo: {

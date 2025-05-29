@@ -1,14 +1,14 @@
 "use client";
 
-import CardBalance from "components/my-cards/card-balance/card-balance";
-import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
-import PersonalCards from "components/my-cards/personal-cards/personal-cards";
+import CardBalance from "../../../components/my-cards/card-balance/card-balance";
+import CardListExtract from "../../../components/my-cards/card-list-extract/card-list-extract";
+import PersonalCards from "../../../components/my-cards/personal-cards/personal-cards";
 
 import { Box } from "../../../components/ui";
 import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
 import dashboardData from "../../../mocks/dashboard-data.json";
 import { useEffect, useState } from "react";
-import { handleRequest } from "utils/error-handlers/error-handle";
+import { handleRequest } from "../../../utils/error-handlers/error-handle";
 
 export default function PersonalCardsPage() {
   const data = dashboardData as DashboardData;

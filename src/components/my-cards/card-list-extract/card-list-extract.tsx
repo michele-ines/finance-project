@@ -7,14 +7,13 @@ import {
   EditIcon,
   IconButton,
   Input,
-  React, 
-  useState, 
+  React,
+  useState,
   Checkbox,
-  Typography,        
-  InputAdornment,    
+  Typography,
   ReceiptLongOutlinedIcon,
   CardListExtractStyles as styles,
-} from "../../ui"; 
+} from "../../ui";
 import type { Transaction } from "../../../interfaces/dashboard";
 
 // Extended props interface to include onDelete callback
@@ -29,12 +28,13 @@ import clsx from "clsx";
 import {
   formatBRL,
   formatTipo,
+  maskCurrency,
   parseBRL,
 } from "../../../utils/currency-formatte/currency-formatte";
 import { useEffect } from "react";
 import {
-  formatDateBR, 
-  parseDateBR, 
+  formatDateBR,
+  parseDateBR,
 } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
 
@@ -42,7 +42,7 @@ export default function CardListExtract({
   transactions,
   onSave,
   onDelete,
-  atualizaSaldo
+  atualizaSaldo,
 }: CardListExtractProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -180,25 +180,28 @@ export default function CardListExtract({
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
 
-      {hasTransactions && !isEditing && !isDeleting && (
-
-        <Box className={styles.extratoActions}>
-          {!isEditing && !isDeleting && (
-            <IconButton aria-label="editar" className={styles.actionBtn} onClick={handleEditClick}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          )}
-          {!isEditing && !isDeleting && (
-            <IconButton
-            aria-label="excluir" 
-              className={styles.actionBtn}
-              onClick={handleDeleteClick}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          )}
-        </Box>
-      )}
+        {hasTransactions && !isEditing && !isDeleting && (
+          <Box className={styles.extratoActions}>
+            {!isEditing && !isDeleting && (
+              <IconButton
+                aria-label="editar"
+                className={styles.actionBtn}
+                onClick={handleEditClick}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            )}
+            {!isEditing && !isDeleting && (
+              <IconButton
+                aria-label="excluir"
+                className={styles.actionBtn}
+                onClick={handleDeleteClick}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* Lista / Skeleton */}
@@ -243,7 +246,6 @@ export default function CardListExtract({
                     <span className={styles.txType}>{formatTipo(tx.tipo)}</span>
                   )}
 
-                
                   <span className={styles.txDate}>
                     {formatDateBR(tx.createdAt)}
                   </span>
@@ -254,19 +256,18 @@ export default function CardListExtract({
                   <Input
                     disableUnderline
                     className={clsx(styles.txValue, styles.txValueEditable)}
-                    value={tx.valor.toString().replace(".", ",")}
-                    onChange={(e) =>
-                      handleTransactionChange(index, "valor", e.target.value)
-                    }
+                    value={formatBRL(tx.valor)}
+                    onChange={(e) => {
+                      handleTransactionChange(
+                        index,
+                        "valor",
+                        maskCurrency(e.target.value)
+                      );
+                    }}
                     inputProps={{
                       inputMode: "decimal",
-                      maxLength: 15, // 6 inteiros + vírgula/ponto + 1 decimais
-                      pattern: "\\d{1,9}(?:[.,]\\d{0,2})?",
                       title: "Até 999.999,99 (máx. 1 casas decimais)",
                     }}
-                    startAdornment={
-                      <InputAdornment position="start">R$</InputAdornment>
-                    }
                   />
                 ) : (
                   <Box className="flex items-center">

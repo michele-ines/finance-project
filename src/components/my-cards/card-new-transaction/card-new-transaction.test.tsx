@@ -7,6 +7,10 @@ jest.mock('next/font/google', () => ({
   Roboto_Mono: () => ({ className: 'mock-roboto' }),
 }));
 
+jest.mock('../../../utils/currency-formatte/currency-formatte', () => ({
+  maskCurrency: jest.fn((v) => v),
+}));
+
 const onSubmitMock = jest.fn();
 
 const setup = (isLoading = false) => {
@@ -18,14 +22,15 @@ describe('CardNewTransaction', () => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly', () => {
-    setup();
+it('renders correctly', () => {
+  setup();
 
-    expect(screen.getByText('Nova Transação')).toBeInTheDocument();
-    expect(screen.getByText('Concluir Transação')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('00,00')).toBeInTheDocument();
-    expect(screen.getByText('Selecione o tipo de transação')).toBeInTheDocument();
-  });
+  expect(screen.getByText(/nova transação/i)).toBeInTheDocument();
+  expect(screen.getByText(/concluir transação/i)).toBeInTheDocument();
+  expect(screen.getByPlaceholderText('00,00')).toBeInTheDocument();
+  expect(screen.getByText(/selecione o tipo de transação/i)).toBeInTheDocument();
+});
+
 
   it('shows validation errors when submitting empty form', async () => {
     setup();

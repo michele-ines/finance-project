@@ -8,10 +8,10 @@ import type {
   Transaction,
 } from "../../../interfaces/dashboard";
 import CardBalance from "../../../components/my-cards/card-balance/card-balance"; // ← Import correto
-import CadInvestments from "components/my-cards/cad-investments/cad-investments";
+import CadInvestments from "../../../components/my-cards/cad-investments/cad-investments";
 import dashboardData from "../../../mocks/dashboard-data.json";
-import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
-import { handleRequest } from "utils/error-handlers/error-handle";
+import CardListExtract from "../../../components/my-cards/card-list-extract/card-list-extract";
+import { handleRequest } from "../../../utils/error-handlers/error-handle";
 
 export default function InvestmentPage() {
   /* ------------------------------------------------------------------ */

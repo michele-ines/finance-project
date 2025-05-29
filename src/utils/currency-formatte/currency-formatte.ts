@@ -18,13 +18,11 @@ export const parseBRL = (input: string): number => {
   // 1. Mantém apenas dígitos, vírgula ou ponto
   const cleaned = input.replace(/[^\d.,]/g, "");
 
-  // 2. Captura até 9 inteiros e até 2 decimais
-  //    groups: [0] match completo, [1] inteiros, [2] decimais (opcional)
-  const [, integers = "", decimals = ""] =
-    cleaned.match(/^(\d{0,9})(?:[.,](\d{0,2}))?/) ?? [];
+  // Remove os pontos (separadores de milhar)
+  const noThousands = cleaned.replace(/\./g, "");
 
-  // 3. Normaliza para "1234.56" (ponto antes dos decimais)
-  const normalized = decimals ? `${integers}.${decimals}` : integers;
+  // Troca a vírgula pelo ponto para parseFloat entender como decimal
+  const normalized = noThousands.replace(",", ".");
 
   return parseFloat(normalized) || 0;
 };
@@ -45,4 +43,28 @@ export const formatTipo = (raw?: string): string => {
 
   const lower = raw.toLowerCase();
   return map[lower] ?? lower.charAt(0).toUpperCase() + lower.slice(1);
+};
+
+/**
+ * Máscara de campo do tipo texto para formatar um valor monetário.
+ * Aceita até 9 dígitos inteiros e 2 decimais.
+ */
+export const maskCurrency = (valor?: string): string => {
+  if (!valor) return "";
+
+  // Remove tudo que não for número
+  let numeros = valor.replace(/\D/g, "");
+
+  // Limita a 11 dígitos (9 inteiros + 2 decimais)
+  numeros = numeros.slice(0, 11);
+
+  const inteiro = numeros.slice(0, -2) || "0"; // pelo menos 1 inteiro
+  const decimal = numeros.slice(-2).padStart(2, "0"); // sempre 2 decimais
+
+  const numeroFinal = `${inteiro}.${decimal}`;
+
+  return Number(numeroFinal).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };

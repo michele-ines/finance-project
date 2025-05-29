@@ -8,7 +8,7 @@ export default function PersonalCards() {
       className={`${styles.cardPersonalCards} cardTransacao w-full min-h-[478px]`}
     >
       <h3 className={`${styles.cardTitle} w-full text-center md:text-start`}>
-        Meus Cartões
+        Meus cartões
       </h3>
       <Box className="flex flex-col gap-4 w-full">
         <h4 className={`${styles.descriptionCard} text-center md:text-start`}>
