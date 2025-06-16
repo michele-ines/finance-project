@@ -1,25 +1,23 @@
-import connectMongoDB from "@/../libs/mongoDB";
-import transacao from "@/../models/transacao";
+// app/api/transacao/route.ts
+import connectMongoDB from "libs/mongoDB";
+import transacao from "models/transacao";
 import { NextResponse } from "next/server";
-import { handleRequest } from "utils/error-handlers/error-handle";
 
-export async function GET() {
-  return handleRequest(async () => {
-    await connectMongoDB();
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const page  = Number(searchParams.get("page")  ?? "1");   // 1-based
+  const limit = Number(searchParams.get("limit") ?? "20");  // padrão: 20
 
-    // Soma os valores das transações do tipo "deposito"
-    const resultado = await transacao.aggregate([
-      { $match: { tipo: "deposito" } },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: { $toDouble: "$valor" } }, // converte string para número
-        },
-      },
-    ]);
+  await connectMongoDB();
 
-    const total = resultado[0]?.total || 0;
+  const [total, transacoes] = await Promise.all([
+    transacao.countDocuments(),                               // total p/ front
+    transacao
+      .find()
+      .sort({ createdAt: -1 })                                // + recentes 1º
+      .skip((page - 1) * limit)
+      .limit(limit),
+  ]);
 
-    return NextResponse.json({ total }, { status: 200 });
-  });
+  return NextResponse.json({ transacoes, total }, { status: 200 });
 }

@@ -17,18 +17,6 @@ export interface Transaction {
   updatedAt: string
 }
 
-export interface SavingsGoalProps {
-  goal: number;
-  transactions: Transaction[];
-}
-
-export interface SpendingAlertProps {
-  limit: number;
-  transactions: Transaction[];
-}
-
-
-
 export interface Investment extends Entity, Labelled, ValueField {}
 
 export interface DashboardData {
