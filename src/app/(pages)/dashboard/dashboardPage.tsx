@@ -4,8 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
+import SavingsGoalWidget from "components/widgets/savingsGoalWidget";
+import SpendingAlertWidget from "components/widgets/spendingAlertWidget";
 
-import { Box } from "../../../components/ui";
+import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 import type {
   DashboardData,
   NewTransactionData,
@@ -18,8 +20,36 @@ export default function DashboardPage() {
   const data: DashboardData = dashboardData;
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loadingTransaction, setLoadingTransaction] = useState<boolean>(false);
+  const [loadingTransaction, setLoadingTransaction] = useState(false);
   const [balanceValue, setBalanceValue] = useState<number | null>(null);
+
+  const [widgetPreferences, setWidgetPreferences] = useState({
+    savingsGoal: true,
+    spendingAlert: true,
+  });
+
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    const savedPrefs = localStorage.getItem("widgetPreferences");
+    if (savedPrefs) {
+      setWidgetPreferences(JSON.parse(savedPrefs));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "widgetPreferences",
+      JSON.stringify(widgetPreferences)
+    );
+  }, [widgetPreferences]);
+
+  const toggleWidget = (key: keyof typeof widgetPreferences) => {
+    setWidgetPreferences((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const fetchTransactions = async () => {
     await handleRequest(async () => {
@@ -42,16 +72,10 @@ export default function DashboardPage() {
   const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
       for (const tx of txs) {
-        await handleRequest(async () => {
-          await fetch(`/api/transacao/${tx._id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              tipo: tx.tipo,
-              valor: tx.valor,
-              // adicione outros campos se necessário
-            }),
-          });
+        await fetch(`/api/transacao/${tx._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
         });
       }
       setTransactions(txs);
@@ -61,18 +85,9 @@ export default function DashboardPage() {
 
   const handleDeleteTransactions = async (transactionIds: number[]) => {
     try {
-      // Realizar as chamadas DELETE para cada transação selecionada
-      const deletePromises = transactionIds.map(async (id) => {
-        const response = await fetch(`/api/transacao/${id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erro ao excluir transação ${id}`);
-        }
-
-        return response.json();
-      });
+      const deletePromises = transactionIds.map((id) =>
+        fetch(`/api/transacao/${id}`, { method: "DELETE" })
+      );
 
       await Promise.all(deletePromises);
 
@@ -81,17 +96,15 @@ export default function DashboardPage() {
       );
 
       setTransactions(updatedTransactions);
-      console.log("Transações excluídas com sucesso:", transactionIds);
+      fetchBalance();
     } catch (error) {
       console.error("Erro ao excluir transações:", error);
-      throw error;
     }
   };
 
   const onSubmit = async (data: NewTransactionData) => {
     await handleRequest(async () => {
       setLoadingTransaction(true);
-
       const res = await fetch("/api/transacao", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,10 +114,10 @@ export default function DashboardPage() {
       if (!res.ok) throw new Error("Falha ao adicionar transação");
 
       const { message, transacao } = await res.json();
-      setLoadingTransaction(false);
       alert(message);
       setTransactions((prev) => [...prev, transacao]);
       fetchBalance();
+      setLoadingTransaction(false);
     });
   };
 
@@ -116,10 +129,22 @@ export default function DashboardPage() {
   return (
     <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
       <Box className="font-sans max-w-screen-xl mx-auto">
+        {/* Botão de personalização */}
+        <Box className="flex justify-end mb-4">
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-4 py-2 rounded text-white "
+            style={{
+              backgroundColor: "var(--byte-color-dash)",
+            }}
+          >
+            Personalizar Widgets
+          </button>
+        </Box>
+
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
-          {/* COLUNA ESQUERDA (Saldo + Nova Transação) */}
+          {/* Coluna esquerda */}
           <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
-            {/* CARD SALDO como componente separado */}
             <CardBalance
               user={data.user}
               balance={{
@@ -128,14 +153,21 @@ export default function DashboardPage() {
               }}
             />
 
-            {/* CARD NOVA TRANSAÇÃO (mantido como antes) */}
+            {widgetPreferences.spendingAlert && (
+              <SpendingAlertWidget limit={2000} transactions={transactions} />
+            )}
+
+            {widgetPreferences.savingsGoal && (
+              <SavingsGoalWidget goal={3000} transactions={transactions} />
+            )}
+
             <CardNewTransaction
               onSubmit={onSubmit}
               isLoading={loadingTransaction}
             />
           </Box>
 
-          {/* COLUNA DIREITA (Extrato) */}
+          {/* Coluna direita */}
           <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
             <CardListExtract
               transactions={transactions}
@@ -145,6 +177,66 @@ export default function DashboardPage() {
             />
           </Box>
         </Box>
+
+        {/* Modal de personalização */}
+        <Modal open={showModal} onClose={() => setShowModal(false)}>
+          <Box
+            className="bg-white p-6 rounded-2xl shadow-md text-gray-800"
+            sx={{
+              width: 480,
+              margin: "auto",
+              mt: "15%",
+              outline: "none",
+            }}
+          >
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Personalizar Widgets
+            </h2>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={widgetPreferences.spendingAlert}
+                  onChange={() => toggleWidget("spendingAlert")}
+                  sx={{
+                    color: "var(--byte-color-dash)",
+                    "&.Mui-checked": {
+                      color: "var(--byte-color-dash)",
+                    },
+                  }}
+                />
+              }
+              label="Alerta de Gastos"
+              sx={{ color: "text.primary" }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={widgetPreferences.savingsGoal}
+                  onChange={() => toggleWidget("savingsGoal")}
+                  sx={{
+                    color: "var(--byte-color-dash)",
+                    "&.Mui-checked": {
+                      color: "var(--byte-color-dash)",
+                    },
+                  }}
+                />
+              }
+              label="Meta de Economia"
+              sx={{ color: "text.primary" }}
+            />
+            <Box className="mt-4 flex justify-end">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-white rounded"
+                style={{
+                  backgroundColor: "var(--byte-color-dash)",
+                }}
+              >
+                Fechar
+              </button>
+            </Box>
+          </Box>
+        </Modal>
       </Box>
     </Box>
   );
