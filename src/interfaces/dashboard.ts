@@ -98,3 +98,22 @@ export interface HeaderFlags {
   showInternalLinks: boolean
   showDashboardBtn: boolean
 }
+
+// opções de filtro pelo tipo de transação
+export type TypeFilter = "all" | "deposito" | "saque";
+
+// propriedades da barra de filtros avançados de transações
+export interface FilterBarProps {
+  /* busca livre */
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  /* tipo de transação */
+  typeFilter: TypeFilter;
+  setTypeFilter: (value: TypeFilter) => void;
+  /* intervalo de datas (ISO yyyy-MM-dd) */
+  startDate: string;
+  setStartDate: (value: string) => void;
+  endDate: string;
+  setEndDate: (value: string) => void;
+}
+/* --------------------------------------------------------------------------- */

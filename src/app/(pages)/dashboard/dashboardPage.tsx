@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
-import SavingsGoalWidget from "components/widgets/savingsGoalWidget";
-import SpendingAlertWidget from "components/widgets/spendingAlertWidget";
+import SavingsGoalWidget from "components/widgets/savings-goal-widget";
+import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
 import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 import type {

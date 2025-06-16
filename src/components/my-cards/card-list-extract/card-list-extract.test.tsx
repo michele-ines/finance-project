@@ -254,13 +254,14 @@ describe("CardListExtract – cobertura total ajustada", () => {
     spy.mockRestore();
   });
 
-  it("10) estado vazio sem callbacks", async () => {
-    render(<CardListExtract transactions={[]} />);
-    loadAndStop();
-    await waitFor(() =>
-      expect(
-        screen.getByText(/Nenhuma transação por aqui/i)
-      ).toBeInTheDocument()
-    );
-  });
+it("10) estado vazio sem callbacks", async () => {
+  render(<CardListExtract transactions={[]} />);
+  loadAndStop();
+  await waitFor(() =>
+    expect(
+      screen.getByText(/Nenhuma transação encontrada/i)
+    ).toBeInTheDocument()
+  );
+});
+
 });

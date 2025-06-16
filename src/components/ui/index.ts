@@ -21,6 +21,7 @@ export { default as MenuItem } from "@mui/material/MenuItem";
 export { default as Select } from "@mui/material/Select";
 export { default as Toolbar } from "@mui/material/Toolbar";
 export { default as Typography } from "@mui/material/Typography";
+export { default as TextField } from "@mui/material/TextField";
 
 // ————— MUI Icons —————
 export { default as DeleteIcon } from "@mui/icons-material/Delete";

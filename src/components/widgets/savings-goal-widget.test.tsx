@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import SavingsGoalWidget from './savingsGoalWidget';
+import SavingsGoalWidget from './savings-goal-widget';
 import { SavingsGoalProps, Transaction } from 'interfaces/dashboard';
 
 const createTransaction = (

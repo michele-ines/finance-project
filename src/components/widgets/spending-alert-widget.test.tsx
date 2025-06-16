@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { SpendingAlertProps, Transaction } from 'interfaces/dashboard';
-import SpendingAlertWidget from './spendingAlertWidget';
+import SpendingAlertWidget from './spending-alert-widget';
 
 const createTransaction = (
   overrides: Partial<Transaction>

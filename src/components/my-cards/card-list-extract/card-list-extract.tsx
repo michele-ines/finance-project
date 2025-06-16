@@ -7,16 +7,32 @@ import {
   EditIcon,
   IconButton,
   Input,
-  React,
-  useState,
+  TextField,
+  MenuItem,
   Checkbox,
   Typography,
   ReceiptLongOutlinedIcon,
   CardListExtractStyles as styles,
+  Select,
 } from "../../ui";
+import clsx from "clsx";
+import { useEffect, useMemo, useState } from "react";
 import type { Transaction } from "../../../interfaces/dashboard";
+import {
+  formatBRL,
+  formatTipo,
+  maskCurrency,
+  parseBRL,
+} from "../../../utils/currency-formatte/currency-formatte";
+import {
+  formatDateBR,
+  parseDateBR,
+} from "../../../utils/date-formatte/date-formatte";
+import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
 
-// Extended props interface to include onDelete callback
+/* -------------------------------------------------------- */
+/*  Propriedades                                            */
+/* -------------------------------------------------------- */
 interface CardListExtractProps {
   transactions: Transaction[];
   onSave?: (transactions: Transaction[]) => void;
@@ -24,73 +40,96 @@ interface CardListExtractProps {
   atualizaSaldo?: () => Promise<void>;
 }
 
-import clsx from "clsx";
-import {
-  formatBRL,
-  formatTipo,
-  maskCurrency,
-  parseBRL,
-} from "../../../utils/currency-formatte/currency-formatte";
-import { useEffect } from "react";
-import {
-  formatDateBR,
-  parseDateBR,
-} from "../../../utils/date-formatte/date-formatte";
-import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
-
+/* ======================================================== */
+/*  Componente                                              */
+/* ======================================================== */
 export default function CardListExtract({
   transactions,
   onSave,
   onDelete,
   atualizaSaldo,
 }: CardListExtractProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  /* ------------------------------------------------------ */
+  /*  1. Estados de dados “crus” (edição)                   */
+  /* ------------------------------------------------------ */
   const [editableTransactions, setEditableTransactions] = useState<
     Transaction[]
   >([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  /* ------------------------------------------------------ */
+  /*  2. Estados de UI (edição / exclusão)                  */
+  /* ------------------------------------------------------ */
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedTransactions, setSelectedTransactions] = useState<number[]>(
     []
   );
-  const [isLoading, setIsLoading] = useState(true);
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
 
-  /* -------------------------------------------------------------------- */
-  /*  1.  Carrega dados vindos da API                                     */
-  /* -------------------------------------------------------------------- */
+  /* ------------------------------------------------------ */
+  /*  3. Estados de Filtro / Busca                          */
+  /* ------------------------------------------------------ */
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"all" | "deposito" | "saque">(
+    "all"
+  );
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  /* ------------------------------------------------------ */
+  /*  4. Carrega transações vindas da API                   */
+  /* ------------------------------------------------------ */
   useEffect(() => {
     setIsLoading(true);
 
-    const timeout = setTimeout(() => {
+    const timer = setTimeout(() => {
       setEditableTransactions(
         transactions.map((t) => ({
           ...t,
           valor: typeof t.valor === "string" ? parseBRL(t.valor) : t.valor,
-          // mantém createdAt / updatedAt exatamente como a API devolveu (ISO)
         }))
       );
       setIsLoading(false);
     }, 1_000);
 
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(timer);
   }, [transactions]);
 
-  /* -------------------------------------------------------------------- */
-  /*  2.  Alterna modos                                                   */
-  /* -------------------------------------------------------------------- */
+  /* ------------------------------------------------------ */
+  /*  5. Filtragem computada (useMemo)                      */
+  /* ------------------------------------------------------ */
+  const filteredTransactions = useMemo(() => {
+    return editableTransactions.filter((tx) => {
+      /* --- texto ---------------------------------------- */
+      const matchesText =
+        searchTerm.trim() === "" ||
+        formatTipo(tx.tipo).toLowerCase().includes(searchTerm.toLowerCase());
+
+      /* --- tipo ----------------------------------------- */
+      const matchesType = typeFilter === "all" || tx.tipo === typeFilter;
+
+      /* --- datas ---------------------------------------- */
+      const txDate = new Date(tx.createdAt);
+      const matchesStart =
+        !startDate || txDate >= new Date(startDate + "T00:00");
+      const matchesEnd = !endDate || txDate <= new Date(endDate + "T23:59:59");
+
+      return matchesText && matchesType && matchesStart && matchesEnd;
+    });
+  }, [editableTransactions, searchTerm, typeFilter, startDate, endDate]);
+
+  /* ------------------------------------------------------ */
+  /*  6. Alterna modos (edição / exclusão)                  */
+  /* ------------------------------------------------------ */
   const handleEditClick = () => {
-    /* Converte updatedAt p/ dd/MM/yyyy só para o estado de edição */
     setEditableTransactions((prev) =>
-      prev.map((tx) => ({
-        ...tx,
-        updatedAt: formatDateBR(tx.updatedAt),
-      }))
+      prev.map((tx) => ({ ...tx, updatedAt: formatDateBR(tx.updatedAt) }))
     );
     setIsEditing(true);
   };
 
   const handleCancelClick = () => {
-    /* Restaura dados crus (ISO + número) */
     setEditableTransactions(
       transactions.map((t) => ({
         ...t,
@@ -110,45 +149,69 @@ export default function CardListExtract({
     setSelectedTransactions([]);
   };
 
-  /* -------------------------------------------------------------------- */
-  /*  3.  Salvar / Excluir                                                */
-  /* -------------------------------------------------------------------- */
+  /* ------------------------------------------------------ */
+  /*  7. Salvar / Excluir                                   */
+  /* ------------------------------------------------------ */
+  // const handleSaveClick = async () => {
+  //   /* --- salvar edição ---------------------------------- */
+  //   if (isEditing) {
+  //     const payload = editableTransactions.map((tx) => ({
+  //       ...tx,
+  //       updatedAt: parseDateBR(tx.updatedAt),
+  //     }));
+  //     onSave?.(payload);
+  //     setIsEditing(false);
+  //     return;
+  //   }
+
+  //   /* --- excluir ---------------------------------------- */
+  //   if (isDeleting) {
+  //     if (selectedTransactions.length === 0) return;
+  //     setIsDeletingInProgress(true);
+  //     try {
+  //       await onDelete?.(selectedTransactions);
+  //     } catch (error) {
+  //       console.error("Erro ao excluir transações:", error); // <== Adicione isso
+  //     } finally {
+  //       setIsDeletingInProgress(false);
+  //       setIsDeleting(false);
+  //       setSelectedTransactions([]);
+  //       atualizaSaldo?.();
+  //     }
+  //   }
+  // };
+
+
   const handleSaveClick = async () => {
-    if (isEditing) {
-      /* Converte updatedAt de dd/MM/yyyy → ISO antes de enviar */
-      const payload = editableTransactions.map((tx) => ({
-        ...tx,
-        updatedAt: parseDateBR(tx.updatedAt),
-      }));
-      onSave?.(payload);
-      setIsEditing(false);
-      return;
+  if (isEditing) {
+    const payload = editableTransactions.map((tx) => ({
+      ...tx,
+      updatedAt: parseDateBR(tx.updatedAt),
+    }));
+    onSave?.(payload);
+    setIsEditing(false);
+    return;
+  }
+
+  if (isDeleting) {
+    if (selectedTransactions.length === 0) return;
+    setIsDeletingInProgress(true);
+    try {
+      await onDelete?.(selectedTransactions);
+    } catch (error) {
+      console.error("Erro ao excluir transações:", error);
+    } finally {
+      setIsDeletingInProgress(false);
+      setIsDeleting(false);
+      setSelectedTransactions([]);
+      atualizaSaldo?.();
     }
+  }
+};
 
-    /* Modo de exclusão */
-    if (isDeleting) {
-      if (selectedTransactions.length === 0) {
-        setIsDeleting(false);
-        return;
-      }
-
-      setIsDeletingInProgress(true);
-      try {
-        await onDelete?.(selectedTransactions);
-      } catch (error) {
-        console.error("Erro ao excluir transações:", error);
-      } finally {
-        setIsDeletingInProgress(false);
-        setIsDeleting(false);
-        setSelectedTransactions([]);
-        atualizaSaldo?.();
-      }
-    }
-  };
-
-  /* -------------------------------------------------------------------- */
-  /*  4.  Handlers auxiliares                                             */
-  /* -------------------------------------------------------------------- */
+  /* ------------------------------------------------------ */
+  /*  8. Outros handlers                                    */
+  /* ------------------------------------------------------ */
   const handleCheckboxChange = (id: number) => {
     setSelectedTransactions((prev) =>
       prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
@@ -169,68 +232,131 @@ export default function CardListExtract({
     );
   };
 
-  /* -------------------------------------------------------------------- */
-  /*  5.  Render                                                          */
-  /* -------------------------------------------------------------------- */
+  /* ====================================================== */
+  /*                     RENDER                             */
+  /* ====================================================== */
   const hasTransactions = !isLoading && editableTransactions.length > 0;
 
   return (
     <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
-      {/* Header */}
+      {/* -------------------------------------------------- */}
+      {/*  Header + Actions                                  */}
+      {/* -------------------------------------------------- */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
 
         {hasTransactions && !isEditing && !isDeleting && (
           <Box className={styles.extratoActions}>
-            {!isEditing && !isDeleting && (
-              <IconButton
-                aria-label="editar"
-                className={styles.actionBtn}
-                onClick={handleEditClick}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            )}
-            {!isEditing && !isDeleting && (
-              <IconButton
-                aria-label="excluir"
-                className={styles.actionBtn}
-                onClick={handleDeleteClick}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            )}
+            <IconButton
+              aria-label="editar"
+              className={styles.actionBtn}
+              onClick={handleEditClick}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              aria-label="excluir"
+              className={styles.actionBtn}
+              onClick={handleDeleteClick}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
           </Box>
         )}
       </Box>
 
-      {/* Lista / Skeleton */}
+      {/* -------------------------------------------------- */}
+      {/*  Barra de Filtro e Busca                           */}
+      {/* -------------------------------------------------- */}
+      {hasTransactions && (
+        <Box
+          className="flex flex-col md:flex-row gap-4 pb-2"
+          sx={{
+            borderBottom: "1px solid var(--byte-color-green-50)",
+            flexWrap: "wrap", // ➜ permite quebra quando necessário
+          }}
+        >
+          {/* Busca texto */}
+          <TextField
+            variant="outlined"
+            placeholder="Buscar por tipo (Ex.: depósito)"
+            size="small"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{
+              flexGrow: 1, // cresce no desktop
+              minWidth: { xs: "100%", md: 240 },
+            }}
+          />
+
+          {/* Tipo */}
+          <Select
+            size="small"
+            value={typeFilter}
+            onChange={(e) =>
+              setTypeFilter(e.target.value as "all" | "deposito" | "saque")
+            }
+            sx={{ width: { xs: "100%", md: 150 } }}
+          >
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="deposito">Entrada</MenuItem>
+            <MenuItem value="saque">Saída</MenuItem>
+          </Select>
+
+          {/* Datas */}
+          <TextField
+            label="De"
+            type="date"
+            size="small"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            sx={{
+              flex: 1,
+              minWidth: { xs: "calc(50% - 4px)", md: 120 },
+            }}
+          />
+          <TextField
+            label="Até"
+            type="date"
+            size="small"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            sx={{
+              flex: 1,
+              minWidth: { xs: "calc(50% - 4px)", md: 120 },
+            }}
+          />
+        </Box>
+      )}
+
+      {/* -------------------------------------------------- */}
+      {/*  Lista / Skeleton / Empty-state                    */}
+      {/* -------------------------------------------------- */}
       {isLoading ? (
         <SkeletonListExtract rows={5} />
-      ) : editableTransactions.length === 0 ? (
-        /* Empty-state */
+      ) : filteredTransactions.length === 0 ? (
         <Box className="flex flex-col items-center justify-center text-center gap-4 py-10">
           <ReceiptLongOutlinedIcon
             sx={{ fontSize: 56, color: "text.secondary" }}
           />
-
-          <Typography variant="h6">Nenhuma transação por aqui</Typography>
-
+          <Typography variant="h6">Nenhuma transação encontrada</Typography>
           <Typography variant="body2" color="text.secondary">
-            Adicione uma Nova transação para começar.
+            Ajuste os filtros ou adicione uma nova transação para começar.
           </Typography>
         </Box>
       ) : (
         <ul className="space-y-4">
-          {editableTransactions.map((tx, index) => (
+          {filteredTransactions.map((tx, index) => (
             <li key={tx._id ?? `tx-${index}`}>
               <Box
                 className={styles.extratoItem}
                 style={{ gap: isEditing ? "0px" : undefined }}
               >
-                {/* linha: tipo + data */}
+                {/* Linha: tipo + data */}
                 <Box className={styles.txRow}>
-                  {/* ---------- tipo ---------- */}
                   {isEditing ? (
                     <Input
                       disableUnderline
@@ -251,22 +377,22 @@ export default function CardListExtract({
                   </span>
                 </Box>
 
-                {/* valor */}
+                {/* Valor */}
                 {isEditing ? (
                   <Input
                     disableUnderline
                     className={clsx(styles.txValue, styles.txValueEditable)}
                     value={formatBRL(tx.valor)}
-                    onChange={(e) => {
+                    onChange={(e) =>
                       handleTransactionChange(
                         index,
                         "valor",
                         maskCurrency(e.target.value)
-                      );
-                    }}
+                      )
+                    }
                     inputProps={{
                       inputMode: "decimal",
-                      title: "Até 999.999,99 (máx. 1 casas decimais)",
+                      title: "Até 999.999,99 (máx. 1 casa decimal)",
                     }}
                   />
                 ) : (
@@ -291,7 +417,9 @@ export default function CardListExtract({
         </ul>
       )}
 
-      {/* Ações de salvar/cancelar */}
+      {/* -------------------------------------------------- */}
+      {/*  Botões Salvar / Cancelar                           */}
+      {/* -------------------------------------------------- */}
       {(isEditing || isDeleting) && (
         <Box className="flex gap-2 justify-between mt-4">
           <Button
