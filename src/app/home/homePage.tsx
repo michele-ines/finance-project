@@ -1,6 +1,7 @@
 "use client";
 
 import { Button, Image, React } from "../../components/ui/index";
+import FinancialChart from "../../components/charts/financialChart";
 
 export default function Home() {
   return (
@@ -9,6 +10,22 @@ export default function Home() {
       style={{ background: "var(--byte-gradient-teal)" }}
     >
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 lg:px-16 py-8">
+        {/* Gráfico financeiro */}
+        <section className="mt-16">
+          <h2
+            className="
+              vantagem-title
+              mb-8
+              text-left
+              text-[20px]
+              md:text-[25px]
+              text-[var(--byte-color-black)]
+            "
+          >
+            Análise Financeira
+          </h2>
+          <FinancialChart />
+        </section>
         <section className="flex flex-col items-center gap-10 lg:flex-row lg:justify-between lg:gap-4">
           <div className="w-full lg:w-1/2">
             {/* Mobile: telas menores que md */}
