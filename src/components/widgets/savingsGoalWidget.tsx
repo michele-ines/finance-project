@@ -12,11 +12,11 @@ export default function SavingsGoalWidget({
   const percentage = Math.min((saved / goal) * 100, 100);
 
   return (
-    <Box
-      className="p-4 rounded-2xl shadow-md bg-white text-gray-900"
-      style={{ border: "2px solid var(--byte-color-dash)" }}
-    >
-      <h3 className="text-lg font-semibold">Meta de Economia</h3>
+<Box
+  className="p-4 rounded-2xl shadow-md bg-white text-gray-900"
+  style={{ border: "2px solid var(--byte-color-dash)" }}
+>
+    <h3 className="text-lg font-semibold">Meta de Economia</h3>
       <p>Meta: R$ {goal}</p>
       <p>Economizado: R$ {saved}</p>
       <LinearProgress
