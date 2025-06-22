@@ -1,6 +1,3 @@
-/* ======================================================
-  DashboardPage — versão pós-scroll infinito
-   ===================================================== */
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -18,12 +15,13 @@ import type {
 } from "../../../interfaces/dashboard";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import dashboardData from "../../../mocks/dashboard-data.json";
+import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function DashboardPage() {
   const data: DashboardData = dashboardData;
 
   /* ▸ widgets ainda precisam das transações   */
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  // const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loadingTransaction, setLoadingTransaction] = useState(false);
   const [balanceValue, setBalanceValue] = useState<number | null>(null);
 
@@ -33,6 +31,13 @@ export default function DashboardPage() {
     spendingAlert: true,
   });
   const [showModal, setShowModal] = useState(false);
+
+const {
+  transactions, // << AQUI ESTÁ A SEGUNDA DECLARAÇÃO
+  fetchPage,
+  hasMore,
+  isLoading: isPageLoading,
+} = usePaginatedTransactions();
 
   /* ▸ carrega prefs do localStorage --------- */
   useEffect(() => {
@@ -70,7 +75,7 @@ export default function DashboardPage() {
           body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
         });
       }
-      setTransactions(txs);            // mantém widgets em sincronia
+      // setTransactions(txs);            // mantém widgets em sincronia
       fetchBalance();
     });
   };
@@ -78,7 +83,7 @@ export default function DashboardPage() {
   const handleDeleteTransactions = async (ids: number[]) => {
     try {
       await Promise.all(ids.map((id) => fetch(`/api/transacao/${id}`, { method: "DELETE" })));
-      setTransactions((prev) => prev.filter((tx) => !ids.includes(tx._id)));
+      // setTransactions((prev) => prev.filter((tx) => !ids.includes(tx._id)));
       fetchBalance();
     } catch (error) {
       console.error("Erro ao excluir transações:", error);
@@ -98,23 +103,19 @@ export default function DashboardPage() {
 
       const { message, transacao } = await res.json();
       alert(message);
-      setTransactions((prev) => [...prev, transacao]);
+      // setTransactions((prev) => [...prev, transacao]);
       fetchBalance();
       setLoadingTransaction(false);
     });
   };
 
-  /* ▸ carrega apenas o saldo na 1ª vez ------- */
   useEffect(() => {
     fetchBalance();
   }, [fetchBalance]);
 
-  /* ========================================= */
-  /*                 RENDER                    */
-  /* ========================================= */
   return (
-    <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
-      <Box className="font-sans max-w-screen-xl mx-auto">
+    <Box className="w-full px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)] flex flex-col">
+      <Box className="font-sans max-w-screen-xl mx-auto w-full flex flex-col flex-1 min-h-0">
         {/* Botão de personalização */}
         <Box className="flex justify-end mb-4">
           <button
@@ -125,9 +126,7 @@ export default function DashboardPage() {
             Personalizar Widgets
           </button>
         </Box>
-
-        <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
-          {/* Coluna esquerda */}
+        <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8 flex-1 min-h-0">
           <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
             <CardBalance
               user={data.user}
@@ -137,6 +136,7 @@ export default function DashboardPage() {
               }}
             />
 
+            {/* Os widgets agora usam a lista de transações do hook de paginação */}
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}
@@ -152,14 +152,23 @@ export default function DashboardPage() {
           </Box>
 
           {/* Coluna direita */}
-          <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
-            <CardListExtract
-              onSave={handleSaveTransactions}
-              onDelete={handleDeleteTransactions}
-              atualizaSaldo={fetchBalance}
-            />
+          {/* 4. A coluna da direita também precisa ser um container flex para o filho crescer */}
+          <Box className="max-w-full flex flex-col">
+            
+            <div className="flex-1 overflow-y-auto max-h-[800px]">
+              <CardListExtract
+                transactions={transactions}
+                fetchPage={fetchPage}
+                hasMore={hasMore}
+                isPageLoading={isPageLoading}
+                onSave={handleSaveTransactions}
+                onDelete={handleDeleteTransactions}
+                atualizaSaldo={fetchBalance}
+              />
+            </div>
           </Box>
         </Box>
+
 
         {/* Modal de personalização */}
         <Modal open={showModal} onClose={() => setShowModal(false)}>

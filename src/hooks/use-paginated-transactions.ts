@@ -3,7 +3,8 @@
 import { Transaction } from "interfaces/dashboard";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const PAGE_SIZE = 20;
+// Altere o PAGE_SIZE para 10
+const PAGE_SIZE = 10;
 
 export function usePaginatedTransactions() {
   /* páginas já carregadas */
@@ -17,26 +18,32 @@ export function usePaginatedTransactions() {
   const nextPage = useRef(1);
 
   const fetchPage = useCallback(async () => {
+    // Evita buscas duplicadas enquanto uma já está em andamento
     if (isLoading) return;
 
     setIsLoading(true);
-    const res = await fetch(
-      `/api/transacao?page=${nextPage.current}&limit=${PAGE_SIZE}`
-    );
-    const { transacoes, total: all } = await res.json();
+    try {
+      const res = await fetch(
+        `/api/transacao?page=${nextPage.current}&limit=${PAGE_SIZE}`
+      );
+      const { transacoes, total: all } = await res.json();
 
-    /* salva total vindo do backend */
-    total.current = all;
+      /* salva total vindo do backend */
+      total.current = all;
 
-    /* ➜ acrescenta apenas transações ainda não vistas */
-    setPages((prev) => {
-      const knownIds = new Set(prev.flat().map((t) => t._id));
-      const onlyNew = transacoes.filter((t: Transaction) => !knownIds.has(t._id));
-      return [...prev, onlyNew];
-    });
+      /* ➜ acrescenta apenas transações ainda não vistas */
+      setPages((prev) => {
+        const knownIds = new Set(prev.flat().map((t) => t._id));
+        const onlyNew = transacoes.filter((t: Transaction) => !knownIds.has(t._id));
+        return [...prev, onlyNew];
+      });
 
-    nextPage.current += 1;      // incrementa p/ a próxima requisição
-    setIsLoading(false);
+      nextPage.current += 1;      // incrementa p/ a próxima requisição
+    } catch (error) {
+      console.error("Erro ao buscar a página de transações:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [isLoading]);
 
   /* primeira página na montagem */
@@ -48,6 +55,7 @@ export function usePaginatedTransactions() {
   /* lista achatada, mas **memoriza** entre renders  */
   const transactions = useMemo(() => pages.flat(), [pages]);
 
+  // Verifica se ainda há mais transações para carregar
   const hasMore =
     total.current === null ? true : transactions.length < total.current;
 

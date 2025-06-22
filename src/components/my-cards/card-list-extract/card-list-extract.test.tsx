@@ -91,26 +91,61 @@ const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
 /* ======================================================== */
 describe("CardListExtract – cobertura total ajustada", () => {
   beforeEach(() => jest.clearAllMocks());
-
-  /* 1) Skeleton → lista -------------------------------- */
-  it("1) Mostra skeleton e depois a lista", () => {
-    render(<CardListExtract onSave={onSave} onDelete={onDelete} atualizaSaldo={atualizaSaldo} />);
-
+  const loadAndStop = () => act(() => jest.runAllTimers());
+  
+  it("1) Skeleton e lista aparecem corretamente", async () => {
+    const { rerender } = render(
+      <CardListExtract
+        transactions={[]} 
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={true} 
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    // antes do timeout: 5 skeleton rows
     expect(
       screen.getAllByRole("listitem").filter(li => li.querySelector(".animate-pulse")),
     ).toHaveLength(5);
+    // Simula o fim do loading (como se tivesse carregado os dados)
+    rerender(
+      <CardListExtract
+        transactions={[]} // ainda vazio, mas loading acabou
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
 
-    flushTimers();
-
-    expect(
-      screen.queryAllByRole("listitem").some(li => li.querySelector(".animate-pulse")),
-    ).toBe(false);
+    // agora o skeleton deve sumir
+    await waitFor(() =>
+      expect(
+        screen
+          .queryAllByRole("listitem")
+          .some((li) => li.querySelector(".animate-pulse"))
+      ).toBe(false)
+    );
   });
 
   /* 2) valores formatados ------------------------------ */
   it("2) Exibe transações e valores formatados", async () => {
-    render(<CardListExtract />);
-    flushTimers();
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     await waitFor(() => {
       expect(screen.getByText("Entrada")).toBeInTheDocument();
@@ -122,8 +157,18 @@ describe("CardListExtract – cobertura total ajustada", () => {
 
   /* 3) editar / cancelar ------------------------------- */
   it("3) handleEditClick e handleCancelClick", async () => {
-    render(<CardListExtract onSave={onSave} />);
-    flushTimers();
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     fireEvent.click(await screen.findByLabelText("editar"));
 
@@ -132,10 +177,19 @@ describe("CardListExtract – cobertura total ajustada", () => {
     expect(screen.getByText("Entrada")).toBeInTheDocument();
   });
 
-  /* 4) alteração + salvar ------------------------------ */
-  it("4) handleTransactionChange modifica tipo e valor", async () => {
-    render(<CardListExtract onSave={onSave} />);
-    flushTimers();
+  it("4) handleTransactionChange modifica tipo, data e valor", async () => {
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     fireEvent.click(await screen.findByLabelText("editar"));
     const valorInput = screen.getAllByDisplayValue(/R\$ 1\.000,00/)[0];
@@ -157,8 +211,18 @@ describe("CardListExtract – cobertura total ajustada", () => {
 
   /* 5) checkbox toggle -------------------------------- */
   it("5) handleCheckboxChange adiciona e remove seleção", async () => {
-    render(<CardListExtract />);
-    flushTimers();
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     fireEvent.click(screen.getByLabelText("excluir"));
     const [box] = await screen.findAllByRole("checkbox");
@@ -171,8 +235,18 @@ describe("CardListExtract – cobertura total ajustada", () => {
 
   /* 6) cancelar exclusão ------------------------------ */
   it("6) handleDeleteClick e handleCancelDeleteClick", async () => {
-    render(<CardListExtract />);
-    flushTimers();
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     fireEvent.click(screen.getByLabelText("excluir"));
     expect(screen.getByText("Excluir")).toBeDisabled();
@@ -181,10 +255,19 @@ describe("CardListExtract – cobertura total ajustada", () => {
     expect(screen.queryByRole("checkbox")).toBeNull();
   });
 
-  /* 7) exclusão com seleção --------------------------- */
-  it("7) exclusão dispara onDelete e atualizaSaldo", async () => {
-    render(<CardListExtract onDelete={onDelete} atualizaSaldo={atualizaSaldo} />);
-    flushTimers();
+  it("7) exclusão com seleção dispara onDelete e atualizaSaldo", async () => {
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     fireEvent.click(screen.getByLabelText("excluir"));
     const [chk] = await screen.findAllByRole("checkbox");
@@ -197,7 +280,17 @@ describe("CardListExtract – cobertura total ajustada", () => {
 
   /* 8) cleanup no unmount ----------------------------- */
   it("8) cleanup de timeout no unmount", () => {
-    const { unmount } = render(<CardListExtract />);
+    const { unmount } = render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
     unmount();
     act(() => jest.runAllTimers()); // nada deve acusar act warning
   });
@@ -207,8 +300,18 @@ describe("CardListExtract – cobertura total ajustada", () => {
     const spy = jest.spyOn(console, "error").mockImplementation(() => {});
     const failingDelete = jest.fn().mockRejectedValue(new Error("boom"));
 
-    render(<CardListExtract onDelete={failingDelete} />);
-    flushTimers();
+    render(
+      <CardListExtract
+        transactions={mockTransactions}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+        onSave={onSave}
+        onDelete={onDelete}
+        atualizaSaldo={atualizaSaldo}
+      />
+    );
+    loadAndStop();
 
     fireEvent.click(await screen.findByLabelText("excluir"));
     const [chk] = await screen.findAllByRole("checkbox");
@@ -224,18 +327,16 @@ describe("CardListExtract – cobertura total ajustada", () => {
     spy.mockRestore();
   });
 
-  /* 10) estado vazio --------------------------------- */
-  it("10) Estado vazio sem callbacks", async () => {
-    // limpa lista simulando retorno vazio
-    mockTransactions.length = 0;
 
-    render(<CardListExtract />);
-    flushTimers();
-
+  it("10) estado vazio sem callbacks", async () => {
+    render(<CardListExtract transactions={[]} fetchPage={jest.fn()}
+      hasMore={false}
+      isPageLoading={false} />);
+    loadAndStop();
     await waitFor(() =>
       expect(
-        screen.getByText(/Nenhuma transação encontrada/i),
-      ).toBeInTheDocument(),
+        screen.getByText(/Nenhuma transação encontrada/i)
+      ).toBeInTheDocument()
     );
   });
 });

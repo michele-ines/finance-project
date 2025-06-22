@@ -1,6 +1,4 @@
-/* =========================================================
-   CardListExtract — com scroll infinito + paginação
-   ======================================================== */
+
 "use client";
 
 import {
@@ -41,6 +39,10 @@ import InfiniteScrollSentinel from "../../infinite-scroll-sentinel/infinite-scro
 /*  Propriedades (não recebe mais “transactions”)           */
 /* -------------------------------------------------------- */
 interface CardListExtractProps {
+  transactions: Transaction[]; // A lista vem do pai
+  fetchPage: () => void;      // A função de buscar vem do pai
+  hasMore: boolean;          // O controle se há mais páginas vem do pai
+  isPageLoading: boolean;    // O status de carregamento vem do pai
   onSave?: (transactions: Transaction[]) => void;
   onDelete?: (transactionIds: number[]) => Promise<void>;
   atualizaSaldo?: () => Promise<void>;
@@ -50,6 +52,10 @@ interface CardListExtractProps {
 /*  Componente                                              */
 /* ======================================================== */
 export default function CardListExtract({
+  transactions, // recebendo a lista
+  fetchPage,    // recebendo a função
+  hasMore,
+  isPageLoading,
   onSave,
   onDelete,
   atualizaSaldo,
@@ -57,12 +63,7 @@ export default function CardListExtract({
   /* ------------------------------------------------------ */
   /*  1. Paginação / dados da API                           */
   /* ------------------------------------------------------ */
-  const {
-    transactions,
-    fetchPage,
-    hasMore,
-    isLoading: isPageLoading,
-  } = usePaginatedTransactions();
+  // Removido o uso duplicado de usePaginatedTransactions
 
   /* ------------------------------------------------------ */
   /*  2. Estados locais (edição)                            */
@@ -94,8 +95,7 @@ export default function CardListExtract({
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
 
   /* ▸ Filtros/Busca -------------------------------------- */
-  const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<"all" | "deposito" | "saque">(
+  const [typeFilter, setTypeFilter] = useState< "all" | "deposito" | "cambio"| "transferencia" >(
     "all"
   );
   const [startDate, setStartDate] = useState("");
@@ -104,9 +104,6 @@ export default function CardListExtract({
   /* ▸ Filtragem ------------------------------------------ */
   const filteredTransactions = useMemo(() => {
     return editableTransactions.filter((tx) => {
-      const matchesText =
-        searchTerm.trim() === "" ||
-        formatTipo(tx.tipo).toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesType = typeFilter === "all" || tx.tipo === typeFilter;
 
@@ -115,9 +112,9 @@ export default function CardListExtract({
         !startDate || txDate >= new Date(startDate + "T00:00");
       const matchesEnd = !endDate || txDate <= new Date(endDate + "T23:59:59");
 
-      return matchesText && matchesType && matchesStart && matchesEnd;
+      return matchesType && matchesStart && matchesEnd;
     });
-  }, [editableTransactions, searchTerm, typeFilter, startDate, endDate]);
+  }, [editableTransactions, typeFilter, startDate, endDate]);
 
   /* ▸ Alterna modos -------------------------------------- */
   const handleEditClick = () => {
@@ -242,27 +239,18 @@ export default function CardListExtract({
             flexWrap: "wrap",
           }}
         >
-          <TextField
-            variant="outlined"
-            placeholder="Buscar por tipo (Ex.: depósito)"
-            size="small"
-            fullWidth
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ flexGrow: 1, minWidth: { xs: "100%", md: 240 } }}
-          />
-
           <Select
             size="small"
             value={typeFilter}
             onChange={(e) =>
-              setTypeFilter(e.target.value as "all" | "deposito" | "saque")
+              setTypeFilter(e.target.value as "all" | "deposito" | "cambio"| "transferencia" )
             }
             sx={{ width: { xs: "100%", md: 150 } }}
           >
             <MenuItem value="all">Todos</MenuItem>
-            <MenuItem value="deposito">Entrada</MenuItem>
-            <MenuItem value="saque">Saída</MenuItem>
+            <MenuItem value="deposito">Deposito</MenuItem>
+            <MenuItem value="cambio">Cambio</MenuItem>
+            <MenuItem value="transferencia">Transferência</MenuItem>
           </Select>
 
           <TextField
@@ -387,7 +375,7 @@ export default function CardListExtract({
           />
 
           {/* Skeleton da página seguinte */}
-          {isPageLoading && <SkeletonListExtract rows={3} />}
+          {isPageLoading && <SkeletonListExtract rows={5} />}
         </>
       )}
 

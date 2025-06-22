@@ -68,3 +68,11 @@ export const maskCurrency = (valor?: string): string => {
     maximumFractionDigits: 2,
   });
 };
+
+
+export function formatCurrencyToBRL(value: number) {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
