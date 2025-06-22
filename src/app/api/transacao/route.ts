@@ -1,24 +1,35 @@
-import connectMongoDB from "@/../libs/mongoDB";
-import transacao from "@/../models/transacao";
+import connectMongoDB from "libs/mongoDB";
+import Transacao from "models/transacao";
 import { NextResponse } from "next/server";
 import { handleRequest } from "utils/error-handlers/error-handle";
 
-export async function GET() {
+/* ──────────── LIST / SCROLL INFINITO ─────────── */
+export async function GET(req: Request) {
   return handleRequest(async () => {
+    const { searchParams } = new URL(req.url);
+    const page  = Number(searchParams.get("page")  ?? "1");   // 1-based
+    const limit = Number(searchParams.get("limit") ?? "20");  // padrão 20
+
     await connectMongoDB();
-    const transacoes = await transacao
-      .find()
-      .sort({ createdAt: -1 }) // Ordena pela data de criação em ordem decrescente
-      .limit(5); // Limita o resultado aos últimos 10 registros
-    return NextResponse.json({ transacoes }, { status: 200 });
+    const [total, transacoes] = await Promise.all([
+      Transacao.countDocuments(),
+      Transacao.find()
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+    ]);
+
+    return NextResponse.json({ transacoes, total }, { status: 200 });
   });
 }
-export async function POST(request: Request) {
-  return handleRequest(async () => {
-    const { tipo, valor } = await request.json();
-    await connectMongoDB();
 
-    const novaTransacao = await transacao.create({ tipo, valor });
+/* ──────────── CREATE ─────────── */
+export async function POST(req: Request) {
+  return handleRequest(async () => {
+    const body = await req.json();
+
+    await connectMongoDB();
+    const novaTransacao = await Transacao.create(body);
 
     return NextResponse.json(
       { message: "Transação criada com sucesso", transacao: novaTransacao },

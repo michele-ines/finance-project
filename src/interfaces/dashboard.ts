@@ -74,8 +74,9 @@ export interface UserInfo  {
 };
 
 export interface NewTransactionData {
-  tipo: string;
-  valor: string;
+  tipo: "cambio" | "deposito" | "transferencia" | "saque" | string;
+  valor: string; // Mantém como string devido à máscara, será parseado antes da API
+  categoria?: string; // Novo campo! Pode ser string (ID da categoria)
 }
 export interface HeaderFlags {
   isHome: boolean

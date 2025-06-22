@@ -3,7 +3,7 @@ import {
   LoginData,
   RegisterData,
   ForgotPasswordData,
-  NewTransactionData, // adicione essa interface no seu dashboard.ts
+  NewTransactionData,
 } from "../../interfaces/dashboard";
 
 /* ------------------------------------------------------------------ */
@@ -81,12 +81,12 @@ export const forgotPasswordValidations = {
 /* ------------------------------------------------------------------ */
 /* 4. Validações do formulário de Nova Transação                      */
 /* ------------------------------------------------------------------ */
-
 /**
- * Até 999 999 999,99 → 9 dígitos inteiros + 1 separador + 2 decimais.
- * Aceita ponto ou vírgula como separador decimal.
+ * Até 999.999.999,99 — aceita “R$ ” opcional, separadores de milhar (.), vírgula
+ * como decimal e **exige** 2 casas decimais.
  */
-const currencyRegex = /^(?:\d{1,3}(\.\d{3}){0,2})(,\d{1,2})?$/;
+const currencyRegexMasked =
+  /^(?:R\$\s)?(?:\d{1,3}(?:\.\d{3})*|\d+)(?:,\d{2})$/;
 
 export const transactionValidations = {
   tipo: {
@@ -96,8 +96,24 @@ export const transactionValidations = {
   valor: {
     required: "Valor é obrigatório",
     pattern: {
-      value: currencyRegex,
-      message: "Digite um valor até 999.999.999,99 (máx. 2 casas decimais)",
+      value: currencyRegexMasked,
+      message: "Formato de valor inválido. Ex: R$ 1.234,56",
+    },
+    validate: (value: string) => {
+      const numericValue = parseFloat(
+        value.replace("R$", "").replace(/\./g, "").replace(",", ".")
+      );
+      if (isNaN(numericValue) || numericValue <= 0) {
+        return "O valor deve ser positivo.";
+      }
+      if (numericValue > 999_999_999.99) {
+        return "O valor máximo é 999.999.999,99.";
+      }
+      return true;
     },
   } as RegisterOptions<NewTransactionData, "valor">,
+
+  categoria: {
+    required: "Categoria é obrigatória",
+  } as RegisterOptions<NewTransactionData, "categoria">,
 };

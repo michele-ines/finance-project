@@ -6,6 +6,7 @@ export { redirect, usePathname, useRouter } from "next/navigation";
 
 // ——————— MUI Core ———————
 export { default as AppBar } from "@mui/material/AppBar";
+export { default as Autocomplete } from "@mui/material/Autocomplete"; 
 export { default as Box } from "@mui/material/Box";
 export { default as Button } from "@mui/material/Button";
 export { default as Card } from "@mui/material/Card";

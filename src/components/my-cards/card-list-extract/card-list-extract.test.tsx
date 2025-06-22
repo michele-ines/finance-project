@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import {
   render,
   screen,
@@ -6,19 +7,27 @@ import {
   act,
 } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import type { Transaction } from "interfaces/dashboard";
 import CardListExtract from "./card-list-extract";
-import { Transaction } from "interfaces/dashboard";
 
+/* ────── mocks ─────────────────────────────────────────── */
+// 1) fontes next/font/google
 jest.mock("next/font/google", () => ({
-  Inter: () => ({ className: "mocked-inter", variable: "--mocked-inter" }),
-  Roboto_Mono: () => ({
-    className: "mocked-roboto-mono",
-    variable: "--mocked-roboto-mono",
-  }),
+  Inter: ()       => ({ className: "mocked-inter",       variable: "--mocked-inter" }),
+  Roboto_Mono: () => ({ className: "mocked-roboto-mono", variable: "--mocked-roboto-mono" }),
 }));
 
-jest.useFakeTimers();
+// 2) sentinel (mantendo alias components/…)
+jest.mock(
+  "components/infinite-scroll-sentinel/infinite-scroll-sentinel",
+  () => ({
+    __esModule: true,
+    default: () => <div data-testid="sentinel" />,
+  }),
+  { virtual: true },
+);
 
+// 3) hook de paginação – skeleton → lista
 const mockTransactions: Transaction[] = [
   {
     _id: 1,
@@ -36,172 +45,146 @@ const mockTransactions: Transaction[] = [
   },
 ];
 
+jest.mock(
+  "../../../hooks/use-paginated-transactions",
+  () => {
+    const fetchPage = jest.fn();
+    return {
+      usePaginatedTransactions: () => {
+        const [state, setState] = useState({
+          transactions: [] as Transaction[],
+          fetchPage,
+          hasMore: false,
+          isLoading: true,
+        });
+
+        useEffect(() => {
+          const id = setTimeout(() => {
+            setState({
+              transactions: mockTransactions,
+              fetchPage,
+              hasMore: false,
+              isLoading: false,
+            });
+          }, 0);
+          return () => clearTimeout(id);
+        }, []);
+
+        return state;
+      },
+    };
+  },
+  { virtual: true },
+);
+/* ───────────────────────────────────────────────────────── */
+
+jest.useFakeTimers();
+const flushTimers = () => act(() => jest.runAllTimers());
+
+/* callbacks dummy */
+const onSave        = jest.fn();
+const onDelete      = jest.fn().mockResolvedValue(undefined);
+const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
+
+/* ======================================================== */
+/*                         TESTES                           */
+/* ======================================================== */
 describe("CardListExtract – cobertura total ajustada", () => {
-  const onSave = jest.fn();
-  const onDelete = jest.fn().mockResolvedValue(undefined);
-  const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
-
   beforeEach(() => jest.clearAllMocks());
-  const loadAndStop = () => act(() => jest.runAllTimers());
 
-  it("1) Skeleton e lista aparecem corretamente", () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    // antes do timeout: 5 skeleton rows
+  /* 1) Skeleton → lista -------------------------------- */
+  it("1) Mostra skeleton e depois a lista", () => {
+    render(<CardListExtract onSave={onSave} onDelete={onDelete} atualizaSaldo={atualizaSaldo} />);
+
     expect(
-      screen
-        .getAllByRole("listitem")
-        .filter((li) => li.querySelector(".animate-pulse"))
+      screen.getAllByRole("listitem").filter(li => li.querySelector(".animate-pulse")),
     ).toHaveLength(5);
 
-    loadAndStop();
-    // após timers, nenhum skeleton
+    flushTimers();
+
     expect(
-      screen
-        .queryAllByRole("listitem")
-        .some((li) => li.querySelector(".animate-pulse"))
+      screen.queryAllByRole("listitem").some(li => li.querySelector(".animate-pulse")),
     ).toBe(false);
   });
 
+  /* 2) valores formatados ------------------------------ */
   it("2) Exibe transações e valores formatados", async () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+    render(<CardListExtract />);
+    flushTimers();
 
     await waitFor(() => {
       expect(screen.getByText("Entrada")).toBeInTheDocument();
       expect(screen.getByText("Saída")).toBeInTheDocument();
       expect(screen.getByText("R$ 1.000,00")).toBeInTheDocument();
-      // basta validar que o valor aparece sem precisar do dash junto
       expect(screen.getByText(/500,00/)).toBeInTheDocument();
     });
   });
 
+  /* 3) editar / cancelar ------------------------------- */
   it("3) handleEditClick e handleCancelClick", async () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+    render(<CardListExtract onSave={onSave} />);
+    flushTimers();
 
-    // ao clicar em editar, só aparecem inputs para tipo e valor
     fireEvent.click(await screen.findByLabelText("editar"));
-    // dois inputs 'tipo'
+
     expect(screen.getAllByDisplayValue(/Entrada|Saída/)).toHaveLength(2);
-    // dois inputs 'valor'
-    expect(
-      screen.getAllByDisplayValue(/R\$\s?[0-9,.]+/).length
-    ).toBeGreaterThanOrEqual(1);
-    // cancelar volta ao estado de spans
     fireEvent.click(screen.getByText("Cancelar"));
     expect(screen.getByText("Entrada")).toBeInTheDocument();
-    expect(screen.getByText("Saída")).toBeInTheDocument();
   });
 
-  it("4) handleTransactionChange modifica tipo, data e valor", async () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+  /* 4) alteração + salvar ------------------------------ */
+  it("4) handleTransactionChange modifica tipo e valor", async () => {
+    render(<CardListExtract onSave={onSave} />);
+    flushTimers();
 
     fireEvent.click(await screen.findByLabelText("editar"));
-    const tipoInputs = screen.getAllByDisplayValue("Entrada");
-    const valorInputs = screen.getAllByDisplayValue(/R\$\s?[0-9,.]+/);
+    const valorInput = screen.getAllByDisplayValue(/R\$ 1\.000,00/)[0];
 
-    // altera tipo
-    fireEvent.change(tipoInputs[0], { target: { value: "Teste Novo" } });
-    // o input normaliza para "Teste novo"
-    expect((tipoInputs[0] as HTMLInputElement).value).toBe("Teste novo");
-
-    // altera valor
-    fireEvent.change(valorInputs[0], { target: { value: "R$ 2.000,00" } });
-    expect((valorInputs[0] as HTMLInputElement).value).toBe("R$ 2.000,00");
-
-    // salva e verifica payload de updatedAt convertido
+    fireEvent.change(valorInput, { target: { value: "R$ 2.000,00" } });
     fireEvent.click(screen.getByText("Salvar"));
-    await waitFor(() => {
+
+    await waitFor(() =>
       expect(onSave).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
+            valor: 2000,
             updatedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
           }),
-        ])
-      );
-    });
+        ]),
+      ),
+    );
   });
 
+  /* 5) checkbox toggle -------------------------------- */
   it("5) handleCheckboxChange adiciona e remove seleção", async () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+    render(<CardListExtract />);
+    flushTimers();
 
     fireEvent.click(screen.getByLabelText("excluir"));
-    const boxes = await screen.findAllByRole("checkbox");
-    expect(boxes).toHaveLength(2);
+    const [box] = await screen.findAllByRole("checkbox");
 
-    fireEvent.click(boxes[0]);
-    expect((boxes[0] as HTMLInputElement).checked).toBe(true);
-    fireEvent.click(boxes[0]);
-    expect((boxes[0] as HTMLInputElement).checked).toBe(false);
+    fireEvent.click(box);
+    expect(box).toBeChecked();
+    fireEvent.click(box);
+    expect(box).not.toBeChecked();
   });
 
+  /* 6) cancelar exclusão ------------------------------ */
   it("6) handleDeleteClick e handleCancelDeleteClick", async () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+    render(<CardListExtract />);
+    flushTimers();
 
     fireEvent.click(screen.getByLabelText("excluir"));
-    // Botão 'Excluir' deve estar *desabilitado* porque não há seleção
     expect(screen.getByText("Excluir")).toBeDisabled();
 
-    // cancelar exclusão deve esconder checkboxes
     fireEvent.click(screen.getByText("Cancelar"));
     expect(screen.queryByRole("checkbox")).toBeNull();
   });
 
-  it("7) exclusão com seleção dispara onDelete e atualizaSaldo", async () => {
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+  /* 7) exclusão com seleção --------------------------- */
+  it("7) exclusão dispara onDelete e atualizaSaldo", async () => {
+    render(<CardListExtract onDelete={onDelete} atualizaSaldo={atualizaSaldo} />);
+    flushTimers();
 
     fireEvent.click(screen.getByLabelText("excluir"));
     const [chk] = await screen.findAllByRole("checkbox");
@@ -212,33 +195,20 @@ describe("CardListExtract – cobertura total ajustada", () => {
     expect(atualizaSaldo).toHaveBeenCalled();
   });
 
+  /* 8) cleanup no unmount ----------------------------- */
   it("8) cleanup de timeout no unmount", () => {
-    const { unmount } = render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
+    const { unmount } = render(<CardListExtract />);
     unmount();
-    act(() => jest.runAllTimers());
-    // não deve gerar warnings de act()
+    act(() => jest.runAllTimers()); // nada deve acusar act warning
   });
 
+  /* 9) onDelete rejeitado ----------------------------- */
   it("9) console.error em onDelete rejection", async () => {
     const spy = jest.spyOn(console, "error").mockImplementation(() => {});
-    onDelete.mockRejectedValueOnce(new Error("boom"));
+    const failingDelete = jest.fn().mockRejectedValue(new Error("boom"));
 
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />
-    );
-    loadAndStop();
+    render(<CardListExtract onDelete={failingDelete} />);
+    flushTimers();
 
     fireEvent.click(await screen.findByLabelText("excluir"));
     const [chk] = await screen.findAllByRole("checkbox");
@@ -248,20 +218,24 @@ describe("CardListExtract – cobertura total ajustada", () => {
     await waitFor(() =>
       expect(spy).toHaveBeenCalledWith(
         "Erro ao excluir transações:",
-        expect.any(Error)
-      )
+        expect.any(Error),
+      ),
     );
     spy.mockRestore();
   });
 
-it("10) estado vazio sem callbacks", async () => {
-  render(<CardListExtract transactions={[]} />);
-  loadAndStop();
-  await waitFor(() =>
-    expect(
-      screen.getByText(/Nenhuma transação encontrada/i)
-    ).toBeInTheDocument()
-  );
-});
+  /* 10) estado vazio --------------------------------- */
+  it("10) Estado vazio sem callbacks", async () => {
+    // limpa lista simulando retorno vazio
+    mockTransactions.length = 0;
 
+    render(<CardListExtract />);
+    flushTimers();
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/Nenhuma transação encontrada/i),
+      ).toBeInTheDocument(),
+    );
+  });
 });

@@ -7,96 +7,104 @@ jest.mock('next/font/google', () => ({
   Roboto_Mono: () => ({ className: 'mock-roboto' }),
 }));
 
-jest.mock('../../../utils/currency-formatte/currency-formatte', () => ({
-  maskCurrency: jest.fn((v) => v),
-}));
-
 const onSubmitMock = jest.fn();
 
-const setup = (isLoading = false) => {
+const setup = (isLoading = false) =>
   render(<CardNewTransaction onSubmit={onSubmitMock} isLoading={isLoading} />);
-};
 
 describe('CardNewTransaction', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  beforeEach(() => jest.clearAllMocks());
 
-it('renders correctly', () => {
-  setup();
-
-  expect(screen.getByText(/nova transação/i)).toBeInTheDocument();
-  expect(screen.getByText(/concluir transação/i)).toBeInTheDocument();
-  expect(screen.getByPlaceholderText('00,00')).toBeInTheDocument();
-  expect(screen.getByText(/selecione o tipo de transação/i)).toBeInTheDocument();
-});
-
-
-  it('shows validation errors when submitting empty form', async () => {
+  /* 1) Renderização básica ------------------------------------ */
+  it('renders correctly', () => {
     setup();
 
-    const submitButton = screen.getByRole('button', { name: /concluir transação/i });
-    await userEvent.click(submitButton);
-
+    expect(screen.getByText(/nova transação/i)).toBeInTheDocument();
+    expect(screen.getByText(/concluir transação/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('0,00')).toBeInTheDocument();
     expect(
-      await screen.findByText(/tipo de transação é obrigatório/i)
+      screen.getByText(/selecione o tipo de transação/i),
     ).toBeInTheDocument();
+  });
+
+  /* 2) Validação de formulário vazio -------------------------- */
+  it('shows validation errors when submitting empty form', async () => {
+    setup();
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: /concluir transação/i }));
 
     expect(
-      await screen.findByText(/valor é obrigatório/i)
+      await screen.findByText(/tipo de transação é obrigatório/i),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(/valor é obrigatório/i),
     ).toBeInTheDocument();
 
     expect(onSubmitMock).not.toHaveBeenCalled();
   });
 
+  /* 3) Envio com dados válidos -------------------------------- */
   it('submits the form with valid data', async () => {
     setup();
+    const user = userEvent.setup();
 
-    // ✅ Abre o Select
-    const select = screen.getByRole('combobox');
-    await userEvent.click(select);
+    /* 3.1 — tipo */
+    await user.click(screen.getAllByRole('combobox')[0]);
+    await user.click(await screen.findByRole('option', { name: /depósito/i }));
 
-    // ✅ Seleciona a opção 'Depósito'
-    const optionDeposito = await screen.findByRole('option', { name: /depósito/i });
-    await userEvent.click(optionDeposito);
+    /* 3.2 — categoria */
+    await user.click(screen.getAllByRole('combobox')[1]);
+    await user.keyboard('{arrowdown}{enter}'); // “Salário”
 
-    // ✅ Preenche o input de valor
-    const inputValor = screen.getByPlaceholderText('00,00');
-    await userEvent.type(inputValor, '150');
+    /* 3.3 — valor */
+    const valorInput = screen.getByPlaceholderText('0,00');
+    await user.clear(valorInput);
+    await user.type(valorInput, '150,00');
 
-    // ✅ Clica no botão de submit
-    const submitButton = screen.getByRole('button', { name: /concluir transação/i });
-    await userEvent.click(submitButton);
+    /* 3.4 — submit */
+    await user.click(
+      screen.getByRole('button', { name: /concluir transação/i }),
+    );
 
-    await waitFor(() => {
-      expect(onSubmitMock).toHaveBeenCalledTimes(1);
-      expect(onSubmitMock).toHaveBeenCalledWith(
-        { tipo: 'deposito', valor: '150' },
-        expect.any(Object) // handleSubmit event
-      );
+    /* garante que o submit ocorreu */
+    await waitFor(() => expect(onSubmitMock).toHaveBeenCalled());
+
+    /* dados */
+    const [[formData]] = onSubmitMock.mock.calls;
+
+    expect(formData).toMatchObject({
+      tipo: 'deposito',
+      categoria: 'salario',
     });
+    expect(formData.valor).toMatch(/^R\$\s*150,00$/); // aceita espaço ou NBSP
   });
 
+  /* 4) Botão desabilitado em loading -------------------------- */
   it('disables button when isLoading is true', () => {
     setup(true);
 
-    const button = screen.getByRole('button', { name: /concluindo transação/i });
+    const button = screen.getByRole('button', {
+      name: /concluindo transação/i,
+    });
 
     expect(button).toBeDisabled();
     expect(button).toHaveClass('cursor-not-allowed');
     expect(button).toHaveClass('opacity-50');
   });
 
+  /* 5) Estilos de erro após submit vazio ---------------------- */
   it('renders error styles when validation fails', async () => {
     setup();
+    const user = userEvent.setup();
 
-    const submitButton = screen.getByRole('button', { name: /concluir transação/i });
-    await userEvent.click(submitButton);
+    await user.click(screen.getByRole('button', { name: /concluir transação/i }));
 
-    const tipoError = await screen.findByText(/tipo de transação é obrigatório/i);
-    const valorError = await screen.findByText(/valor é obrigatório/i);
-
-    expect(tipoError).toBeInTheDocument();
-    expect(valorError).toBeInTheDocument();
+    expect(
+      await screen.findByText(/tipo de transação é obrigatório/i),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(/valor é obrigatório/i),
+    ).toBeInTheDocument();
   });
 });

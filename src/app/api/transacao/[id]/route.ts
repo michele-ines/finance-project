@@ -1,50 +1,62 @@
 import connectMongoDB from "@/../libs/mongoDB";
-import transacao from "@/../models/transacao";
+import Transacao from "@/../models/transacao";
 import { NextResponse } from "next/server";
 import { handleRequest } from "utils/error-handlers/error-handle";
 
-// Tipo correto para o contexto de rotas dinâmicas
 interface RouteContext {
-  params: Promise<{ id: string }>;
+  params: { id: string };          // não é Promise
 }
 
-export async function GET(request: Request, context: RouteContext) {
+/* ──────────── READ ──────────── */
+export async function GET(
+  _req: Request,
+  { params }: RouteContext
+) {
   return handleRequest(async () => {
-    const { id } = await context.params; // Use await para acessar os parâmetros
-
     await connectMongoDB();
-    const transacaoOb = await transacao.findOne({ _id: id });
-    if (!transacaoOb) {
+    const transacao = await Transacao.findById(params.id);
+
+    if (!transacao) {
       return NextResponse.json(
         { message: "Transação não encontrada" },
         { status: 404 }
       );
     }
-    return NextResponse.json({ transacaoOb }, { status: 200 });
+
+    return NextResponse.json({ transacao }, { status: 200 });
   });
 }
 
-export async function PUT(request: Request, context: RouteContext) {
+/* ──────────── UPDATE ─────────── */
+export async function PUT(
+  req: Request,
+  { params }: RouteContext
+) {
   return handleRequest(async () => {
-    const { id } = await context.params; // Use await para acessar os parâmetros
-    const { tipo, valor } = await request.json();
+    const { tipo, valor } = await req.json();
 
     await connectMongoDB();
-    await transacao.findByIdAndUpdate(id, { tipo, valor });
+    const atualizada = await Transacao.findByIdAndUpdate(
+      params.id,
+      { tipo, valor },
+      { new: true }                 // devolve o documento atualizado
+    );
 
     return NextResponse.json(
-      { message: "Transação atualizada com sucesso" },
+      { message: "Transação atualizada com sucesso", transacao: atualizada },
       { status: 200 }
     );
   });
 }
 
-export async function DELETE(request: Request, context: RouteContext) {
+/* ──────────── DELETE ─────────── */
+export async function DELETE(
+  _req: Request,
+  { params }: RouteContext
+) {
   return handleRequest(async () => {
-    const { id } = await context.params; // Use await para acessar os parâmetros
-
     await connectMongoDB();
-    await transacao.findByIdAndDelete(id);
+    await Transacao.findByIdAndDelete(params.id);
 
     return NextResponse.json(
       { message: "Transação excluída com sucesso" },
