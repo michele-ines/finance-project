@@ -1,6 +1,3 @@
-/* -------------------------------------------------------------------------- */
-/*  src/app/(pages)/dashboard/dashboardPage.tsx                               */
-/* -------------------------------------------------------------------------- */
 "use client";
 
 import { useCallback, useEffect, useState } from "react";

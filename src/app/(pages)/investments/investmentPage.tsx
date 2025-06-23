@@ -1,4 +1,3 @@
-/* src/app/(pages)/investments/investmentPage.tsx */
 "use client";
 
 import { useEffect, useState } from "react";
