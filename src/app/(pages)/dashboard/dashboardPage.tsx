@@ -1,61 +1,79 @@
+/* -------------------------------------------------------------------------- */
+/*  src/app/(pages)/dashboard/dashboardPage.tsx                               */
+/* -------------------------------------------------------------------------- */
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import CardBalance from "components/my-cards/card-balance/card-balance";
-import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
-import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
-import SavingsGoalWidget from "components/widgets/savings-goal-widget";
+import CardBalance         from "components/my-cards/card-balance/card-balance";
+import CardListExtract     from "components/my-cards/card-list-extract/card-list-extract";
+import CardNewTransaction  from "components/my-cards/card-new-transaction/card-new-transaction";
+import SavingsGoalWidget   from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
-import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
+import {
+  Box,
+  Modal,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
+
 import type {
   DashboardData,
   NewTransactionData,
   Transaction,
-} from "../../../interfaces/dashboard";
+} from "interfaces/dashboard";
+
+import { parseBRL }   from "utils/currency-formatte/currency-formatte";        // ⬅️ novo
 import { handleRequest } from "utils/error-handlers/error-handle";
-import dashboardData from "../../../mocks/dashboard-data.json";
+import dashboardData     from "mocks/dashboard-data.json";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function DashboardPage() {
   const data: DashboardData = dashboardData;
 
-  /* ▸ widgets ainda precisam das transações   */
-  // const [transactions, setTransactions] = useState<Transaction[]>([]);
+  /* -------------------------------------------------------- */
+  /*  Estados locais                                          */
+  /* -------------------------------------------------------- */
   const [loadingTransaction, setLoadingTransaction] = useState(false);
-  const [balanceValue, setBalanceValue] = useState<number | null>(null);
+  const [balanceValue,       setBalanceValue]       = useState<number | null>(null);
 
-  /* ▸ preferências de widgets --------------- */
+  /* prefs de widgets --------------------------------------- */
   const [widgetPreferences, setWidgetPreferences] = useState({
-    savingsGoal: true,
+    savingsGoal:   true,
     spendingAlert: true,
   });
   const [showModal, setShowModal] = useState(false);
 
-const {
-  transactions, // << AQUI ESTÁ A SEGUNDA DECLARAÇÃO
-  fetchPage,
-  hasMore,
-  isLoading: isPageLoading,
-} = usePaginatedTransactions();
+  /* -------------------------------------------------------- */
+  /*  Paginação                                               */
+  /* -------------------------------------------------------- */
+  const {
+    transactions,
+    fetchPage,
+    prepend,            // ⬅️ novo
+    refresh,            // ⬅️ novo
+    hasMore,
+    isLoading: isPageLoading,
+  } = usePaginatedTransactions();
 
-  /* ▸ carrega prefs do localStorage --------- */
+  /* -------------------------------------------------------- */
+  /*  Carrega prefs                                           */
+  /* -------------------------------------------------------- */
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferences");
     if (saved) setWidgetPreferences(JSON.parse(saved));
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "widgetPreferences",
-      JSON.stringify(widgetPreferences)
-    );
+    localStorage.setItem("widgetPreferences", JSON.stringify(widgetPreferences));
   }, [widgetPreferences]);
 
   const toggleWidget = (key: keyof typeof widgetPreferences) =>
-    setWidgetPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+    setWidgetPreferences(prev => ({ ...prev, [key]: !prev[key] }));
 
-  /* ▸ saldo sempre vem da API --------------- */
+  /* -------------------------------------------------------- */
+  /*  Saldo                                                   */
+  /* -------------------------------------------------------- */
   const fetchBalance = useCallback(async () => {
     await handleRequest(async () => {
       const res = await fetch("/api/transacao/soma-depositos");
@@ -65,58 +83,71 @@ const {
     });
   }, []);
 
-  /* ▸ callbacks para o CardListExtract ------- */
+  /* -------------------------------------------------------- */
+  /*  Callbacks do Extrato                                    */
+  /* -------------------------------------------------------- */
   const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
-      for (const tx of txs) {
-        await fetch(`/api/transacao/${tx._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
-        });
-      }
-      // setTransactions(txs);            // mantém widgets em sincronia
+      await Promise.all(
+        txs.map(tx =>
+          fetch(`/api/transacao/${tx._id}`, {
+            method:  "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
+          })
+        )
+      );
+      await refresh();        // ⬅️ garante lista nova
       fetchBalance();
     });
   };
 
   const handleDeleteTransactions = async (ids: number[]) => {
     try {
-      await Promise.all(ids.map((id) => fetch(`/api/transacao/${id}`, { method: "DELETE" })));
-      // setTransactions((prev) => prev.filter((tx) => !ids.includes(tx._id)));
+      await Promise.all(
+        ids.map(id => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
+      );
+      await refresh();        // ⬅️ recarrega sem itens excluídos
       fetchBalance();
-    } catch (error) {
-      console.error("Erro ao excluir transações:", error);
+    } catch (err) {
+      console.error("Erro ao excluir transações:", err);
     }
   };
 
-  /* ▸ Nova transação ------------------------ */
+  /* -------------------------------------------------------- */
+  /*  Nova transação                                          */
+  /* -------------------------------------------------------- */
   const onSubmit = async (data: NewTransactionData) => {
     await handleRequest(async () => {
       setLoadingTransaction(true);
+
+      const payload = { ...data, valor: parseBRL(data.valor) }; // ⬅️ parse
       const res = await fetch("/api/transacao", {
-        method: "POST",
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Falha ao adicionar transação");
 
-      const { message, transacao } = await res.json();
+      const { transacao, message } = await res.json();
       alert(message);
-      // setTransactions((prev) => [...prev, transacao]);
+
+      prepend(transacao);     // ⬅️ aparece no topo
       fetchBalance();
       setLoadingTransaction(false);
     });
   };
 
-  useEffect(() => {
-    fetchBalance();
-  }, [fetchBalance]);
+  /* carrega saldo na montagem */
+  useEffect(() => { fetchBalance(); }, [fetchBalance]);
 
+  /* -------------------------------------------------------- */
+  /*  Render                                                  */
+  /* -------------------------------------------------------- */
   return (
     <Box className="w-full px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)] flex flex-col">
       <Box className="font-sans max-w-screen-xl mx-auto w-full flex flex-col flex-1 min-h-0">
-        {/* Botão de personalização */}
+        {/* Botão de personalização -------------------------------------- */}
         <Box className="flex justify-end mb-4">
           <button
             onClick={() => setShowModal(true)}
@@ -126,7 +157,9 @@ const {
             Personalizar Widgets
           </button>
         </Box>
+
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8 flex-1 min-h-0">
+          {/* Coluna esquerda -------------------------------------------- */}
           <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
             <CardBalance
               user={data.user}
@@ -136,7 +169,6 @@ const {
               }}
             />
 
-            {/* Os widgets agora usam a lista de transações do hook de paginação */}
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}
@@ -151,10 +183,8 @@ const {
             />
           </Box>
 
-          {/* Coluna direita */}
-          {/* 4. A coluna da direita também precisa ser um container flex para o filho crescer */}
+          {/* Coluna direita (Extrato) ----------------------------------- */}
           <Box className="max-w-full flex flex-col">
-            
             <div className="flex-1 overflow-y-auto max-h-[800px]">
               <CardListExtract
                 transactions={transactions}
@@ -169,8 +199,7 @@ const {
           </Box>
         </Box>
 
-
-        {/* Modal de personalização */}
+        {/* Modal de personalização ------------------------------------- */}
         <Modal open={showModal} onClose={() => setShowModal(false)}>
           <Box
             className="bg-white p-6 rounded-2xl shadow-md text-gray-800"

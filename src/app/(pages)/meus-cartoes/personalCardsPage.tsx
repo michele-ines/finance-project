@@ -1,41 +1,46 @@
+/* -------------------------------------------------------------------------- */
+/*  src/app/(pages)/personal-cards/personalCardsPage.tsx                      */
+/* -------------------------------------------------------------------------- */
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Box,
   Modal,
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
+import { useEffect, useState } from "react";
 
-import CardBalance from "../../../components/my-cards/card-balance/card-balance";
-import CardListExtract from "../../../components/my-cards/card-list-extract/card-list-extract";
-import PersonalCards from "../../../components/my-cards/personal-cards/personal-cards";
-import SavingsGoalWidget from "../../../components/widgets/savings-goal-widget";
-import SpendingAlertWidget from "../../../components/widgets/spending-alert-widget";
+import CardBalance         from "components/my-cards/card-balance/card-balance";
+import PersonalCards       from "components/my-cards/personal-cards/personal-cards";
+import CardListExtract     from "components/my-cards/card-list-extract/card-list-extract";
+import SavingsGoalWidget   from "components/widgets/savings-goal-widget";
+import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
-import type { DashboardData, Transaction } from "../../../interfaces/dashboard";
-import dashboardData from "../../../mocks/dashboard-data.json";
-import { handleRequest } from "../../../utils/error-handlers/error-handle";
+import type { DashboardData, Transaction } from "interfaces/dashboard";
+import dashboardData       from "mocks/dashboard-data.json";
+import { handleRequest }   from "utils/error-handlers/error-handle";
+import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function PersonalCardsPage() {
   const data = dashboardData as DashboardData;
 
-  /* ------------------------------------------------------------------ */
-  /* STATE                                                               */
-  /* ------------------------------------------------------------------ */
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  /* -------------------- paginação -------------------- */
+  const {
+    transactions,
+    fetchPage,
+    refresh,
+    hasMore,
+    isLoading: isPageLoading,
+  } = usePaginatedTransactions();
 
+  /* -------------- prefs dos widgets ------------------ */
   const [widgetPreferences, setWidgetPreferences] = useState({
-    savingsGoal: true,
+    savingsGoal:   true,
     spendingAlert: true,
   });
   const [showModal, setShowModal] = useState(false);
 
-  /* ------------------------------------------------------------------ */
-  /* EFFECTS                                                             */
-  /* ------------------------------------------------------------------ */
-  /** prefs */
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferencesPersonalCards");
     if (saved) setWidgetPreferences(JSON.parse(saved));
@@ -48,41 +53,39 @@ export default function PersonalCardsPage() {
     );
   }, [widgetPreferences]);
 
-  /** transações para widgets */
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
+  const toggleWidget = (k: keyof typeof widgetPreferences) =>
+    setWidgetPreferences(p => ({ ...p, [k]: !p[k] }));
 
-  /* ------------------------------------------------------------------ */
-  /* HANDLERS                                                            */
-  /* ------------------------------------------------------------------ */
-  const toggleWidget = (key: keyof typeof widgetPreferences) =>
-    setWidgetPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  const fetchTransactions = async () => {
+  /* -------------- callbacks do extrato --------------- */
+  const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
-      const res = await fetch("/api/transacao");
-      if (!res.ok) throw new Error("Falha ao buscar transações");
-      const { transacoes } = await res.json();
-      setTransactions(transacoes);
+      await Promise.all(
+        txs.map(tx =>
+          fetch(`/api/transacao/${tx._id}`, {
+            method:  "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
+          })
+        )
+      );
+      await refresh();
     });
   };
 
-  const handleSaveTransactions = async (txs: Transaction[]) => {
-    setTransactions(txs); // mantém widgets em sincronia
-  };
-
   const handleDeleteTransactions = async (ids: number[]) => {
-    setTransactions((prev) => prev.filter((tx) => !ids.includes(tx._id)));
+    await handleRequest(async () => {
+      await Promise.all(
+        ids.map(id => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
+      );
+      await refresh();
+    });
   };
 
-  /* ------------------------------------------------------------------ */
-  /* RENDER                                                              */
-  /* ------------------------------------------------------------------ */
+  /* ------------------------ UI ----------------------- */
   return (
     <Box className="w-full min-h-screen px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)]">
       <Box className="font-sans max-w-screen-xl mx-auto">
-        {/* Botão de personalização */}
+        {/* botão de personalização */}
         <Box className="flex justify-end mb-4">
           <button
             onClick={() => setShowModal(true)}
@@ -94,14 +97,13 @@ export default function PersonalCardsPage() {
         </Box>
 
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
-          {/* COLUNA ESQUERDA --------------------------------------------- */}
-          <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
+          {/* coluna esquerda */}
+          <Box className="flex flex-col gap-6 w-full lg:w-[calc(55.666%-12px)]">
             <CardBalance user={data.user} balance={data.balance} />
 
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}
-
             {widgetPreferences.savingsGoal && (
               <SavingsGoalWidget goal={3000} transactions={transactions} />
             )}
@@ -109,24 +111,28 @@ export default function PersonalCardsPage() {
             <PersonalCards />
           </Box>
 
-          {/* COLUNA DIREITA ---------------------------------------------- */}
-          <Box className="w-full max-w-full lg:w-[calc(44.334%-12px)]">
-            <CardListExtract
-              onSave={handleSaveTransactions}
-              onDelete={handleDeleteTransactions}
-            />
+          {/* coluna direita – extrato com scroll infinito */}
+          <Box className="max-w-full flex flex-col">
+            <div className="flex-1 overflow-y-auto max-h-[800px]">
+              <CardListExtract
+                transactions={transactions}
+                fetchPage={fetchPage}
+                hasMore={hasMore}
+                isPageLoading={isPageLoading}
+                onSave={handleSaveTransactions}
+                onDelete={handleDeleteTransactions}
+              />
+            </div>
           </Box>
         </Box>
 
-        {/* MODAL DE PERSONALIZAÇÃO --------------------------------------- */}
+        {/* modal de widgets */}
         <Modal open={showModal} onClose={() => setShowModal(false)}>
           <Box
             className="bg-white p-6 rounded-2xl shadow-md text-gray-800"
-            sx={{ width: 480, margin: "auto", mt: "15%", outline: "none" }}
+            sx={{ width: 480, m: "auto", mt: "15%", outline: "none" }}
           >
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Personalizar Widgets
-            </h2>
+            <h2 className="text-xl font-bold mb-4">Personalizar Widgets</h2>
 
             <FormControlLabel
               control={

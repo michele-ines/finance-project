@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -30,52 +29,32 @@ import {
   parseDateBR,
 } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
-import { usePaginatedTransactions } from "../../../hooks/use-paginated-transactions";
 import InfiniteScrollSentinel from "../../infinite-scroll-sentinel/infinite-scroll-sentinel";
 
-/* ▸ novos imports para paginação ------------------------- */
-
-/* -------------------------------------------------------- */
-/*  Propriedades (não recebe mais “transactions”)           */
-/* -------------------------------------------------------- */
 interface CardListExtractProps {
-  transactions: Transaction[]; // A lista vem do pai
-  fetchPage: () => void;      // A função de buscar vem do pai
-  hasMore: boolean;          // O controle se há mais páginas vem do pai
-  isPageLoading: boolean;    // O status de carregamento vem do pai
+  transactions?: Transaction[];
+  fetchPage: () => void;
+  hasMore: boolean;
+  isPageLoading: boolean;
   onSave?: (transactions: Transaction[]) => void;
   onDelete?: (transactionIds: number[]) => Promise<void>;
   atualizaSaldo?: () => Promise<void>;
 }
 
-/* ======================================================== */
-/*  Componente                                              */
-/* ======================================================== */
 export default function CardListExtract({
-  transactions, // recebendo a lista
-  fetchPage,    // recebendo a função
+  transactions,
+  fetchPage,
   hasMore,
   isPageLoading,
   onSave,
   onDelete,
   atualizaSaldo,
 }: CardListExtractProps) {
-  /* ------------------------------------------------------ */
-  /*  1. Paginação / dados da API                           */
-  /* ------------------------------------------------------ */
-  // Removido o uso duplicado de usePaginatedTransactions
-
-  /* ------------------------------------------------------ */
-  /*  2. Estados locais (edição)                            */
-  /* ------------------------------------------------------ */
   const [editableTransactions, setEditableTransactions] = useState<
     Transaction[]
   >([]);
-
-  /* ------------------------------------------------------ */
-  /*  3. Carrega/atualiza lista editável                    */
-  /* ------------------------------------------------------ */
   useEffect(() => {
+    if (!transactions) return;
     setEditableTransactions(
       transactions.map((t) => ({
         ...t,
@@ -84,28 +63,43 @@ export default function CardListExtract({
     );
   }, [transactions]);
 
-  /* ------------------------------------------------------ */
-  /*  4. UI e controles                                     */
-  /* ------------------------------------------------------ */
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedTransactions, setSelectedTransactions] = useState<number[]>(
     []
   );
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
-
-  /* ▸ Filtros/Busca -------------------------------------- */
-  const [typeFilter, setTypeFilter] = useState< "all" | "deposito" | "cambio"| "transferencia" >(
+  const [typeFilter, setTypeFilter] = useState<"all" | "entrada" | "saida">(
     "all"
   );
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [dateError, setDateError] = useState(false);
 
-  /* ▸ Filtragem ------------------------------------------ */
+  const isValidDate = (value: string) => {
+    return value === "" || !isNaN(Date.parse(value));
+  };
+
+  const handleStartDateChange = (value: string) => {
+    setStartDate(value);
+    setDateError(!isValidDate(value));
+  };
+
+  const handleEndDateChange = (value: string) => {
+    setEndDate(value);
+    setDateError(!isValidDate(value));
+  };
+
   const filteredTransactions = useMemo(() => {
-    return editableTransactions.filter((tx) => {
+    const tiposEntrada = ["cambio"];
+    const tiposSaida = ["deposito", "transferencia"];
 
-      const matchesType = typeFilter === "all" || tx.tipo === typeFilter;
+    return editableTransactions.filter((tx) => {
+      const tipo = tx.tipo;
+      const matchesType =
+        typeFilter === "all" ||
+        (typeFilter === "entrada" && tiposEntrada.includes(tipo)) ||
+        (typeFilter === "saida" && tiposSaida.includes(tipo));
 
       const txDate = new Date(tx.createdAt);
       const matchesStart =
@@ -116,7 +110,6 @@ export default function CardListExtract({
     });
   }, [editableTransactions, typeFilter, startDate, endDate]);
 
-  /* ▸ Alterna modos -------------------------------------- */
   const handleEditClick = () => {
     setEditableTransactions((prev) =>
       prev.map((tx) => ({ ...tx, updatedAt: formatDateBR(tx.updatedAt) }))
@@ -126,7 +119,7 @@ export default function CardListExtract({
 
   const handleCancelClick = () => {
     setEditableTransactions(
-      transactions.map((t) => ({
+      (transactions ?? []).map((t) => ({
         ...t,
         valor: typeof t.valor === "string" ? parseBRL(t.valor) : t.valor,
       }))
@@ -144,7 +137,6 @@ export default function CardListExtract({
     setSelectedTransactions([]);
   };
 
-  /* ▸ Salvar / Excluir ----------------------------------- */
   const handleSaveClick = async () => {
     if (isEditing) {
       const payload = editableTransactions.map((tx) => ({
@@ -155,7 +147,6 @@ export default function CardListExtract({
       setIsEditing(false);
       return;
     }
-
     if (isDeleting) {
       if (selectedTransactions.length === 0) return;
       setIsDeletingInProgress(true);
@@ -172,7 +163,6 @@ export default function CardListExtract({
     }
   };
 
-  /* ▸ Handlers auxiliares -------------------------------- */
   const handleCheckboxChange = (id: number) => {
     setSelectedTransactions((prev) =>
       prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
@@ -193,21 +183,13 @@ export default function CardListExtract({
     );
   };
 
-  /* ====================================================== */
-  /*                     RENDER                             */
-  /* ====================================================== */
   const loadingFirstPage = isPageLoading && editableTransactions.length === 0;
-  const hasTransactions =
-    !loadingFirstPage && editableTransactions.length > 0;
+  const hasTransactions = !loadingFirstPage && editableTransactions.length > 0;
 
   return (
     <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
-      {/* -------------------------------------------------- */}
-      {/*  Header + Actions                                  */}
-      {/* -------------------------------------------------- */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
-
         {hasTransactions && !isEditing && !isDeleting && (
           <Box className={styles.extratoActions}>
             <IconButton
@@ -228,9 +210,6 @@ export default function CardListExtract({
         )}
       </Box>
 
-      {/* -------------------------------------------------- */}
-      {/*  Barra de Filtro e Busca                           */}
-      {/* -------------------------------------------------- */}
       {hasTransactions && (
         <Box
           className="flex flex-col md:flex-row gap-4 pb-2"
@@ -243,14 +222,13 @@ export default function CardListExtract({
             size="small"
             value={typeFilter}
             onChange={(e) =>
-              setTypeFilter(e.target.value as "all" | "deposito" | "cambio"| "transferencia" )
+              setTypeFilter(e.target.value as "all" | "entrada" | "saida")
             }
-            sx={{ width: { xs: "100%", md: 150 } }}
+            sx={{ flex: 1, minWidth: { xs: "calc(50% - 4px)", md: 120 } }}
           >
             <MenuItem value="all">Todos</MenuItem>
-            <MenuItem value="deposito">Deposito</MenuItem>
-            <MenuItem value="cambio">Cambio</MenuItem>
-            <MenuItem value="transferencia">Transferência</MenuItem>
+            <MenuItem value="entrada">Entrada</MenuItem>
+            <MenuItem value="saida">Saída</MenuItem>
           </Select>
 
           <TextField
@@ -258,36 +236,51 @@ export default function CardListExtract({
             type="date"
             size="small"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => handleStartDateChange(e.target.value)}
+            error={dateError}
+            helperText={dateError ? "Data inválida" : ""}
             InputLabelProps={{ shrink: true }}
             sx={{ flex: 1, minWidth: { xs: "calc(50% - 4px)", md: 120 } }}
           />
+
           <TextField
             label="Até"
             type="date"
             size="small"
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e) => handleEndDateChange(e.target.value)}
+            error={dateError}
+            helperText={dateError ? "Data inválida" : ""}
             InputLabelProps={{ shrink: true }}
             sx={{ flex: 1, minWidth: { xs: "calc(50% - 4px)", md: 120 } }}
           />
         </Box>
       )}
 
-      {/* -------------------------------------------------- */}
-      {/*  Lista / Skeleton / Empty-state                    */}
-      {/* -------------------------------------------------- */}
       {loadingFirstPage ? (
         <SkeletonListExtract rows={5} />
-      ) : filteredTransactions.length === 0 ? (
+      ) : dateError || filteredTransactions.length === 0 ? (
         <Box className="flex flex-col items-center justify-center text-center gap-4 py-10">
-          <ReceiptLongOutlinedIcon
-            sx={{ fontSize: 56, color: "text.secondary" }}
-          />
-          <Typography variant="h6">Nenhuma transação encontrada</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Ajuste os filtros ou adicione uma nova transação para começar.
-          </Typography>
+          {dateError ? (
+            <>
+              <Typography variant="h6" color="error">
+                Data inválida
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Verifique o formato da data inserida.
+              </Typography>
+            </>
+          ) : (
+            <>
+              <ReceiptLongOutlinedIcon
+                sx={{ fontSize: 56, color: "text.secondary" }}
+              />
+              <Typography variant="h6">Nenhuma transação encontrada</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Ajuste os filtros ou adicione uma nova transação para começar.
+              </Typography>
+            </>
+          )}
         </Box>
       ) : (
         <>
@@ -298,7 +291,6 @@ export default function CardListExtract({
                   className={styles.extratoItem}
                   style={{ gap: isEditing ? "0px" : undefined }}
                 >
-                  {/* Linha: tipo + data */}
                   <Box className={styles.txRow}>
                     {isEditing ? (
                       <Input
@@ -307,11 +299,7 @@ export default function CardListExtract({
                         fullWidth
                         value={formatTipo(tx.tipo)}
                         onChange={(e) =>
-                          handleTransactionChange(
-                            index,
-                            "tipo",
-                            e.target.value
-                          )
+                          handleTransactionChange(index, "tipo", e.target.value)
                         }
                         inputProps={{ style: { textAlign: "left" } }}
                       />
@@ -320,20 +308,15 @@ export default function CardListExtract({
                         {formatTipo(tx.tipo)}
                       </span>
                     )}
-
                     <span className={styles.txDate}>
                       {formatDateBR(tx.createdAt)}
                     </span>
                   </Box>
 
-                  {/* Valor */}
                   {isEditing ? (
                     <Input
                       disableUnderline
-                      className={clsx(
-                        styles.txValue,
-                        styles.txValueEditable
-                      )}
+                      className={clsx(styles.txValue, styles.txValueEditable)}
                       value={formatBRL(tx.valor)}
                       onChange={(e) =>
                         handleTransactionChange(
@@ -355,6 +338,12 @@ export default function CardListExtract({
                           onChange={() => handleCheckboxChange(tx._id)}
                           size="small"
                           className="mr-2"
+                          sx={{
+                            color: "var(--byte-color-dash)",
+                            "&.Mui-checked": {
+                              color: "var(--byte-color-dash)",
+                            },
+                          }}
                         />
                       )}
                       <span className={styles.txValue}>
@@ -368,20 +357,14 @@ export default function CardListExtract({
             ))}
           </ul>
 
-          {/* Sentinel – carrega próxima página */}
           <InfiniteScrollSentinel
             onVisible={fetchPage}
             disabled={!hasMore || isPageLoading}
           />
-
-          {/* Skeleton da página seguinte */}
           {isPageLoading && <SkeletonListExtract rows={5} />}
         </>
       )}
 
-      {/* -------------------------------------------------- */}
-      {/*  Botões Salvar / Cancelar                           */}
-      {/* -------------------------------------------------- */}
       {(isEditing || isDeleting) && (
         <Box className="flex gap-2 justify-between mt-4">
           <Button

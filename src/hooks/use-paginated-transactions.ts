@@ -1,9 +1,8 @@
-// src/hooks/usePaginatedTransactions.ts
 "use client";
-import { Transaction } from "interfaces/dashboard";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-// Altere o PAGE_SIZE para 10
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Transaction } from "interfaces/dashboard";
+
 const PAGE_SIZE = 10;
 
 export function usePaginatedTransactions() {
@@ -11,40 +10,53 @@ export function usePaginatedTransactions() {
   const [pages, setPages] = useState<Transaction[][]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  /* total de registros informado pela API */
-  const total = useRef<number | null>(null);
+  /* controle interno -------------------------------------------------- */
+  const loadingRef = useRef(false);           // impede chamadas simultâneas
+  const totalRef   = useRef<number | null>(null);
+  const nextPage   = useRef(1);               // 1-based
 
-  /* nº da próxima página (mantido em ref p/ não “congelar” no callback) */
-  const nextPage = useRef(1);
-
+  /* --------------------- BUSCA DE PÁGINA ---------------------------- */
   const fetchPage = useCallback(async () => {
-    // Evita buscas duplicadas enquanto uma já está em andamento
-    if (isLoading) return;
-
+    if (loadingRef.current) return;           // já tem requisição em curso
+    loadingRef.current = true;
     setIsLoading(true);
+
     try {
       const res = await fetch(
         `/api/transacao?page=${nextPage.current}&limit=${PAGE_SIZE}`
       );
-      const { transacoes, total: all } = await res.json();
+      const { transacoes, total } = await res.json();
 
-      /* salva total vindo do backend */
-      total.current = all;
+      totalRef.current = total;               // salva total vindo do backend
 
-      /* ➜ acrescenta apenas transações ainda não vistas */
-      setPages((prev) => {
-        const knownIds = new Set(prev.flat().map((t) => t._id));
-        const onlyNew = transacoes.filter((t: Transaction) => !knownIds.has(t._id));
+      /* adiciona somente transações ainda não vistas */
+      setPages(prev => {
+        const knownIds = new Set(prev.flat().map(t => t._id));
+        const onlyNew  = transacoes.filter((t: Transaction) => !knownIds.has(t._id));
         return [...prev, onlyNew];
       });
 
-      nextPage.current += 1;      // incrementa p/ a próxima requisição
-    } catch (error) {
-      console.error("Erro ao buscar a página de transações:", error);
+      nextPage.current += 1;                  // prepara a próxima página
+    } catch (err) {
+      console.error("Erro ao buscar página de transações:", err);
     } finally {
+      loadingRef.current = false;
       setIsLoading(false);
     }
-  }, [isLoading]);
+  }, []);                                     // <— sem dependências!
+
+  /* --------------------- UTILIDADES --------------------------------- */
+  const prepend = useCallback((tx: Transaction) => {
+    setPages(prev => [[tx], ...prev]);
+    if (totalRef.current !== null) totalRef.current += 1;
+  }, []);
+
+  const refresh = useCallback(async () => {
+    setPages([]);
+    totalRef.current   = null;
+    nextPage.current   = 1;
+    await fetchPage();                         // carrega de novo a 1.ª página
+  }, [fetchPage]);
 
   /* primeira página na montagem */
   useEffect(() => {
@@ -52,12 +64,18 @@ export function usePaginatedTransactions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* lista achatada, mas **memoriza** entre renders  */
+  /* lista achatada e memorizada */
   const transactions = useMemo(() => pages.flat(), [pages]);
 
-  // Verifica se ainda há mais transações para carregar
   const hasMore =
-    total.current === null ? true : transactions.length < total.current;
+    totalRef.current === null ? true : transactions.length < totalRef.current;
 
-  return { transactions, fetchPage, hasMore, isLoading };
+  return {
+    transactions,
+    fetchPage,
+    prepend,
+    refresh,
+    hasMore,
+    isLoading,
+  };
 }
