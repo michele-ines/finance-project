@@ -11,13 +11,11 @@ import type { Transaction } from "interfaces/dashboard";
 import CardListExtract from "./card-list-extract";
 
 /* ────── mocks ─────────────────────────────────────────── */
-// 1) fontes next/font/google
 jest.mock("next/font/google", () => ({
   Inter: ()       => ({ className: "mocked-inter",       variable: "--mocked-inter" }),
   Roboto_Mono: () => ({ className: "mocked-roboto-mono", variable: "--mocked-roboto-mono" }),
 }));
 
-// 2) sentinel (mantendo alias components/…)
 jest.mock(
   "components/infinite-scroll-sentinel/infinite-scroll-sentinel",
   () => ({
@@ -27,7 +25,6 @@ jest.mock(
   { virtual: true },
 );
 
-// 3) hook de paginação – skeleton → lista
 const mockTransactions: Transaction[] = [
   {
     _id: 1,
@@ -76,12 +73,12 @@ jest.mock(
   },
   { virtual: true },
 );
+
 /* ───────────────────────────────────────────────────────── */
 
 jest.useFakeTimers();
-const flushTimers = () => act(() => jest.runAllTimers());
+const loadAndStop = () => act(() => jest.runAllTimers());
 
-/* callbacks dummy */
 const onSave        = jest.fn();
 const onDelete      = jest.fn().mockResolvedValue(undefined);
 const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
@@ -91,8 +88,7 @@ const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
 /* ======================================================== */
 describe("CardListExtract – cobertura total ajustada", () => {
   beforeEach(() => jest.clearAllMocks());
-  const loadAndStop = () => act(() => jest.runAllTimers());
-  
+
   it("1) Skeleton e lista aparecem corretamente", async () => {
     const { rerender } = render(
       <CardListExtract
@@ -105,14 +101,13 @@ describe("CardListExtract – cobertura total ajustada", () => {
         atualizaSaldo={atualizaSaldo}
       />
     );
-    // antes do timeout: 5 skeleton rows
     expect(
       screen.getAllByRole("listitem").filter(li => li.querySelector(".animate-pulse")),
     ).toHaveLength(5);
-    // Simula o fim do loading (como se tivesse carregado os dados)
+
     rerender(
       <CardListExtract
-        transactions={[]} // ainda vazio, mas loading acabou
+        transactions={[]}
         fetchPage={jest.fn()}
         hasMore={false}
         isPageLoading={false}
@@ -122,7 +117,6 @@ describe("CardListExtract – cobertura total ajustada", () => {
       />
     );
 
-    // agora o skeleton deve sumir
     await waitFor(() =>
       expect(
         screen
@@ -132,7 +126,6 @@ describe("CardListExtract – cobertura total ajustada", () => {
     );
   });
 
-  /* 2) valores formatados ------------------------------ */
   it("2) Exibe transações e valores formatados", async () => {
     render(
       <CardListExtract
@@ -155,7 +148,6 @@ describe("CardListExtract – cobertura total ajustada", () => {
     });
   });
 
-  /* 3) editar / cancelar ------------------------------- */
   it("3) handleEditClick e handleCancelClick", async () => {
     render(
       <CardListExtract
@@ -209,7 +201,6 @@ describe("CardListExtract – cobertura total ajustada", () => {
     );
   });
 
-  /* 5) checkbox toggle -------------------------------- */
   it("5) handleCheckboxChange adiciona e remove seleção", async () => {
     render(
       <CardListExtract
@@ -233,7 +224,6 @@ describe("CardListExtract – cobertura total ajustada", () => {
     expect(box).not.toBeChecked();
   });
 
-  /* 6) cancelar exclusão ------------------------------ */
   it("6) handleDeleteClick e handleCancelDeleteClick", async () => {
     render(
       <CardListExtract
@@ -278,7 +268,6 @@ describe("CardListExtract – cobertura total ajustada", () => {
     expect(atualizaSaldo).toHaveBeenCalled();
   });
 
-  /* 8) cleanup no unmount ----------------------------- */
   it("8) cleanup de timeout no unmount", () => {
     const { unmount } = render(
       <CardListExtract
@@ -292,10 +281,9 @@ describe("CardListExtract – cobertura total ajustada", () => {
       />
     );
     unmount();
-    act(() => jest.runAllTimers()); // nada deve acusar act warning
+    act(() => jest.runAllTimers());
   });
 
-  /* 9) onDelete rejeitado ----------------------------- */
   it("9) console.error em onDelete rejection", async () => {
     const spy = jest.spyOn(console, "error").mockImplementation(() => {});
     const failingDelete = jest.fn().mockRejectedValue(new Error("boom"));
@@ -307,7 +295,7 @@ describe("CardListExtract – cobertura total ajustada", () => {
         hasMore={false}
         isPageLoading={false}
         onSave={onSave}
-        onDelete={onDelete}
+        onDelete={failingDelete} // uso correto
         atualizaSaldo={atualizaSaldo}
       />
     );
@@ -322,16 +310,21 @@ describe("CardListExtract – cobertura total ajustada", () => {
       expect(spy).toHaveBeenCalledWith(
         "Erro ao excluir transações:",
         expect.any(Error),
-      ),
+      )
     );
+
     spy.mockRestore();
   });
 
-
   it("10) estado vazio sem callbacks", async () => {
-    render(<CardListExtract transactions={[]} fetchPage={jest.fn()}
-      hasMore={false}
-      isPageLoading={false} />);
+    render(
+      <CardListExtract
+        transactions={[]}
+        fetchPage={jest.fn()}
+        hasMore={false}
+        isPageLoading={false}
+      />
+    );
     loadAndStop();
     await waitFor(() =>
       expect(
