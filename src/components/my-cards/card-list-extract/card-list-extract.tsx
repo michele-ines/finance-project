@@ -91,8 +91,8 @@ export default function CardListExtract({
   };
 
   const filteredTransactions = useMemo(() => {
-    const tiposEntrada = ["cambio"];
-    const tiposSaida = ["deposito", "transferencia"];
+    const tiposEntrada = ["cambio", "deposito"];
+    const tiposSaida = ["transferencia"];
 
     return editableTransactions.filter((tx) => {
       const tipo = tx.tipo;
