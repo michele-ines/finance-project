@@ -1,4 +1,9 @@
 
+export interface Attachment {
+  name: string;   // nome original
+  url:  string;   // /uploads/<file>
+}
+
 export interface Entity { id: number }
 export interface ValueField { value: number }
 export interface Labelled { label: string }
@@ -15,7 +20,13 @@ export interface Transaction {
   valor: number
   createdAt: string
   updatedAt: string
+    anexos?:   Attachment[]
 }
+
+export interface TxWithFiles extends Transaction {
+  novosAnexos?: File[]           // arquivos recém-selecionados
+}
+
 
 export interface Investment extends Entity, Labelled, ValueField {}
 
@@ -77,6 +88,8 @@ export interface NewTransactionData {
   tipo: "cambio" | "deposito" | "transferencia" | "saque" | string;
   valor: string; // Mantém como string devido à máscara, será parseado antes da API
   categoria?: string; // Novo campo! Pode ser string (ID da categoria)
+  anexos?:   FileList 
+
 }
 export interface HeaderFlags {
   isHome: boolean

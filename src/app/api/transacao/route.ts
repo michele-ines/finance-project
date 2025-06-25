@@ -1,44 +1,67 @@
-import connectMongoDB from "libs/mongoDB";
-import Transacao from "models/transacao";
-import { NextResponse } from "next/server";
-import { handleRequest } from "utils/error-handlers/error-handle";
+import { NextResponse } from "next/server"
+import { mkdir, stat, writeFile } from "fs/promises"
+import path from "path"
+import connectMongoDB from "libs/mongoDB"
+import Transacao from "models/transacao"
+import { handleRequest } from "utils/error-handlers/error-handle"
 
+export const runtime = "nodejs"         // 👈 permite fs no RSC
 
+/* ------------------------------------------------------------------ */
+/*  GET – paginação                                                   */
+/* ------------------------------------------------------------------ */
 export async function GET(request: Request) {
   return handleRequest(async () => {
-    const { searchParams } = new URL(request.url);
-    const page = Number(searchParams.get("page") ?? "1");
-    const limit = Number(searchParams.get("limit") ?? "10"); // Definimos o padrão como 10
-    const skip = (page - 1) * limit;
+    const { searchParams } = new URL(request.url)
+    const page  = Number(searchParams.get("page")  ?? "1")
+    const limit = Number(searchParams.get("limit") ?? "10")
+    const skip  = (page - 1) * limit
 
-    await connectMongoDB();
+    await connectMongoDB()
 
-    // 2. Executa duas consultas em paralelo: uma para os dados da página e outra para o total de documentos
     const [transacoes, total] = await Promise.all([
-      Transacao
-        .find()
-        .sort({ createdAt: -1 }) // Ordena pela data de criação
-        .skip(skip)               // Pula os documentos das páginas anteriores
-        .limit(limit),            // Limita a quantidade de documentos por página
-      Transacao.countDocuments()    // Conta o total de transações
-    ]);
-    
-    // 3. Retorna os dados paginados e o total
-    return NextResponse.json({ transacoes, total }, { status: 200 });
-  });
+      Transacao.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Transacao.countDocuments()
+    ])
+
+    return NextResponse.json({ transacoes, total }, { status: 200 })
+  })
 }
 
+/* ------------------------------------------------------------------ */
+/*  POST – cria nova transação + anexos                               */
+/* ------------------------------------------------------------------ */
+async function saveFile(file: File) {
+  const buffer      = Buffer.from(await file.arrayBuffer())
+  const uploadsDir  = path.join(process.cwd(), "public", "uploads")
+  try { await stat(uploadsDir) } catch { await mkdir(uploadsDir, { recursive: true }) }
+
+  const safeName    = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`
+  const filePath    = path.join(uploadsDir, safeName)
+  await writeFile(filePath, buffer)
+  return { name: file.name, url: `/uploads/${safeName}` }
+}
 
 export async function POST(req: Request) {
   return handleRequest(async () => {
-    const body = await req.json();
+    const formData  = await req.formData()
+    const tipo      = String(formData.get("tipo"))
+    const valor     = String(formData.get("valor"))
+    const categoria = formData.get("categoria")?.toString() ?? null
 
-    await connectMongoDB();
-    const novaTransacao = await Transacao.create(body);
+    /* ------------------------- arquivos ----------------------------- */
+    const anexos: { name: string; url: string }[] = []
+    const files = formData.getAll("anexos") as File[]
+    for (const file of files) {
+      if (file && file.size > 0) anexos.push(await saveFile(file))
+    }
+
+    await connectMongoDB()
+    const novaTransacao = await Transacao.create({ tipo, valor, categoria, anexos })
 
     return NextResponse.json(
       { message: "Transação criada com sucesso", transacao: novaTransacao },
       { status: 201 }
-    );
-  });
+    )
+  })
 }

@@ -1,4 +1,3 @@
-// app/api/transacao/route.ts
 import connectMongoDB from "libs/mongoDB";
 import transacao from "models/transacao";
 import { NextResponse } from "next/server";

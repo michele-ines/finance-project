@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useCallback, useEffect, useState } from "react";
 import CardBalance         from "components/my-cards/card-balance/card-balance";
@@ -20,9 +20,9 @@ import type {
   Transaction,
 } from "interfaces/dashboard";
 
-import { parseBRL }   from "utils/currency-formatte/currency-formatte";        // ⬅️ novo
+import { parseBRL } from "utils/currency-formatte/currency-formatte";
 import { handleRequest } from "utils/error-handlers/error-handle";
-import dashboardData     from "mocks/dashboard-data.json";
+import dashboardData from "mocks/dashboard-data.json";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function DashboardPage() {
@@ -47,8 +47,8 @@ export default function DashboardPage() {
   const {
     transactions,
     fetchPage,
-    prepend,            // ⬅️ novo
-    refresh,            // ⬅️ novo
+    prepend,
+    refresh,
     hasMore,
     isLoading: isPageLoading,
   } = usePaginatedTransactions();
@@ -90,11 +90,11 @@ export default function DashboardPage() {
           fetch(`/api/transacao/${tx._id}`, {
             method:  "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
+            body:    JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
           })
         )
       );
-      await refresh();        // ⬅️ garante lista nova
+      await refresh();
       fetchBalance();
     });
   };
@@ -104,7 +104,7 @@ export default function DashboardPage() {
       await Promise.all(
         ids.map(id => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
       );
-      await refresh();        // ⬅️ recarrega sem itens excluídos
+      await refresh();
       fetchBalance();
     } catch (err) {
       console.error("Erro ao excluir transações:", err);
@@ -112,24 +112,25 @@ export default function DashboardPage() {
   };
 
   /* -------------------------------------------------------- */
-  /*  Nova transação                                          */
+  /*  Nova transação (agora via FormData p/ anexos)           */
   /* -------------------------------------------------------- */
   const onSubmit = async (data: NewTransactionData) => {
     await handleRequest(async () => {
       setLoadingTransaction(true);
 
-      const payload = { ...data, valor: parseBRL(data.valor) }; // ⬅️ parse
-      const res = await fetch("/api/transacao", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const form = new FormData();
+      form.append("tipo", data.tipo);
+      form.append("valor", parseBRL(data.valor).toString());
+      if (data.categoria) form.append("categoria", data.categoria);
+      if (data.anexos) Array.from(data.anexos).forEach(f => form.append("anexos", f));
+
+      const res = await fetch("/api/transacao", { method: "POST", body: form });
       if (!res.ok) throw new Error("Falha ao adicionar transação");
 
       const { transacao, message } = await res.json();
       alert(message);
 
-      prepend(transacao);     // ⬅️ aparece no topo
+      prepend(transacao);   // aparece no topo do extrato
       fetchBalance();
       setLoadingTransaction(false);
     });

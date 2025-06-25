@@ -15,9 +15,13 @@ import {
   CardListExtractStyles as styles,
   Select,
 } from "../../ui";
+
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import Tooltip from "@mui/material/Tooltip";
+
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
-import type { Transaction } from "../../../interfaces/dashboard";
+import type { Transaction, TxWithFiles } from "../../../interfaces/dashboard";
 import {
   formatBRL,
   formatTipo,
@@ -30,6 +34,10 @@ import {
 } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
 import InfiniteScrollSentinel from "../../infinite-scroll-sentinel/infinite-scroll-sentinel";
+
+/* ------------------------------------------------------------------ */
+/*  Types auxiliares                                                  */
+/* ------------------------------------------------------------------ */
 
 interface CardListExtractProps {
   transactions?: Transaction[];
@@ -46,29 +54,34 @@ export default function CardListExtract({
   fetchPage,
   hasMore,
   isPageLoading,
-  onSave,
   onDelete,
   atualizaSaldo,
 }: CardListExtractProps) {
+  /* ---------------------------------------------------------------- */
+  /*  State                                                           */
+  /* ---------------------------------------------------------------- */
   const [editableTransactions, setEditableTransactions] = useState<
-    Transaction[]
+    TxWithFiles[]
   >([]);
   useEffect(() => {
     if (!transactions) return;
     setEditableTransactions(
-      transactions.map((t) => ({
-        ...t,
-        valor: typeof t.valor === "string" ? parseBRL(t.valor) : t.valor,
+      transactions.map((tx) => ({
+        ...tx,
+        valor: typeof tx.valor === "string" ? parseBRL(tx.valor) : tx.valor,
       }))
     );
   }, [transactions]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
   const [selectedTransactions, setSelectedTransactions] = useState<number[]>(
     []
   );
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
+
+  /* filtros */
   const [typeFilter, setTypeFilter] = useState<"all" | "entrada" | "saida">(
     "all"
   );
@@ -76,98 +89,54 @@ export default function CardListExtract({
   const [endDate, setEndDate] = useState("");
   const [dateError, setDateError] = useState(false);
 
-  const isValidDate = (value: string) => {
-    return value === "" || !isNaN(Date.parse(value));
-  };
+  const isValidDate = (v: string) => v === "" || !Number.isNaN(Date.parse(v));
 
-  const handleStartDateChange = (value: string) => {
-    setStartDate(value);
-    setDateError(!isValidDate(value));
-  };
-
-  const handleEndDateChange = (value: string) => {
-    setEndDate(value);
-    setDateError(!isValidDate(value));
-  };
-
+  /* ---------------------------------------------------------------- */
+  /*  Filtros                                                         */
+  /* ---------------------------------------------------------------- */
   const filteredTransactions = useMemo(() => {
     const tiposEntrada = ["cambio"];
     const tiposSaida = ["deposito", "transferencia"];
 
     return editableTransactions.filter((tx) => {
-      const tipo = tx.tipo;
       const matchesType =
         typeFilter === "all" ||
-        (typeFilter === "entrada" && tiposEntrada.includes(tipo)) ||
-        (typeFilter === "saida" && tiposSaida.includes(tipo));
+        (typeFilter === "entrada" && tiposEntrada.includes(tx.tipo)) ||
+        (typeFilter === "saida" && tiposSaida.includes(tx.tipo));
 
       const txDate = new Date(tx.createdAt);
       const matchesStart =
-        !startDate || txDate >= new Date(startDate + "T00:00");
-      const matchesEnd = !endDate || txDate <= new Date(endDate + "T23:59:59");
-
+        !startDate || txDate >= new Date(`${startDate}T00:00`);
+      const matchesEnd = !endDate || txDate <= new Date(`${endDate}T23:59:59`);
       return matchesType && matchesStart && matchesEnd;
     });
   }, [editableTransactions, typeFilter, startDate, endDate]);
 
+  /* ---------------------------------------------------------------- */
+  /*  Handlers – edição / exclusão                                    */
+  /* ---------------------------------------------------------------- */
   const handleEditClick = () => {
-    setEditableTransactions((prev) =>
-      prev.map((tx) => ({ ...tx, updatedAt: formatDateBR(tx.updatedAt) }))
+    setEditableTransactions((p) =>
+      p.map((tx) => ({ ...tx, updatedAt: formatDateBR(tx.updatedAt) }))
     );
     setIsEditing(true);
   };
-
   const handleCancelClick = () => {
-    setEditableTransactions(
-      (transactions ?? []).map((t) => ({
-        ...t,
-        valor: typeof t.valor === "string" ? parseBRL(t.valor) : t.valor,
-      }))
-    );
     setIsEditing(false);
+    setEditableTransactions(transactions ?? []);
   };
-
   const handleDeleteClick = () => {
     setIsDeleting(true);
     setSelectedTransactions([]);
   };
-
   const handleCancelDeleteClick = () => {
     setIsDeleting(false);
     setSelectedTransactions([]);
   };
-
-  const handleSaveClick = async () => {
-    if (isEditing) {
-      const payload = editableTransactions.map((tx) => ({
-        ...tx,
-        updatedAt: parseDateBR(tx.updatedAt),
-      }));
-      onSave?.(payload);
-      setIsEditing(false);
-      return;
-    }
-    if (isDeleting) {
-      if (selectedTransactions.length === 0) return;
-      setIsDeletingInProgress(true);
-      try {
-        await onDelete?.(selectedTransactions);
-      } catch (error) {
-        console.error("Erro ao excluir transações:", error);
-      } finally {
-        setIsDeletingInProgress(false);
-        setIsDeleting(false);
-        setSelectedTransactions([]);
-        atualizaSaldo?.();
-      }
-    }
-  };
-
-  const handleCheckboxChange = (id: number) => {
+  const handleCheckboxChange = (id: number) =>
     setSelectedTransactions((prev) =>
       prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
     );
-  };
 
   const handleTransactionChange = (
     index: number,
@@ -183,11 +152,72 @@ export default function CardListExtract({
     );
   };
 
+  /* ---------------------------------------------------------------- */
+  /*  Salvar / excluir                                                */
+  /* ---------------------------------------------------------------- */
+  const handleSaveClick = async () => {
+    if (isEditing) {
+      for (const tx of editableTransactions) {
+        if (tx.novosAnexos?.length) {
+          const fd = new FormData();
+          fd.append("tipo", tx.tipo);
+          fd.append("valor", tx.valor.toString());
+          fd.append("updatedAt", parseDateBR(tx.updatedAt));
+          tx.novosAnexos.forEach((f) => fd.append("anexos", f));
+          await fetch(`/api/transacao/${tx._id}`, { method: "PUT", body: fd });
+        } else {
+          await fetch(`/api/transacao/${tx._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tipo: tx.tipo,
+              valor: tx.valor,
+              updatedAt: parseDateBR(tx.updatedAt),
+            }),
+          });
+        }
+      }
+      await fetchPage();
+      setIsEditing(false);
+      await atualizaSaldo?.();
+      return;
+    }
+
+    if (isDeleting) {
+      if (!selectedTransactions.length) return;
+      setIsDeletingInProgress(true);
+      try {
+        await onDelete?.(selectedTransactions);
+      } finally {
+        setIsDeletingInProgress(false);
+        setIsDeleting(false);
+        setSelectedTransactions([]);
+        await atualizaSaldo?.();
+      }
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /*  Datas helpers                                                   */
+  /* ---------------------------------------------------------------- */
+  const handleStartDateChange = (v: string) => {
+    setStartDate(v);
+    setDateError(!isValidDate(v));
+  };
+  const handleEndDateChange = (v: string) => {
+    setEndDate(v);
+    setDateError(!isValidDate(v));
+  };
+
+  /* ---------------------------------------------------------------- */
+  /*  Render                                                          */
+  /* ---------------------------------------------------------------- */
   const loadingFirstPage = isPageLoading && editableTransactions.length === 0;
   const hasTransactions = !loadingFirstPage && editableTransactions.length > 0;
 
   return (
     <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
+      {/* cabeçalho ---------------------------------------------------- */}
       <Box className={styles.extratoHeader}>
         <h3 className={styles.extratoTitle}>Extrato</h3>
         {hasTransactions && !isEditing && !isDeleting && (
@@ -210,6 +240,7 @@ export default function CardListExtract({
         )}
       </Box>
 
+      {/* filtros ------------------------------------------------------ */}
       {hasTransactions && (
         <Box
           className="flex flex-col md:flex-row gap-4 pb-2"
@@ -242,7 +273,6 @@ export default function CardListExtract({
             InputLabelProps={{ shrink: true }}
             sx={{ flex: 1, minWidth: { xs: "calc(50% - 4px)", md: 120 } }}
           />
-
           <TextField
             label="Até"
             type="date"
@@ -257,9 +287,10 @@ export default function CardListExtract({
         </Box>
       )}
 
+      {/* lista / estados vazios -------------------------------------- */}
       {loadingFirstPage ? (
         <SkeletonListExtract rows={5} />
-      ) : dateError || filteredTransactions.length === 0 ? (
+      ) : dateError || !filteredTransactions.length ? (
         <Box className="flex flex-col items-center justify-center text-center gap-4 py-10">
           {dateError ? (
             <>
@@ -284,13 +315,15 @@ export default function CardListExtract({
         </Box>
       ) : (
         <>
+          {/* -------------------------------- lista -------------------- */}
           <ul className="space-y-4">
-            {filteredTransactions.map((tx, index) => (
-              <li key={tx._id ?? `tx-${index}`}>
+            {filteredTransactions.map((tx, idx) => (
+              <li key={tx._id ?? `tx-${idx}`}>
                 <Box
                   className={styles.extratoItem}
-                  style={{ gap: isEditing ? "0px" : undefined }}
+                  style={{ gap: isEditing ? 0 : undefined }}
                 >
+                  {/* tipo + data -------------------------------------- */}
                   <Box className={styles.txRow}>
                     {isEditing ? (
                       <Input
@@ -299,7 +332,7 @@ export default function CardListExtract({
                         fullWidth
                         value={formatTipo(tx.tipo)}
                         onChange={(e) =>
-                          handleTransactionChange(index, "tipo", e.target.value)
+                          handleTransactionChange(idx, "tipo", e.target.value)
                         }
                         inputProps={{ style: { textAlign: "left" } }}
                       />
@@ -313,23 +346,62 @@ export default function CardListExtract({
                     </span>
                   </Box>
 
+                  {/* valor + anexos quando em edição ----------------- */}
                   {isEditing ? (
-                    <Input
-                      disableUnderline
-                      className={clsx(styles.txValue, styles.txValueEditable)}
-                      value={formatBRL(tx.valor)}
-                      onChange={(e) =>
-                        handleTransactionChange(
-                          index,
-                          "valor",
-                          maskCurrency(e.target.value)
-                        )
-                      }
-                      inputProps={{
-                        inputMode: "decimal",
-                        title: "Até 999.999,99 (máx. 1 casa decimal)",
-                      }}
-                    />
+                    <Box className="flex items-center gap-2 w-full">
+                      <Input
+                        disableUnderline
+                        className={clsx(styles.txValue, styles.txValueEditable)}
+                        sx={{ flex: 1 }}
+                        value={formatBRL(tx.valor)}
+                        onChange={(e) =>
+                          handleTransactionChange(
+                            idx,
+                            "valor",
+                            maskCurrency(e.target.value)
+                          )
+                        }
+                        inputProps={{
+                          inputMode: "decimal",
+                          title: "Até 999.999,99",
+                        }}
+                      />
+
+                      {/* input file oculto */}
+                      <input
+                        hidden
+                        multiple
+                        accept="image/*,application/pdf"
+                        id={`edit-anexos-${tx._id}`}
+                        type="file"
+                        onChange={(e) => {
+                          const files = e.target.files;
+                          if (files) {
+                            setEditableTransactions((curr) =>
+                              curr.map((c) =>
+                                c._id === tx._id
+                                  ? { ...c, novosAnexos: Array.from(files) }
+                                  : c
+                              )
+                            );
+                          }
+                        }}
+                      />
+
+                      {/* botão para anexar */}
+                      <label htmlFor={`edit-anexos-${tx._id}`}>
+                        <Tooltip title="Anexar arquivos">
+                          <IconButton
+                            component="span"
+                            size="small"
+                            color="primary"
+                            aria-label="Anexar arquivos"
+                          >
+                            <AttachFileIcon fontSize="inherit" />
+                          </IconButton>
+                        </Tooltip>
+                      </label>
+                    </Box>
                   ) : (
                     <Box className="flex items-center">
                       {isDeleting && (
@@ -346,10 +418,23 @@ export default function CardListExtract({
                           }}
                         />
                       )}
+
                       <span className={styles.txValue}>
-                        {tx.valor < 0 ? "-" : ""}
+                        {tx.valor < 0 && "-"}
                         {formatBRL(Math.abs(tx.valor))}
                       </span>
+
+                      {tx.anexos?.length ? (
+                        <Tooltip title={`${tx.anexos.length} anexo(s)`}>
+                          <AttachFileIcon
+                            sx={{
+                              fontSize: 16,
+                              ml: 0.5,
+                              color: "var(--byte-color-dash)",
+                            }}
+                          />
+                        </Tooltip>
+                      ) : null}
                     </Box>
                   )}
                 </Box>
@@ -365,6 +450,7 @@ export default function CardListExtract({
         </>
       )}
 
+      {/* botões Salvar / Cancelar ------------------------------------ */}
       {(isEditing || isDeleting) && (
         <Box className="flex gap-2 justify-between mt-4">
           <Button
@@ -372,12 +458,12 @@ export default function CardListExtract({
             className={clsx(
               styles.botaoSalvar,
               isDeleting &&
-                (isDeletingInProgress || selectedTransactions.length === 0) &&
+                (isDeletingInProgress || !selectedTransactions.length) &&
                 "opacity-50 cursor-not-allowed"
             )}
             disabled={
               isDeleting &&
-              (isDeletingInProgress || selectedTransactions.length === 0)
+              (isDeletingInProgress || !selectedTransactions.length)
             }
           >
             {isEditing
