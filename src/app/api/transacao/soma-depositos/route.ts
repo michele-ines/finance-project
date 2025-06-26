@@ -2,21 +2,28 @@ import connectMongoDB from "libs/mongoDB";
 import transacao from "models/transacao";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const page  = Number(searchParams.get("page")  ?? "1");   // 1-based
-  const limit = Number(searchParams.get("limit") ?? "20");  // padrão: 20
+export async function GET() {
+  try {
+    await connectMongoDB();
+    const transacoesParaSomar = await transacao.find({
+      tipo: { $in: ["deposito", "cambio", "transferencia"] }
+    }).lean();
 
-  await connectMongoDB();
+    let total = 0;
+    for (const tx of transacoesParaSomar) {
+      const valorNumerico = parseFloat(tx.valor) || 0;
 
-  const [total, transacoes] = await Promise.all([
-    transacao.countDocuments(),                               // total p/ front
-    transacao
-      .find()
-      .sort({ createdAt: -1 })                                // + recentes 1º
-      .skip((page - 1) * limit)
-      .limit(limit),
-  ]);
-
-  return NextResponse.json({ transacoes, total }, { status: 200 });
+      if (tx.tipo === 'transferencia') {
+        total -= valorNumerico;
+      } else {
+        total += valorNumerico;
+      }
+    }
+    return NextResponse.json({ total }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Ocorreu um erro no servidor ao calcular o saldo.", error: (error as Error).message },
+      { status: 500 }
+    );
+  }
 }
