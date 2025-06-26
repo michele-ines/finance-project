@@ -83,14 +83,17 @@ describe("CardNewTransaction", () => {
     expect(formData.valor).toBe("150,00");
   });
 
+
   it("disables button when isLoading is true", () => {
-    setup(true);
-    const button = screen.getByRole("button", {
-      name: /concluindo transação/i,
-    });
-    expect(button).toBeDisabled();
-    expect(button).toHaveClass("cursor-not-allowed opacity-50");
-  });
+  setup(true); // isLoading = true
+
+  // O texto acessível do botão é “Concluindo…”
+  const button = screen.getByRole("button", { name: /concluindo/i });
+
+  expect(button).toBeDisabled();
+  expect(button).toHaveClass("cursor-not-allowed opacity-50");
+});
+
 
   it("renders error styles when validation fails", async () => {
     setup();
