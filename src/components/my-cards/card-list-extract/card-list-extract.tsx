@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -14,6 +15,7 @@ import {
   ReceiptLongOutlinedIcon,
   CardListExtractStyles as styles,
   Select,
+    Link,
 } from "../../ui";
 
 import AttachFileIcon from "@mui/icons-material/AttachFile";
@@ -21,7 +23,7 @@ import Tooltip from "@mui/material/Tooltip";
 
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
-import type { Transaction, TxWithFiles } from "../../../interfaces/dashboard";
+import type { Transaction, Attachment } from "../../../interfaces/dashboard";
 import {
   formatBRL,
   formatTipo,
@@ -34,10 +36,14 @@ import {
 } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
 import InfiniteScrollSentinel from "../../infinite-scroll-sentinel/infinite-scroll-sentinel";
+import { Chip } from "@mui/material";
 
 /* ------------------------------------------------------------------ */
 /*  Types auxiliares                                                  */
 /* ------------------------------------------------------------------ */
+export interface TxWithFiles extends Transaction {
+  novosAnexos?: File[];              // anexos recém-selecionados
+}
 
 interface CardListExtractProps {
   transactions?: Transaction[];
@@ -49,6 +55,9 @@ interface CardListExtractProps {
   atualizaSaldo?: () => Promise<void>;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Componente                                                        */
+/* ------------------------------------------------------------------ */
 export default function CardListExtract({
   transactions,
   fetchPage,
@@ -57,12 +66,9 @@ export default function CardListExtract({
   onDelete,
   atualizaSaldo,
 }: CardListExtractProps) {
-  /* ---------------------------------------------------------------- */
-  /*  State                                                           */
-  /* ---------------------------------------------------------------- */
-  const [editableTransactions, setEditableTransactions] = useState<
-    TxWithFiles[]
-  >([]);
+  /* --------------------------- state ------------------------------ */
+  const [editableTransactions, setEditableTransactions] =
+    useState<TxWithFiles[]>([]);
   useEffect(() => {
     if (!transactions) return;
     setEditableTransactions(
@@ -81,7 +87,7 @@ export default function CardListExtract({
   );
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
 
-  /* filtros */
+  /* filtros --------------------------------------------------------- */
   const [typeFilter, setTypeFilter] = useState<"all" | "entrada" | "saida">(
     "all"
   );
@@ -91,9 +97,7 @@ export default function CardListExtract({
 
   const isValidDate = (v: string) => v === "" || !Number.isNaN(Date.parse(v));
 
-  /* ---------------------------------------------------------------- */
-  /*  Filtros                                                         */
-  /* ---------------------------------------------------------------- */
+  /* ------------------- lista filtrada ------------------------------ */
   const filteredTransactions = useMemo(() => {
     const tiposEntrada = ["cambio"];
     const tiposSaida = ["deposito", "transferencia"];
@@ -107,14 +111,13 @@ export default function CardListExtract({
       const txDate = new Date(tx.createdAt);
       const matchesStart =
         !startDate || txDate >= new Date(`${startDate}T00:00`);
-      const matchesEnd = !endDate || txDate <= new Date(`${endDate}T23:59:59`);
+      const matchesEnd =
+        !endDate || txDate <= new Date(`${endDate}T23:59:59`);
       return matchesType && matchesStart && matchesEnd;
     });
   }, [editableTransactions, typeFilter, startDate, endDate]);
 
-  /* ---------------------------------------------------------------- */
-  /*  Handlers – edição / exclusão                                    */
-  /* ---------------------------------------------------------------- */
+  /* ------------------- helpers de edição --------------------------- */
   const handleEditClick = () => {
     setEditableTransactions((p) =>
       p.map((tx) => ({ ...tx, updatedAt: formatDateBR(tx.updatedAt) }))
@@ -152,12 +155,11 @@ export default function CardListExtract({
     );
   };
 
-  /* ---------------------------------------------------------------- */
-  /*  Salvar / excluir                                                */
-  /* ---------------------------------------------------------------- */
+  /* ------------------- salva ou exclui ----------------------------- */
   const handleSaveClick = async () => {
     if (isEditing) {
       for (const tx of editableTransactions) {
+        /* ---------- envia possíveis novos anexos ---------- */
         if (tx.novosAnexos?.length) {
           const fd = new FormData();
           fd.append("tipo", tx.tipo);
@@ -177,12 +179,13 @@ export default function CardListExtract({
           });
         }
       }
-      await fetchPage();
+      await fetchPage();           // recarrega página p/ anexos virem do backend
       setIsEditing(false);
       await atualizaSaldo?.();
       return;
     }
 
+    /* --------------------- exclusão ---------------------- */
     if (isDeleting) {
       if (!selectedTransactions.length) return;
       setIsDeletingInProgress(true);
@@ -197,9 +200,7 @@ export default function CardListExtract({
     }
   };
 
-  /* ---------------------------------------------------------------- */
-  /*  Datas helpers                                                   */
-  /* ---------------------------------------------------------------- */
+  /* ---------------- helpers de data ------------------------------- */
   const handleStartDateChange = (v: string) => {
     setStartDate(v);
     setDateError(!isValidDate(v));
@@ -209,9 +210,7 @@ export default function CardListExtract({
     setDateError(!isValidDate(v));
   };
 
-  /* ---------------------------------------------------------------- */
-  /*  Render                                                          */
-  /* ---------------------------------------------------------------- */
+  /* ------------------------- render ------------------------------- */
   const loadingFirstPage = isPageLoading && editableTransactions.length === 0;
   const hasTransactions = !loadingFirstPage && editableTransactions.length > 0;
 
@@ -349,9 +348,13 @@ export default function CardListExtract({
                   {/* valor + anexos quando em edição ----------------- */}
                   {isEditing ? (
                     <Box className="flex items-center gap-2 w-full">
+                      {/* valor ------------------------------------ */}
                       <Input
                         disableUnderline
-                        className={clsx(styles.txValue, styles.txValueEditable)}
+                        className={clsx(
+                          styles.txValue,
+                          styles.txValueEditable
+                        )}
                         sx={{ flex: 1 }}
                         value={formatBRL(tx.valor)}
                         onChange={(e) =>
@@ -367,7 +370,7 @@ export default function CardListExtract({
                         }}
                       />
 
-                      {/* input file oculto */}
+                      {/* input file oculto ----------------------- */}
                       <input
                         hidden
                         multiple
@@ -388,7 +391,7 @@ export default function CardListExtract({
                         }}
                       />
 
-                      {/* botão para anexar */}
+                      {/* botão para anexar ----------------------- */}
                       <label htmlFor={`edit-anexos-${tx._id}`}>
                         <Tooltip title="Anexar arquivos">
                           <IconButton
@@ -403,6 +406,7 @@ export default function CardListExtract({
                       </label>
                     </Box>
                   ) : (
+                    /* visualização normal ------------------------- */
                     <Box className="flex items-center">
                       {isDeleting && (
                         <Checkbox
@@ -438,6 +442,42 @@ export default function CardListExtract({
                     </Box>
                   )}
                 </Box>
+
+                {/* ------------------- LISTA DE ANEXOS ------------------ */}
+                {(tx.anexos?.length || tx.novosAnexos?.length) && (
+                  <Box className="flex flex-wrap gap-2 mt-2 ml-2">
+                    {/* anexos já gravados ------------------------- */}
+                    {tx.anexos?.map((a: Attachment) => (
+                      <Chip
+                        key={a.url}
+                        component={Link}
+                        href={a.url}
+                        label={a.name}
+                        target="_blank"
+                        clickable
+                        size="small"
+                        sx={{
+                          backgroundColor: "var(--byte-color-green-50)",
+                          ":hover": { bgcolor: "var(--byte-color-green-100)" },
+                        }}
+                        icon={<AttachFileIcon sx={{ fontSize: 14 }} />}
+                      />
+                    ))}
+
+                    {/* anexos recém-selecionados (ainda não salvos) */}
+                    {isEditing &&
+                      tx.novosAnexos?.map((f, i) => (
+                        <Chip
+                          key={i}
+                          label={f.name}
+                          size="small"
+                          color="info"
+                          variant="outlined"
+                          icon={<AttachFileIcon sx={{ fontSize: 14 }} />}
+                        />
+                      ))}
+                  </Box>
+                )}
               </li>
             ))}
           </ul>

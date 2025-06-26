@@ -1,7 +1,7 @@
 
 export interface Attachment {
-  name: string;   // nome original
-  url:  string;   // /uploads/<file>
+  name: string; 
+  url:  string;   
 }
 
 export interface Entity { id: number }

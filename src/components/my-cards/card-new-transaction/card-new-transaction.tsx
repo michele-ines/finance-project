@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Box,
   Button,
@@ -9,7 +8,6 @@ import {
   MenuItem,
   Select,
   cardNewTransactionStyles as styles,
-  Typography,
 } from "../../ui";
 import { transactionValidations } from "../../../utils/forms-validations/formValidations";
 import {
@@ -19,7 +17,6 @@ import {
 import { useForm } from "react-hook-form";
 import clsx from "clsx";
 import { maskCurrency } from "../../../utils/currency-formatte/currency-formatte";
-import { useState } from "react";
 
 export default function CardNewTransaction({
   onSubmit,
@@ -29,11 +26,7 @@ export default function CardNewTransaction({
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<NewTransactionData>();
-
-  /* preview de nomes de arquivos ------------------------------------ */
-  const [fileNames, setFileNames] = useState<string[]>([]);
 
   return (
     <Box
@@ -107,47 +100,6 @@ export default function CardNewTransaction({
             <span className="text-red-500 text-sm">{errors.valor.message}</span>
           )}
         </FormControl>
-
-        {/* ---------- INPUT FILES ---------- */}
-        <p
-          className={styles.transacaoLabel}
-          style={{ color: "var(--byte-color-dash)" }}
-        >
-          Anexos (recibos / PDFs)
-        </p>
-        <input
-          id="anexos-input"
-          type="file"
-          hidden
-          multiple
-          accept="image/*,application/pdf"
-          {...register("anexos")}
-          onChange={(e) => {
-            const list = e.target.files;
-            if (list) {
-              setValue("anexos", list);
-              setFileNames([...list].map((f) => f.name));
-            }
-          }}
-        />
-        <label htmlFor="anexos-input">
-          <Button
-            component="span"
-            className="mb-2"
-            style={{
-              textDecoration: "underline", 
-              textUnderlineOffset: "2px", 
-            }}
-          >
-            Selecionar arquivos
-          </Button>
-        </label>
-
-        {fileNames.length > 0 && (
-          <Typography variant="body2" color="text.secondary">
-            {fileNames.join(", ")}
-          </Typography>
-        )}
 
         {/* ---------- BOTÃO ---------- */}
         <Box className="mt-4">
