@@ -44,24 +44,38 @@ async function saveFile(file: File) {
 
 export async function POST(req: Request) {
   return handleRequest(async () => {
-    const formData  = await req.formData()
-    const tipo      = String(formData.get("tipo"))
-    const valor     = String(formData.get("valor"))
-    const categoria = formData.get("categoria")?.toString() ?? null
+    const contentType = req.headers.get("content-type") ?? "";
+    let tipo: string, valor: string, categoria: string | null = null;
+    let anexos: { name: string; url: string }[] = [];
 
-    /* ------------------------- arquivos ----------------------------- */
-    const anexos: { name: string; url: string }[] = []
-    const files = formData.getAll("anexos") as File[]
-    for (const file of files) {
-      if (file && file.size > 0) anexos.push(await saveFile(file))
+    if (contentType.includes("application/json")) {
+      // Recebe JSON puro (sem anexos)
+      const body = await req.json();
+      tipo = String(body.tipo);
+      valor = String(body.valor);
+      categoria = body.categoria?.toString() ?? null;
+      anexos = [];
+    } else {
+      // Recebe multipart/form-data (com anexos)
+      const formData = await req.formData();
+      tipo = String(formData.get("tipo"));
+      valor = String(formData.get("valor"));
+      categoria = formData.get("categoria")?.toString() ?? null;
+
+      const files = formData.getAll("anexos") as File[];
+      for (const file of files) {
+        if (file && file.size > 0) {
+          anexos.push(await saveFile(file));
+        }
+      }
     }
 
-    await connectMongoDB()
-    const novaTransacao = await Transacao.create({ tipo, valor, categoria, anexos })
+    await connectMongoDB();
+    const novaTransacao = await Transacao.create({ tipo, valor, categoria, anexos });
 
     return NextResponse.json(
       { message: "Transação criada com sucesso", transacao: novaTransacao },
       { status: 201 }
-    )
-  })
+    );
+  });
 }

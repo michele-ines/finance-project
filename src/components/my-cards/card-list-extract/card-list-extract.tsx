@@ -174,7 +174,9 @@ export default function CardListExtract({
             body: JSON.stringify({
               tipo: tx.tipo,
               valor: tx.valor,
-              updatedAt: parseDateBR(tx.updatedAt),
+              updatedAt:typeof tx.updatedAt === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(tx.updatedAt)
+                      ? parseDateBR(tx.updatedAt)
+                      : tx.updatedAt,
             }),
           });
         }
@@ -425,7 +427,7 @@ export default function CardListExtract({
 
                       <span className={styles.txValue}>
                         {tx.valor < 0 && "-"}
-                        {formatBRL(Math.abs(tx.valor))}
+                        {formatBRL(tx.valor)}
                       </span>
 
                       {tx.anexos?.length ? (
