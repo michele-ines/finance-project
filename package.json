@@ -30,7 +30,8 @@
     "react-hook-form": "^7.56.3",
     "react-redux": "^9.2.0",
     "recharts": "^2.15.3",
-    "sass": "^1.86.3"
+    "sass": "^1.86.3",
+    "zod": "^3.25.71"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.6",

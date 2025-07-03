@@ -61,7 +61,9 @@ describe("CardNewTransaction", () => {
 
     // abre o select de tipo e escolhe "Depósito (Saída)"
     await user.click(screen.getByRole("combobox"));
-    const depositoOption = await screen.findByRole("option", { name: /depósito/i });
+    const depositoOption = await screen.findByRole("option", {
+      name: /depósito/i,
+    });
     await user.click(depositoOption);
 
     // preenche valor
@@ -78,22 +80,25 @@ describe("CardNewTransaction", () => {
 
     await waitFor(() => expect(onSubmitMock).toHaveBeenCalled());
 
-    const [[formData]] = onSubmitMock.mock.calls;
+    type FormData = { tipo: string; valor: string };
+
+    const firstCall = onSubmitMock.mock.calls.at(0) as [FormData] | undefined;
+    expect(firstCall).toBeDefined(); // garante existência
+    const formData = firstCall![0];
+
     expect(formData).toMatchObject({ tipo: "deposito" });
     expect(formData.valor).toBe("150,00");
   });
 
-
   it("disables button when isLoading is true", () => {
-  setup(true); // isLoading = true
+    setup(true); // isLoading = true
 
-  // O texto acessível do botão é “Concluindo…”
-  const button = screen.getByRole("button", { name: /concluindo/i });
+    // O texto acessível do botão é “Concluindo…”
+    const button = screen.getByRole("button", { name: /concluindo/i });
 
-  expect(button).toBeDisabled();
-  expect(button).toHaveClass("cursor-not-allowed opacity-50");
-});
-
+    expect(button).toBeDisabled();
+    expect(button).toHaveClass("cursor-not-allowed opacity-50");
+  });
 
   it("renders error styles when validation fails", async () => {
     setup();

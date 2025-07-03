@@ -1,22 +1,17 @@
 "use client";
 
-import {
-  Box,
-  Modal,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import CardBalance         from "components/my-cards/card-balance/card-balance";
-import CardsOtherService   from "components/my-cards/card-other-services/card-other-services";
-import CardListExtract     from "components/my-cards/card-list-extract/card-list-extract";
-import SavingsGoalWidget   from "components/widgets/savings-goal-widget";
+import CardBalance from "components/my-cards/card-balance/card-balance";
+import CardsOtherService from "components/my-cards/card-other-services/card-other-services";
+import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
+import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
 import type { DashboardData, Transaction } from "interfaces/dashboard";
-import dashboardData       from "mocks/dashboard-data.json";
-import { handleRequest }   from "utils/error-handlers/error-handle";
+import dashboardData from "mocks/dashboard-data.json";
+import { handleRequest } from "utils/error-handlers/error-handle";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function OtherServicesPage() {
@@ -33,14 +28,18 @@ export default function OtherServicesPage() {
 
   /* -------------- prefs dos widgets ------------------ */
   const [widgetPreferences, setWidgetPreferences] = useState({
-    savingsGoal:   true,
+    savingsGoal: true,
     spendingAlert: true,
   });
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferencesOtherServices");
-    if (saved) setWidgetPreferences(JSON.parse(saved));
+    if (saved) {
+      setWidgetPreferences(
+        JSON.parse(saved) as { savingsGoal: boolean; spendingAlert: boolean }
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -51,19 +50,19 @@ export default function OtherServicesPage() {
   }, [widgetPreferences]);
 
   const toggleWidget = (k: keyof typeof widgetPreferences) =>
-    setWidgetPreferences(p => ({ ...p, [k]: !p[k] }));
+    setWidgetPreferences((p) => ({ ...p, [k]: !p[k] }));
 
   /* -------------- callbacks do extrato --------------- */
   const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
       await Promise.all(
-        txs.map(tx =>
-          fetch(`/api/transacao/${tx._id}`, {
-            method:  "PUT",
+        txs.map(async (tx) => {
+          await fetch(`/api/transacao/${tx._id}`, {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
-          })
-        )
+          });
+        })
       );
       await refresh();
     });
@@ -71,9 +70,11 @@ export default function OtherServicesPage() {
 
   const handleDeleteTransactions = async (ids: number[]) => {
     await handleRequest(async () => {
-      await Promise.all(
-        ids.map(id => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
-      );
+      (await Promise.all(
+        ids.map(async (id) => {
+          await fetch(`/api/transacao/${id}`, { method: "DELETE" });
+        })
+      ));
       await refresh();
     });
   };
@@ -113,10 +114,14 @@ export default function OtherServicesPage() {
             <div className="flex-1 overflow-y-auto max-h-[800px]">
               <CardListExtract
                 transactions={transactions}
-                fetchPage={fetchPage}
+                fetchPage={() => {
+                  void fetchPage();
+                }}
                 hasMore={hasMore}
                 isPageLoading={isPageLoading}
-                onSave={handleSaveTransactions}
+                onSave={(txs) => {
+                  void handleSaveTransactions(txs);
+                }}
                 onDelete={handleDeleteTransactions}
               />
             </div>

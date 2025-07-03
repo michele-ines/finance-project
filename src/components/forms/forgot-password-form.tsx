@@ -1,6 +1,4 @@
-// src/components/forms/forgot-password-form.tsx
-
-"use client"; // ✅ DIRETIVA ADICIONADA AQUI
+"use client";
 
 import clsx from "clsx";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -65,7 +63,9 @@ export default function ForgotPasswordForm() {
         </div>
       ) : (
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(e) => {
+            void handleSubmit(onSubmit)(e);
+          }}
           className="flex flex-col space-y-6"
           aria-busy={isSubmitting}
           noValidate

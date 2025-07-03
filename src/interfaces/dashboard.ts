@@ -1,3 +1,7 @@
+/* --------------------------------------------------------------------------- */
+/* TYPES & INTERFACES                                                          */
+/* --------------------------------------------------------------------------- */
+
 export interface Attachment {
   name: string;
   url: string;
@@ -6,9 +10,11 @@ export interface Attachment {
 export interface Entity {
   id: number;
 }
+
 export interface ValueField {
   value: number;
 }
+
 export interface Labelled {
   label: string;
 }
@@ -21,9 +27,17 @@ export interface Balance extends ValueField {
   account: string;
 }
 
+/* ---------- TRANSACTIONS --------------------------------------------------- */
+export type TransactionType =
+  | "cambio"
+  | "deposito"
+  | "transferencia"
+  | "saque"
+  | (string & {});
+
 export interface Transaction {
   _id: number;
-  tipo: string;
+  tipo: TransactionType;
   valor: number;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +48,7 @@ export interface TxWithFiles extends Transaction {
   novosAnexos?: File[];
 }
 
+/* ---------- DASHBOARD ------------------------------------------------------ */
 export interface Investment extends Entity, Labelled, ValueField {}
 
 export interface DashboardData {
@@ -43,19 +58,23 @@ export interface DashboardData {
   investments: Investment[];
 }
 
+/* ---------- LISTS ---------------------------------------------------------- */
 export interface ListProps<T extends Entity> {
   items: T[];
   onSave?: (items: T[]) => void;
 }
+
 export interface TransactionListProps {
   transactions: Transaction[];
   onSave?: (transactions: Transaction[]) => void;
 }
 
+/* ---------- COMPONENT-PROP TYPES ------------------------------------------ */
 export interface CadInvestmentsProps {
   balance: Balance;
   investments: Investment[];
 }
+
 export interface CardBalanceProps {
   user: User;
   balance: Balance;
@@ -70,6 +89,7 @@ export interface CardNewTransactionProps {
   isLoading: boolean;
 }
 
+/* ---------- AUTH ----------------------------------------------------------- */
 export interface EmailField {
   email: string;
 }
@@ -94,12 +114,23 @@ export interface UserInfo {
   password: string;
 }
 
+
+export interface BalanceState {
+  value: number;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+}
+
+
+/* ---------- FORM DATA ------------------------------------------------------ */
 export interface NewTransactionData {
-  tipo: "cambio" | "deposito" | "transferencia" | "saque" | string;
+  tipo: TransactionType;
   valor: string;
   categoria?: string;
   anexos?: FileList;
 }
+
+/* ---------- HEADER & DASHBOARD FLAGS -------------------------------------- */
 export interface HeaderFlags {
   isHome: boolean;
   isDashboard: boolean;
@@ -110,6 +141,7 @@ export interface HeaderFlags {
   showDashboardBtn: boolean;
 }
 
+/* ---------- WIDGET PROPS --------------------------------------------------- */
 export interface SavingsGoalProps {
   goal: number;
   transactions: Transaction[];
@@ -127,6 +159,7 @@ export interface FilterBarProps {
   endDate: string;
   setEndDate: (value: string) => void;
 }
+
 export interface SpendingAlertProps {
   limit: number;
   transactions: Transaction[];

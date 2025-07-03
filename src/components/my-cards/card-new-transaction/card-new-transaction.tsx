@@ -18,7 +18,6 @@ import { useForm } from "react-hook-form";
 import clsx from "clsx";
 import { maskCurrency } from "../../../utils/currency-formatte/currency-formatte";
 
-/* 🆕 utilidade de classe para esconder labels visuais mas mantê-los para leitores de tela */
 const srOnly = "absolute -m-px w-px h-px overflow-hidden clip-[rect(0,0,0,0)]";
 
 export default function CardNewTransaction({
@@ -31,8 +30,11 @@ export default function CardNewTransaction({
     formState: { errors },
   } = useForm<NewTransactionData>();
 
+  const submitHandler = handleSubmit((data: NewTransactionData) => {
+    void onSubmit(data);
+  });
+
   return (
-    /* 🆕 role=form descreve o container do formulário */
     <Box
       role="form"
       aria-labelledby="nova-transacao-titulo"
@@ -43,9 +45,9 @@ export default function CardNewTransaction({
       </h3>
 
       <form
-        onSubmit={handleSubmit((data) => {
-          void onSubmit(data);
-        })}
+        onSubmit={(e) => {
+          void submitHandler(e);
+        }}
       >
         {/* ---------- SELECT Tipo ---------- */}
         <FormControl fullWidth className={styles.transacaoFormControl}>

@@ -1,10 +1,8 @@
-// src/components/forms/login-form.tsx
-
 "use client";
 
 import clsx from "clsx";
 import { useForm } from "react-hook-form";
-import { useState, useId } from "react"; // ✅ useId para IDs únicos
+import { useState, useId } from "react"; 
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -17,8 +15,7 @@ import { loginValidations } from "utils/forms-validations/formValidations";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  
-  // ✅ Hooks useId para gerar IDs estáveis e únicos para acessibilidade
+
   const emailErrorId = useId();
   const passwordErrorId = useId();
 
@@ -33,14 +30,15 @@ export default function LoginForm() {
 
   const passwordValue = watch("password", "");
 
-  const onSubmit = async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const processSubmit = async (): Promise<void> => {
+    await new Promise((r) => setTimeout(r, 1000));
   };
 
   return (
-    // ✅ aria-busy informa aos leitores de tela que o formulário está sendo processado
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        void handleSubmit(processSubmit)(e);
+      }}
       className="flex flex-col space-y-6 flex-1"
       aria-busy={isSubmitting}
       noValidate // Impede a validação nativa do navegador
@@ -63,14 +61,20 @@ export default function LoginForm() {
           // ✅ aria-describedby conecta o campo à sua mensagem de erro
           aria-describedby={errors.email ? emailErrorId : undefined}
           className={clsx("w-full px-4 py-3 rounded-lg focus-within:ring-2", {
-            "bg-gray-100 border border-gray-200 focus-within:ring-green-500": !errors.email,
-            "bg-gray-100 border border-red-500 focus-within:ring-red-300": !!errors.email,
+            "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
+              !errors.email,
+            "bg-gray-100 border border-red-500 focus-within:ring-red-300":
+              !!errors.email,
           })}
           {...register("email", loginValidations.email)}
         />
         {errors.email && (
           // ✅ A mensagem de erro tem um id e role="alert" para ser anunciada
-          <span id={emailErrorId} role="alert" className="text-red-500 text-sm mt-1">
+          <span
+            id={emailErrorId}
+            role="alert"
+            className="text-red-500 text-sm mt-1"
+          >
             {errors.email.message}
           </span>
         )}
@@ -86,8 +90,10 @@ export default function LoginForm() {
         </label>
         <div
           className={clsx("flex items-center rounded-lg focus-within:ring-2", {
-            "bg-gray-100 border border-gray-200 focus-within:ring-green-500": !errors.password,
-            "bg-gray-100 border border-red-500 focus-within:ring-red-300": !!errors.password,
+            "bg-gray-100 border border-gray-200 focus-within:ring-green-500":
+              !errors.password,
+            "bg-gray-100 border border-red-500 focus-within:ring-red-300":
+              !!errors.password,
           })}
         >
           <Input
@@ -117,7 +123,11 @@ export default function LoginForm() {
           )}
         </div>
         {errors.password && (
-          <span id={passwordErrorId} role="alert" className="text-red-500 text-sm mt-1">
+          <span
+            id={passwordErrorId}
+            role="alert"
+            className="text-red-500 text-sm mt-1"
+          >
             {errors.password.message}
           </span>
         )}
@@ -142,7 +152,9 @@ export default function LoginForm() {
         >
           {isSubmitting ? "Acessando..." : "Acessar"}
           {/* ✅ Texto adicional para leitores de tela durante o envio */}
-          {isSubmitting && <span className="sr-only">. O formulário está sendo enviado.</span>}
+          {isSubmitting && (
+            <span className="sr-only">. O formulário está sendo enviado.</span>
+          )}
         </Button>
       </Box>
     </form>

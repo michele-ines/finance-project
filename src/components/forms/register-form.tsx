@@ -40,9 +40,10 @@ export default function RegisterForm() {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => {
+        void handleSubmit(onSubmit)(e);
+      }}
       className="flex flex-col space-y-6 flex-1"
-      // A11Y: Adicionar novalidate para impedir a validação HTML5 padrão e usar apenas a do React Hook Form.
       noValidate
     >
       {/* Nome */}
@@ -225,25 +226,29 @@ export default function RegisterForm() {
       {/* Checkbox */}
       <Box className="flex flex-col">
         <div className="flex items-start mt-2">
-            <Checkbox
-              id="terms"
-              {...register("terms", registerValidations.terms)}
-              // A11Y: Associa o checkbox ao seu erro.
-              aria-invalid={!!errors.terms}
-              aria-describedby="terms-error"
-            />
-            <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
-              Li e estou ciente quanto às condições de tratamento dos meus dados
-              conforme descrito na Política de Privacidade do banco.
-            </label>
+          <Checkbox
+            id="terms"
+            {...register("terms", registerValidations.terms)}
+            // A11Y: Associa o checkbox ao seu erro.
+            aria-invalid={!!errors.terms}
+            aria-describedby="terms-error"
+          />
+          <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
+            Li e estou ciente quanto às condições de tratamento dos meus dados
+            conforme descrito na Política de Privacidade do banco.
+          </label>
         </div>
         {errors.terms && (
-            <span id="terms-error" role="alert" className="text-red-500 text-sm mt-1">
-                {errors.terms.message}
-            </span>
+          <span
+            id="terms-error"
+            role="alert"
+            className="text-red-500 text-sm mt-1"
+          >
+            {errors.terms.message}
+          </span>
         )}
       </Box>
-      
+
       {/* Botão */}
       <Box className="mt-6">
         {/* A11Y: Lembre-se de verificar o contraste de cor.

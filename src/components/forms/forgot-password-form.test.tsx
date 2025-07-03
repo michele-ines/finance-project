@@ -1,8 +1,7 @@
-// src/components/forms/forgot-password-form.test.tsx
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-
+import React from 'react';
 import ForgotPasswordForm from './forgot-password-form';
 
 /* ------------------------------------------------------------------
@@ -38,6 +37,7 @@ jest.mock('../../utils/forms-validations/formValidations', () => ({
 describe('ForgotPasswordForm', () => {
   it('renderiza o formulário inicial', () => {
     render(<ForgotPasswordForm />);
+
     expect(
       screen.getByRole('textbox', { name: /e-mail cadastrado/i }),
     ).toBeInTheDocument();
@@ -77,7 +77,6 @@ describe('ForgotPasswordForm', () => {
   });
 
   it('submissão bem-sucedida exibe mensagem de sucesso e foca nela', async () => {
-    // --- ativa timers falsos *apenas* para este teste ---
     jest.useFakeTimers();
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
@@ -95,8 +94,8 @@ describe('ForgotPasswordForm', () => {
       screen.getByRole('button', { name: /enviando/i }),
     ).toBeDisabled();
 
-    // resolve a “API” simulada (1 s) e deixa o React renderizar
-    await act(async () => {
+    /* ⬇️ não há await dentro da callback, então removemos async */
+    act(() => {
       jest.runAllTimers();
     });
 
@@ -122,7 +121,7 @@ describe('ForgotPasswordForm', () => {
       screen.getByRole('button', { name: /enviar link de recuperação/i }),
     );
 
-    await act(async () => {
+    act(() => {
       jest.runAllTimers();
     });
 

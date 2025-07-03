@@ -1,56 +1,66 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { BalanceState } from "interfaces/dashboard";
 
-// --- 1. Criando o Thunk para buscar o saldo ---
-// Esta é a nossa lógica de API encapsulada.
-export const fetchBalance = createAsyncThunk(
-  'balance/fetchBalance',
-  async (_, { rejectWithValue }) => { // O primeiro argumento é _ porque não precisamos passar parâmetros
-    try {
-      const res = await fetch("/api/transacao/soma-depositos");
-      if (!res.ok) {
-        throw new Error("Falha ao buscar o saldo");
-      }
-      const { total } = await res.json();
-      return total as number; // O thunk vai retornar apenas o valor do saldo
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-// --- 2. Definindo o estado inicial e a interface ---
-interface BalanceState {
-  value: number;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
+// Utilitários de tipo
+interface BalanceResponse {
+  total: number;
 }
 
+export const fetchBalance = createAsyncThunk<
+  number,
+  void,
+  { rejectValue: string }
+>("balance/fetchBalance", async (_, { rejectWithValue }) => {
+  try {
+    const res = await fetch("/api/transacao/soma-depositos");
+
+    if (!res.ok) {
+      return rejectWithValue("Falha ao buscar o saldo");
+    }
+
+    // Evita atribuição insegura usando unknown + verificação de tipo
+    const raw: unknown = await res.json();
+
+    if (
+      typeof raw === "object" &&
+      raw !== null &&
+      "total" in raw &&
+      typeof (raw as { total: unknown }).total === "number"
+    ) {
+      return (raw as BalanceResponse).total;
+    }
+
+    return rejectWithValue("Resposta da API em formato inesperado");
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Erro inesperado";
+    return rejectWithValue(message);
+  }
+});
+
+// --- 2. Definindo o estado inicial ---
 const initialState: BalanceState = {
   value: 0,
-  status: 'idle', // Começa como 'ocioso'
+  status: "idle",
   error: null,
 };
 
 // --- 3. Criando o Slice ---
 const balanceSlice = createSlice({
-  name: 'balance',
+  name: "balance",
   initialState,
-  reducers: {
-    // Reducers síncronos poderiam ir aqui se precisássemos, como para adicionar/subtrair valores
-  },
-  // O extraReducers ouve as ações do nosso thunk assíncrono
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchBalance.pending, (state) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
-      .addCase(fetchBalance.fulfilled, (state, action: PayloadAction<number>) => {
-        state.status = 'succeeded';
-        state.value = action.payload; // Atualiza o valor do saldo com o que veio da API
+      .addCase(fetchBalance.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.value = action.payload;
       })
       .addCase(fetchBalance.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
+        state.status = "failed";
+        state.error = action.payload ?? "Erro desconhecido";
       });
   },
 });

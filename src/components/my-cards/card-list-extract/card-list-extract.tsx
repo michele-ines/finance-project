@@ -188,7 +188,7 @@ export default function CardListExtract({
           });
         }
       }
-      fetchPage();
+      void fetchPage();
       setIsEditing(false);
       atualizaSaldo?.();
       setStatusMsg("Transações salvas!");
@@ -523,7 +523,9 @@ export default function CardListExtract({
           {/* sentinel + skeleton ----------------------------------- */}
           <Box aria-busy={isPageLoading}>
             <InfiniteScrollSentinel
-              onVisible={fetchPage}
+              onVisible={() => {
+                void fetchPage();
+              }}
               disabled={!hasMore || isPageLoading}
               isLoading={isPageLoading}
             />
@@ -539,7 +541,10 @@ export default function CardListExtract({
       {(isEditing || isDeleting) && (
         <Box className="flex gap-2 justify-between mt-4">
           <Button
-            onClick={handleSaveClick}
+            onClick={() => {
+              /* Ignoramos o valor retornado da Promise de forma explícita */
+              void handleSaveClick();
+            }}
             className={clsx(
               styles.botaoSalvar,
               isDeleting &&
