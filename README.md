@@ -168,6 +168,91 @@ Este projeto utiliza o [Mongoose](https://mongoosejs.com/) para conectar e inter
 
 MONGODB_URL=mongodb+srv://marcelomab09:jmiEqK08Of5ciKYx@cluster0.atwgt42.mongodb.net/TECH_CHALLENGE?retryWrites=true&w=majority
 
+
+Claro! Ajustei seu README.md para incluir a seção de comandos de forma mais organizada e clara, integrando suas solicitações e melhorando a estrutura geral do documento.
+
+Removi as seções duplicadas e organizei os scripts por categoria (Desenvolvimento, Qualidade de Código, Testes, etc.) para facilitar a consulta.
+
+Aqui está a versão ajustada do seu README.md:
+
+Financial Project
+Este é um projeto de aplicação financeira desenvolvido com as seguintes tecnologias:
+
+Next.js para renderização e roteamento (App Router).
+
+React como biblioteca para construção de interfaces.
+
+Material-UI para componentes visuais e design responsivo.
+
+Storybook para desenvolvimento isolado e documentação de componentes.
+
+Jest & React Testing Library para testes unitários e de integração.
+
+ESLint para análise estática e padronização do código.
+
+Husky para automação de Git Hooks.
+
+Mongoose para interação com o banco de dados MongoDB.
+
+Figma para design e prototipação.
+
+📌 Pré-requisitos
+Antes de começar, certifique-se de ter instalado:
+
+Node.js (versão LTS recomendada)
+
+Um gerenciador de pacotes como npm ou yarn.
+
+Um banco de dados MongoDB disponível (local ou na nuvem, como o MongoDB Atlas).
+
+🚀 Como iniciar o projeto
+Clone o repositório:
+
+Bash
+
+git clone <URL_DO_REPOSITORIO>
+cd financial-project
+Instale as dependências:
+
+Bash
+
+npm install
+Configure as variáveis de ambiente. Crie um arquivo .env na raiz do projeto e adicione a URL de conexão do seu MongoDB:
+
+Snippet de código
+
+MONGODB_URL=mongodb+srv://user:password@cluster.mongodb.net/database_name?retryWrites=true&w=majority
+Inicie o servidor de desenvolvimento:
+
+Bash
+
+npm run dev
+Acesse http://localhost:3000 no seu navegador para ver o resultado.
+
+⚙️ Comandos Disponíveis
+Aqui estão os principais scripts configurados no package.json do projeto:
+
+Desenvolvimento
+npm run dev
+Inicia o servidor de desenvolvimento do Next.js com Hot Reload.
+
+npm run storybook
+Inicia o ambiente do Storybook para desenvolvimento isolado de componentes.
+
+Build
+npm run build
+Cria uma versão otimizada da aplicação para produção.
+
+npm run start
+Inicia o servidor Next.js em modo de produção (requer um build prévio).
+
+### Qualidade de Código e Tipagem
+- **npm run lint** 
+Executa o ESLint para encontrar problemas de padronização e qualidade de código.
+
+- **npm run typecheck** 
+Verifica a consistência dos tipos TypeScript em todo o projeto sem compilar.
+
 ### Testes
 
 - **npm run test**  
