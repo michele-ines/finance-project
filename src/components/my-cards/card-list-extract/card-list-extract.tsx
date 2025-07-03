@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -15,14 +14,14 @@ import {
   ReceiptLongOutlinedIcon,
   CardListExtractStyles as styles,
   Select,
-    Link,
+  Link,
 } from "../../ui";
 
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import Tooltip from "@mui/material/Tooltip";
 
 import clsx from "clsx";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";      /* ⬅️ useRef */
 import type { Transaction, Attachment } from "../../../interfaces/dashboard";
 import {
   formatBRL,
@@ -42,7 +41,7 @@ import { Chip } from "@mui/material";
 /*  Types auxiliares                                                  */
 /* ------------------------------------------------------------------ */
 export interface TxWithFiles extends Transaction {
-  novosAnexos?: File[];              // anexos recém-selecionados
+  novosAnexos?: File[]; // anexos recém-selecionados
 }
 
 interface CardListExtractProps {
@@ -87,6 +86,10 @@ export default function CardListExtract({
   );
   const [isDeletingInProgress, setIsDeletingInProgress] = useState(false);
 
+  /* 🔹 acessibilidade */
+  const firstEditRef = useRef<HTMLInputElement>(null);
+  const [statusMsg, setStatusMsg] = useState("");
+
   /* filtros --------------------------------------------------------- */
   const [typeFilter, setTypeFilter] = useState<"all" | "entrada" | "saida">(
     "all"
@@ -123,6 +126,8 @@ export default function CardListExtract({
       p.map((tx) => ({ ...tx, updatedAt: formatDateBR(tx.updatedAt) }))
     );
     setIsEditing(true);
+    /* 🔹 foco no 1º campo após render */
+    setTimeout(() => firstEditRef.current?.focus());
   };
   const handleCancelClick = () => {
     setIsEditing(false);
@@ -179,9 +184,10 @@ export default function CardListExtract({
           });
         }
       }
-      await fetchPage();           // recarrega página p/ anexos virem do backend
+      await fetchPage(); // recarrega página p/ anexos virem do backend
       setIsEditing(false);
       await atualizaSaldo?.();
+      setStatusMsg("Transações salvas!");
       return;
     }
 
@@ -189,13 +195,17 @@ export default function CardListExtract({
     if (isDeleting) {
       if (!selectedTransactions.length) return;
       setIsDeletingInProgress(true);
+      setStatusMsg("Excluindo transações…");
       try {
         await onDelete?.(selectedTransactions);
+        setStatusMsg("Transações excluídas!");
       } finally {
         setIsDeletingInProgress(false);
         setIsDeleting(false);
         setSelectedTransactions([]);
         await atualizaSaldo?.();
+        /* limpa mensagem depois de 4 s */
+        setTimeout(() => setStatusMsg(""), 4000);
       }
     }
   };
@@ -215,10 +225,16 @@ export default function CardListExtract({
   const hasTransactions = !loadingFirstPage && editableTransactions.length > 0;
 
   return (
-    <Box className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}>
+    <Box
+      className={`${styles.cardExtrato} cardExtrato w-full min-h-[512px]`}
+      role="region"
+      aria-labelledby="extrato-heading"
+    >
       {/* cabeçalho ---------------------------------------------------- */}
       <Box className={styles.extratoHeader}>
-        <h3 className={styles.extratoTitle}>Extrato</h3>
+        <h3 id="extrato-heading" className={styles.extratoTitle}>
+          Extrato
+        </h3>
         {hasTransactions && !isEditing && !isDeleting && (
           <Box className={styles.extratoActions}>
             <IconButton
@@ -288,7 +304,9 @@ export default function CardListExtract({
 
       {/* lista / estados vazios -------------------------------------- */}
       {loadingFirstPage ? (
-        <SkeletonListExtract rows={5} />
+        <Box aria-busy="true" aria-label="Carregando">
+          <SkeletonListExtract rows={5} />
+        </Box>
       ) : dateError || !filteredTransactions.length ? (
         <Box className="flex flex-col items-center justify-center text-center gap-4 py-10">
           {dateError ? (
@@ -315,7 +333,11 @@ export default function CardListExtract({
       ) : (
         <>
           {/* -------------------------------- lista -------------------- */}
-          <ul className="space-y-4">
+          <ul
+            role="list"
+            aria-busy={isPageLoading}
+            className="space-y-4"
+          >
             {filteredTransactions.map((tx, idx) => (
               <li key={tx._id ?? `tx-${idx}`}>
                 <Box
@@ -334,6 +356,7 @@ export default function CardListExtract({
                           handleTransactionChange(idx, "tipo", e.target.value)
                         }
                         inputProps={{ style: { textAlign: "left" } }}
+                        inputRef={idx === 0 ? firstEditRef : undefined}
                       />
                     ) : (
                       <span className={styles.txType}>
@@ -377,6 +400,7 @@ export default function CardListExtract({
                         accept="image/*,application/pdf"
                         id={`edit-anexos-${tx._id}`}
                         type="file"
+                        aria-label="Selecionar arquivos para anexar"
                         onChange={(e) => {
                           const files = e.target.files;
                           if (files) {
@@ -400,7 +424,7 @@ export default function CardListExtract({
                             color="primary"
                             aria-label="Anexar arquivos"
                           >
-                            <AttachFileIcon fontSize="inherit" />
+                            <AttachFileIcon fontSize="inherit" aria-hidden="true" />
                           </IconButton>
                         </Tooltip>
                       </label>
@@ -410,6 +434,9 @@ export default function CardListExtract({
                     <Box className="flex items-center">
                       {isDeleting && (
                         <Checkbox
+                          aria-label={`Selecionar transação ${formatBRL(
+                            Math.abs(tx.valor)
+                          )}`}
                           checked={selectedTransactions.includes(tx._id)}
                           onChange={() => handleCheckboxChange(tx._id)}
                           size="small"
@@ -436,6 +463,7 @@ export default function CardListExtract({
                               ml: 0.5,
                               color: "var(--byte-color-dash)",
                             }}
+                            aria-hidden="true"
                           />
                         </Tooltip>
                       ) : null}
@@ -460,7 +488,7 @@ export default function CardListExtract({
                           backgroundColor: "var(--byte-color-green-50)",
                           ":hover": { bgcolor: "var(--byte-color-green-100)" },
                         }}
-                        icon={<AttachFileIcon sx={{ fontSize: 14 }} />}
+                        icon={<AttachFileIcon sx={{ fontSize: 14 }} aria-hidden="true" />}
                       />
                     ))}
 
@@ -473,7 +501,7 @@ export default function CardListExtract({
                           size="small"
                           color="info"
                           variant="outlined"
-                          icon={<AttachFileIcon sx={{ fontSize: 14 }} />}
+                          icon={<AttachFileIcon sx={{ fontSize: 14 }} aria-hidden="true" />}
                         />
                       ))}
                   </Box>
@@ -482,11 +510,18 @@ export default function CardListExtract({
             ))}
           </ul>
 
-          <InfiniteScrollSentinel
-            onVisible={fetchPage}
-            disabled={!hasMore || isPageLoading}
-          />
-          {isPageLoading && <SkeletonListExtract rows={5} />}
+          {/* sentinel + skeleton ----------------------------------- */}
+          <Box aria-busy={isPageLoading}>
+            <InfiniteScrollSentinel
+              onVisible={fetchPage}
+              disabled={!hasMore || isPageLoading}
+              isLoading={isPageLoading}
+            />
+          </Box>
+
+          {isPageLoading && editableTransactions.length > 0 && (
+            <SkeletonListExtract rows={5} />
+          )}
         </>
       )}
 
@@ -522,6 +557,11 @@ export default function CardListExtract({
           </Button>
         </Box>
       )}
+
+      {/* live-region invisível -------------------------------------- */}
+      <Box role="status" aria-live="polite" sx={{ position: "absolute", left: -9999 }}>
+        {statusMsg}
+      </Box>
     </Box>
   );
 }

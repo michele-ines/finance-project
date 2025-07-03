@@ -1,6 +1,7 @@
+// src/components/my-cards/card-balance/card-balance.test.tsx
 import '@testing-library/jest-dom';
-import React, { ComponentProps } from 'react';
-import { render, act, fireEvent } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import CardBalance from './card-balance';
 
 jest.mock('next/font/google', () => ({
@@ -12,77 +13,74 @@ jest.mock('../../../utils/currency-formatte/currency-formatte', () => ({
   formatBRL: jest.fn(() => 'R$ 1.000,00'),
 }));
 
-type Props = ComponentProps<typeof CardBalance>;
-
 describe('CardBalance', () => {
-  const props: Props = {
+  const props = {
     user: { name: 'João Silva' },
     balance: { account: '12345-6', value: 1000 },
   };
 
-  it('should render with user name and date', () => {
-    const { getByText } = render(<CardBalance {...props} />);
-    expect(getByText('Olá, João :)')).toBeInTheDocument();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    render(<CardBalance {...props} />);
+  });
+
+  it('renderiza nome do usuário e data corretamente', () => {
+    expect(
+      screen.getByRole('heading', { name: 'Olá, João :)' })
+    ).toBeInTheDocument();
+
     const today = new Date();
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
     const weekday = today
-      .toLocaleDateString('pt-BR', options)
+      .toLocaleDateString('pt-BR', { weekday: 'long' })
       .replace(/^\w/, (c) => c.toUpperCase());
     const formattedDate = today.toLocaleDateString('pt-BR');
-    expect(getByText(`${weekday}, ${formattedDate}`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`${weekday}, ${formattedDate}`)
+    ).toBeInTheDocument();
   });
 
-  it('should show balance when showBalance is true', () => {
-    const { getByText } = render(<CardBalance {...props} />);
-    expect(getByText('R$ 1.000,00')).toBeInTheDocument();
+  it('mostra saldo formatado por padrão', () => {
+    expect(screen.getByText('R$ 1.000,00')).toBeInTheDocument();
   });
 
-  it('should hide balance when clicking visibility icon', () => {
-    const { getByLabelText, getByText, queryByText } = render(
-      <CardBalance {...props} />
-    );
-    const hideButton = getByLabelText('Ocultar saldo');
-    if (hideButton) {
-      act(() => {
-        fireEvent.click(hideButton);
-      });
-    }
-    expect(getByLabelText('Mostrar saldo')).toBeInTheDocument();
-    expect(getByText('••••••')).toBeInTheDocument();
-    expect(queryByText('R$ 1.000,00')).not.toBeInTheDocument();
+  it('oculta saldo ao clicar no ícone e atualiza aria-label', () => {
+    const toggle = screen.getByRole('button', { name: 'Ocultar saldo' });
+    fireEvent.click(toggle);
+
+    expect(
+      screen.getByRole('button', { name: 'Mostrar saldo' })
+    ).toBeInTheDocument();
+    expect(screen.getByText('••••••')).toBeInTheDocument();
+    expect(screen.queryByText('R$ 1.000,00')).not.toBeInTheDocument();
   });
 
-  it('should show balance again when clicking visibility off icon', () => {
-    const { getByLabelText, getByText } = render(<CardBalance {...props} />);
-    const hideButton = getByLabelText('Ocultar saldo');
-    if (hideButton) {
-      act(() => {
-        fireEvent.click(hideButton);
-      });
-    }
-    const showButton = getByLabelText('Mostrar saldo');
-    if (showButton) {
-      act(() => {
-        fireEvent.click(showButton);
-      });
-    }
-    expect(getByText('R$ 1.000,00')).toBeInTheDocument();
+  it('permite alternar via teclado (Enter e Space)', () => {
+    const toggle = screen.getByRole('button', { name: 'Ocultar saldo' });
+
+    fireEvent.keyDown(toggle, { key: 'Enter' });
+    expect(
+      screen.getByRole('button', { name: 'Mostrar saldo' })
+    ).toBeInTheDocument();
+
+    const toggleAgain = screen.getByRole('button', { name: 'Mostrar saldo' });
+    fireEvent.keyDown(toggleAgain, { key: ' ' });
+    expect(
+      screen.getByRole('button', { name: 'Ocultar saldo' })
+    ).toBeInTheDocument();
   });
 
-  it('should show "Carregando..." if balance is undefined', () => {
-    const { getByText } = render(
+  it('exibe "Carregando..." quando value não é número', () => {
+    // Renderização extra usando undefined as unknown as number para evitar any
+    render(
       <CardBalance
-        {...{
-          ...props,
-          balance: { account: '12345-6', value: undefined as unknown as number },
-        }}
+        user={props.user}
+        balance={{ account: props.balance.account, value: undefined as unknown as number }}
       />
     );
-    expect(getByText('Carregando...')).toBeInTheDocument();
+    expect(screen.getByText('Carregando...')).toBeInTheDocument();
   });
 
-  it('should display account number', () => {
-    const { getByText } = render(<CardBalance {...props} />);
-    expect(getByText('12345-6')).toBeInTheDocument();
+  it('exibe número da conta', () => {
+    expect(screen.getByText('12345-6')).toBeInTheDocument();
   });
 });

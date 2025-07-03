@@ -1,49 +1,55 @@
-
 export interface Attachment {
-  name: string; 
-  url:  string;   
+  name: string;
+  url: string;
 }
 
-export interface Entity { id: number }
-export interface ValueField { value: number }
-export interface Labelled { label: string }
+export interface Entity {
+  id: number;
+}
+export interface ValueField {
+  value: number;
+}
+export interface Labelled {
+  label: string;
+}
 
-export interface User { name: string }
+export interface User {
+  name: string;
+}
 
 export interface Balance extends ValueField {
-  account: string
+  account: string;
 }
 
 export interface Transaction {
-  _id: number
-  tipo: string
-  valor: number
-  createdAt: string
-  updatedAt: string
-    anexos?:   Attachment[]
+  _id: number;
+  tipo: string;
+  valor: number;
+  createdAt: string;
+  updatedAt: string;
+  anexos?: Attachment[];
 }
 
 export interface TxWithFiles extends Transaction {
-  novosAnexos?: File[]           // arquivos recém-selecionados
+  novosAnexos?: File[];
 }
-
 
 export interface Investment extends Entity, Labelled, ValueField {}
 
 export interface DashboardData {
-  user: User
-  balance: Balance
-  transactions: Transaction[]
-  investments: Investment[]
+  user: User;
+  balance: Balance;
+  transactions: Transaction[];
+  investments: Investment[];
 }
 
 export interface ListProps<T extends Entity> {
-  items: T[]
-  onSave?: (items: T[]) => void
+  items: T[];
+  onSave?: (items: T[]) => void;
 }
 export interface TransactionListProps {
-  transactions: Transaction[]
-  onSave?: (transactions: Transaction[]) => void
+  transactions: Transaction[];
+  onSave?: (transactions: Transaction[]) => void;
 }
 
 export interface CadInvestmentsProps {
@@ -51,8 +57,12 @@ export interface CadInvestmentsProps {
   investments: Investment[];
 }
 export interface CardBalanceProps {
-  user: User
-  balance: Balance
+  user: User;
+  balance: Balance;
+}
+
+export interface SkeletonProps {
+  rows?: number;
 }
 
 export interface CardNewTransactionProps {
@@ -61,61 +71,65 @@ export interface CardNewTransactionProps {
 }
 
 export interface EmailField {
-  email: string
+  email: string;
 }
 
-export type ForgotPasswordData = EmailField
+export type ForgotPasswordData = EmailField;
 
 export interface LoginData extends EmailField {
-  password: string
+  password: string;
 }
 
 export interface RegisterData {
-  name: string
-  email: string
-  password: string
-  confirmPassword: string
-  terms: boolean
-}
-
-export interface UserInfo  {
   name: string;
   email: string;
   password: string;
-};
+  confirmPassword: string;
+  terms: boolean;
+}
+
+export interface UserInfo {
+  name: string;
+  email: string;
+  password: string;
+}
 
 export interface NewTransactionData {
   tipo: "cambio" | "deposito" | "transferencia" | "saque" | string;
-  valor: string; // Mantém como string devido à máscara, será parseado antes da API
-  categoria?: string; // Novo campo! Pode ser string (ID da categoria)
-  anexos?:   FileList 
-
+  valor: string;
+  categoria?: string;
+  anexos?: FileList;
 }
 export interface HeaderFlags {
-  isHome: boolean
-  isDashboard: boolean
-  isInvestments: boolean
-  
-  showPublicLinks: boolean
-  showInternalLinks: boolean
-  showDashboardBtn: boolean
+  isHome: boolean;
+  isDashboard: boolean;
+  isInvestments: boolean;
+
+  showPublicLinks: boolean;
+  showInternalLinks: boolean;
+  showDashboardBtn: boolean;
 }
 
-// opções de filtro pelo tipo de transação
+export interface SavingsGoalProps {
+  goal: number;
+  transactions: Transaction[];
+}
+
 export type TypeFilter = "all" | "deposito" | "saque";
 
-// propriedades da barra de filtros avançados de transações
 export interface FilterBarProps {
-  /* busca livre */
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  /* tipo de transação */
   typeFilter: TypeFilter;
   setTypeFilter: (value: TypeFilter) => void;
-  /* intervalo de datas (ISO yyyy-MM-dd) */
   startDate: string;
   setStartDate: (value: string) => void;
   endDate: string;
   setEndDate: (value: string) => void;
 }
+export interface SpendingAlertProps {
+  limit: number;
+  transactions: Transaction[];
+}
+
 /* --------------------------------------------------------------------------- */

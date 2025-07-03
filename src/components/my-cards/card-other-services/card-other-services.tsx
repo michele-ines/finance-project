@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { Box, CadInvestmentsStyles as styles, Card, CardContent, React, Typography } from "../../ui";
+import {
+  Box,
+  CadInvestmentsStyles as styles,
+  Card,
+  CardContent,
+  React,
+  Typography,
+} from "../../ui";
 
 const services = [
   {
@@ -40,6 +47,8 @@ export default function CardsOutrosServicos() {
   return (
     <Box
       component="section"
+      role="region" 
+      aria-labelledby="servicos-heading"
       sx={{
         backgroundColor: "var(--byte-gray-200)",
         borderRadius: 1,
@@ -67,6 +76,7 @@ export default function CardsOutrosServicos() {
     >
       {/* Título */}
       <Typography
+        id="servicos-heading" 
         className={styles.investmentTitle}
         variant="h6"
         component="h3"
@@ -83,10 +93,10 @@ export default function CardsOutrosServicos() {
 
       {/* Grid via CSS */}
       <Box
+        role="list" 
         sx={{
           display: "grid",
           gap: 2,
-          // responsivo: 1fr no mobile / 2 col no sm / 3 col no md+
           gridTemplateColumns: {
             xs: "1fr",
             sm: "1fr 1fr",
@@ -99,6 +109,9 @@ export default function CardsOutrosServicos() {
         {services.map(({ key, title, icon }) => (
           <Card
             key={key}
+            role="listitem" 
+            tabIndex={0} 
+            aria-label={title} 
             variant="outlined"
             sx={{
               display: "flex",
@@ -108,22 +121,37 @@ export default function CardsOutrosServicos() {
               bgcolor: "common.white",
               "&:hover": { boxShadow: 4 },
             }}
+            /* Opção: se o card dispara navegação/clique,
+               propague a ação também no onKeyDown para Enter/Espaço */
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.currentTarget.click();
+              }
+            }}
           >
             <CardContent
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center", 
-                justifyContent: "center", 
+                alignItems: "center",
+                justifyContent: "center",
                 gap: 1,
                 p: 0,
-                
               }}
             >
               <Box sx={{ width: 48, height: 48, position: "relative" }}>
-                <Image src={icon} alt={title} fill sizes="48px" />
+                <Image
+                  src={icon}
+                  alt={title} 
+                  fill
+                  sizes="48px"
+                />
               </Box>
-              <Typography variant="body1" sx={{ fontWeight: 500 }} className="serviceLabel">
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: 500 }}
+                className="serviceLabel"
+              >
                 {title}
               </Typography>
             </CardContent>

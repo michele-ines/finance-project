@@ -1,61 +1,71 @@
-import { render, screen } from '@testing-library/react';
-import { SpendingAlertProps, Transaction } from 'interfaces/dashboard';
-import SpendingAlertWidget from './spending-alert-widget';
+import { render, screen } from "@testing-library/react";
+import SpendingAlertWidget from "./spending-alert-widget";
+import {
+  SpendingAlertProps,
+  Transaction,
+} from "interfaces/dashboard";
 
-const createTransaction = (
-  overrides: Partial<Transaction>
-): Transaction => ({
-  _id: Math.floor(Math.random() * 10000),
-  tipo: 'saida',
+/* utilitário para criar transações */
+const createTransaction = (overrides: Partial<Transaction>): Transaction => ({
+  _id: Math.floor(Math.random() * 10_000),
+  tipo: "saida",
   valor: 0,
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
 });
 
-describe('SpendingAlertWidget', () => {
-  const setup = (props: SpendingAlertProps) => {
+describe("SpendingAlertWidget", () => {
+  const setup = (props: SpendingAlertProps) =>
     render(<SpendingAlertWidget {...props} />);
-  };
 
-  it('renderiza limite e total gasto corretamente com gastos dentro do limite', () => {
+  it("renderiza limite e total gasto corretamente (dentro do limite)", () => {
     const props: SpendingAlertProps = {
       limit: 1000,
       transactions: [
-        createTransaction({ tipo: 'saida', valor: 200 }),
-        createTransaction({ tipo: 'saida', valor: 300 }),
-        createTransaction({ tipo: 'entrada', valor: 100 }),
+        createTransaction({ valor: 200 }),
+        createTransaction({ valor: 300 }),
+        createTransaction({ tipo: "entrada", valor: 100 }), // ignorada
       ],
     };
 
     setup(props);
 
-    expect(screen.getByText('Alerta de Gastos')).toBeInTheDocument();
-    expect(screen.getByText('Limite mensal: R$ 1000')).toBeInTheDocument();
-    expect(screen.getByText('Total gasto: R$ 500')).toBeInTheDocument();
+    /* título semântico */
     expect(
-      screen.getByText('Gastos dentro do limite')
+      screen.getByRole("heading", { name: /alerta de gastos/i })
+    ).toBeInTheDocument();
+
+    /* rótulos acessíveis */
+    expect(screen.getByLabelText(/limite de r\$ 1000/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/total gasto r\$ 500/i)).toBeInTheDocument();
+
+    /* mensagem neutra */
+    expect(
+      screen.getByText(/gastos dentro do limite/i)
     ).toBeInTheDocument();
   });
 
-  it('exibe alerta quando os gastos ultrapassam o limite', () => {
+  it("exibe alerta quando os gastos ultrapassam o limite", () => {
     const props: SpendingAlertProps = {
       limit: 500,
       transactions: [
-        createTransaction({ tipo: 'saida', valor: 400 }),
-        createTransaction({ tipo: 'saida', valor: 200 }),
+        createTransaction({ valor: 400 }),
+        createTransaction({ valor: 200 }),
       ],
     };
 
     setup(props);
 
-    expect(screen.getByText('Total gasto: R$ 600')).toBeInTheDocument();
-    expect(
-      screen.getByText('⚠ Você ultrapassou o limite!')
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/total gasto r\$ 600/i)).toBeInTheDocument();
+
+    const alertMsg = screen.getByRole("alert");
+    expect(alertMsg).toHaveTextContent(/você ultrapassou o limite!/i);
+    /* emoji com descrição */
+    expect(screen.getByRole("img", { name: /alerta/i })).toBeInTheDocument();
   });
 
-  it('mostra total gasto como 0 quando não há transações', () => {
+  it("mostra total gasto 0 quando não há transações", () => {
     const props: SpendingAlertProps = {
       limit: 1000,
       transactions: [],
@@ -63,9 +73,9 @@ describe('SpendingAlertWidget', () => {
 
     setup(props);
 
-    expect(screen.getByText('Total gasto: R$ 0')).toBeInTheDocument();
+    expect(screen.getByLabelText(/total gasto r\$ 0/i)).toBeInTheDocument();
     expect(
-      screen.getByText('Gastos dentro do limite')
+      screen.getByText(/gastos dentro do limite/i)
     ).toBeInTheDocument();
   });
 });

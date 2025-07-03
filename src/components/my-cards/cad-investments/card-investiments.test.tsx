@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import React, { ReactNode } from "react";
 import CadInvestments from "./cad-investments";
 
@@ -35,6 +35,10 @@ const mockInvestments: Investment[] = [
 type BoxProps = {
   children: ReactNode;
   className?: string;
+  role?: string;
+  tabIndex?: number;
+  "aria-label"?: string;
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
 };
 
 type PieChartProps = {
@@ -49,8 +53,23 @@ type PieChartProps = {
 
 // Mock dos componentes do UI
 jest.mock("../../ui/index.ts", () => ({
-  Box: ({ children, className }: BoxProps) => (
-    <div className={className}>{children}</div>
+  Box: ({
+    children,
+    className,
+    role,
+    tabIndex,
+    "aria-label": ariaLabel,
+    onKeyDown,
+  }: BoxProps) => (
+    <div
+      className={className}
+      role={role}
+      tabIndex={tabIndex}
+      aria-label={ariaLabel}
+      onKeyDown={onKeyDown}
+    >
+      {children}
+    </div>
   ),
   PieChart: ({ series }: PieChartProps) => (
     <div data-testid="pie-chart">
@@ -80,47 +99,67 @@ describe("CadInvestments", () => {
     investments: mockInvestments,
   };
 
-  it("deve renderizar o título de investimentos", () => {
+  beforeEach(() => {
     render(<CadInvestments {...defaultProps} />);
-    expect(screen.getByText("Investimentos")).toBeInTheDocument();
+  });
+
+  it("deve renderizar o título de investimentos", () => {
+    expect(screen.getByRole("heading", { name: "Investimentos" })).toBeInTheDocument();
   });
 
   it("deve renderizar o total formatado corretamente", () => {
-    render(<CadInvestments {...defaultProps} />);
+    // matcher unificado para capturar "Total: R$ 50.000,00"
     expect(
-      screen.getByText((content, element) => {
-        const hasLabel = content.includes("Total");
-        const hasValue = element?.textContent?.includes("R$ 50.000,00") ?? false;
-        return hasLabel && hasValue;
-      })
+      screen.getByText(/Total:\s*R\$\s*50\.000,00/)
     ).toBeInTheDocument();
   });
 
-  it("deve renderizar todos os investimentos com rótulo e valor", () => {
-    render(<CadInvestments {...defaultProps} />);
+  it("deve renderizar todos os investimentos com role=button, tabIndex e aria-label corretos", () => {
     mockInvestments.forEach(({ label, value }) => {
-      expect(screen.getByText(label)).toBeInTheDocument();
-      expect(
-        screen.getByText((_, element) => {
-          return (
-            element?.textContent === value.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })
-          );
-        })
-      ).toBeInTheDocument();
+      const formatted = value.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      const investmentButton = screen.getByRole("button", {
+        name: `${label}, valor ${formatted}`,
+      });
+      expect(investmentButton).toBeInTheDocument();
+      expect(investmentButton).toHaveAttribute("tabIndex", "0");
     });
   });
 
-  it("deve renderizar o título de estatísticas", () => {
-    render(<CadInvestments {...defaultProps} />);
-    expect(screen.getByText("Estatísticas")).toBeInTheDocument();
+  it("deve permitir ativar via Enter e Space usando keyboard", () => {
+    const first = mockInvestments[0];
+    const formatted = first.value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+    const investmentButton = screen.getByRole("button", {
+      name: `${first.label}, valor ${formatted}`,
+    });
+    const clickMock = jest.fn();
+    investmentButton.onclick = clickMock;
+
+    fireEvent.keyDown(investmentButton, { key: "Enter", code: "Enter" });
+    expect(clickMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(investmentButton, { key: " ", code: "Space" });
+    expect(clickMock).toHaveBeenCalledTimes(2);
   });
 
-  it("deve renderizar o gráfico de pizza com dados corretos", () => {
-    render(<CadInvestments {...defaultProps} />);
+  it("deve renderizar o título de estatísticas", () => {
+    expect(screen.getByRole("heading", { name: "Estatísticas" })).toBeInTheDocument();
+  });
+
+  it("deve renderizar o PieChart dentro de um elemento com role=img e aria-label adequado", () => {
+    const chart = screen.getByRole("img", {
+      name: "Gráfico de pizza de investimentos",
+    });
+    expect(chart).toBeInTheDocument();
     expect(screen.getByTestId("pie-chart")).toBeInTheDocument();
+  });
+
+  it("deve renderizar os dados corretos no gráfico de pizza", () => {
     expect(screen.getByText("Fundos de investimento: 5")).toBeInTheDocument();
     expect(screen.getByText("Tesouro Direto: 10")).toBeInTheDocument();
     expect(screen.getByText("Previdência Privada: 15")).toBeInTheDocument();

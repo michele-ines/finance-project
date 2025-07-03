@@ -21,9 +21,24 @@ const data = [
 
 export default function FinancialChart() {
   return (
-    <div className="w-full h-64">
+    /* região nomeada para leitores de tela */
+    <div
+      className="w-full h-64"
+      role="region"
+      aria-labelledby="financial-chart-heading"
+    >
+      {/* título só para leitores de tela (sr-only) */}
+      <h3 id="financial-chart-heading" className="sr-only">
+        Gráfico financeiro: valores mensais de Janeiro a Junho
+      </h3>
+
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
+        {/* o próprio SVG ganha role="img" e nome acessível */}
+        <LineChart
+          data={data}
+          role="img"
+          aria-label="Gráfico de linha mostrando a variação de valores de Janeiro a Junho"
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="#ccc" />
           <XAxis
             dataKey="name"
@@ -42,7 +57,7 @@ export default function FinancialChart() {
             dataKey="valor"
             stroke="#00C853"
             strokeWidth={3}
-            dot={{ stroke: '#00C853', strokeWidth: 2, r: 4 }}
+            dot={{ stroke: "#00C853", strokeWidth: 2, r: 4 }}
             activeDot={{ r: 6 }}
           />
         </LineChart>
