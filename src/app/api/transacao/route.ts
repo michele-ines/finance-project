@@ -54,13 +54,19 @@ function assertString(v: FormDataEntryValue | null, field: string): string {
   throw new TypeError(`Campo "${field}" é obrigatório e deve ser texto`);
 }
 
-type JsonPayload = { tipo: string; valor: string; categoria?: string | null };
+// Agora "valor" pode ser string OU number vindo do front
+// (ex.: front já convertendo para número)
+type JsonPayload = {
+  tipo: string;
+  valor: string | number;
+  categoria?: string | null;
+};
 
 export async function POST(req: Request) {
   return handleRequest(async () => {
     const contentType = req.headers.get("content-type") ?? "";
     let tipo: string;
-    let valor: string;
+    let valor: string; 
     let categoria: string | null = null;
     const anexos: { name: string; url: string }[] = [];
 
@@ -68,19 +74,21 @@ export async function POST(req: Request) {
     if (contentType.includes("application/json")) {
       const body: unknown = await req.json();
 
-      if (
-        typeof body !== "object" ||
-        body === null ||
-        typeof (body as JsonPayload).tipo !== "string" ||
-        typeof (body as JsonPayload).valor !== "string"
-      ) {
+      if (typeof body !== "object" || body === null) {
         throw new TypeError("Payload inválido");
       }
 
-      ({ tipo, valor, categoria = null } = body as JsonPayload);
-    } else {
+      const { tipo: t, valor: v, categoria: c = null } = body as JsonPayload;
 
-    /* ---------- multipart/form-data (com anexos) ----------------- */
+      if (typeof t !== "string" || (typeof v !== "string" && typeof v !== "number")) {
+        throw new TypeError("Payload inválido");
+      }
+
+      tipo = t;
+      valor = typeof v === "number" ? v.toString() : v;
+      categoria = c;
+    } else {
+      /* ---------- multipart/form-data (com anexos) --------------- */
       const formData = await req.formData();
       tipo = assertString(formData.get("tipo"), "tipo");
       valor = assertString(formData.get("valor"), "valor");

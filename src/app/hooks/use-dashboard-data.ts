@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { AppDispatch, RootState } from 'store/store';
 import { fetchTransactions } from 'store/slices/transactionsSlice';
 import { fetchBalance } from 'store/slices/balanceSlice';
@@ -11,17 +11,21 @@ import { fetchBalance } from 'store/slices/balanceSlice';
 export const useDashboardData = (): void => {
   const dispatch = useDispatch<AppDispatch>();
 
+  // ────────────────────────────────────────────────────────────────
+  // ✅ shallowEqual compara cada propriedade individualmente,
+  //    impedindo que o retorno mude de referência a cada render.
+  // ────────────────────────────────────────────────────────────────
   const { transactionsStatus, balanceStatus } = useSelector(
     (state: RootState) => ({
       transactionsStatus: state.transactions.status,
       balanceStatus: state.balance.status,
     }),
+    shallowEqual, // <= evita o warning: "returned a different result…"
   );
 
   useEffect(() => {
-    /* evita no-floating-promises: marcamos a Promise como ignorada */
     if (transactionsStatus === 'idle') {
-      void dispatch(fetchTransactions(1));
+      void dispatch(fetchTransactions(1)); // primeira página
     }
 
     if (balanceStatus === 'idle') {

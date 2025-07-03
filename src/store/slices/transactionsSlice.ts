@@ -115,6 +115,10 @@ export const saveTransactions = createAsyncThunk<
         })
       );
 
+      // highlight-start
+      // AQUI A CORREÇÃO: Limpa o estado antes de buscar os dados atualizados.
+      dispatch(clearTransactions());
+      // highlight-end
       await dispatch(fetchTransactions(1)).unwrap();
       await dispatch(fetchBalance()).unwrap();
     } catch (err: unknown) {
@@ -139,6 +143,10 @@ export const deleteTransactions = createAsyncThunk<
         })
       );
 
+      // highlight-start
+      // E AQUI A MESMA CORREÇÃO: Limpa o estado para refletir a exclusão.
+      dispatch(clearTransactions());
+      // highlight-end
       await dispatch(fetchTransactions(1)).unwrap();
       await dispatch(fetchBalance()).unwrap();
     } catch (err: unknown) {
