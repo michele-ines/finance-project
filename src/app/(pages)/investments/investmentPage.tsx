@@ -17,6 +17,7 @@ import type { DashboardData, Transaction } from "interfaces/dashboard";
 import dashboardData from "mocks/dashboard-data.json";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
+import FinancialChart from "components/charts/financialChart";
 
 export default function InvestmentPage() {
   const data = dashboardData as DashboardData;
@@ -93,7 +94,9 @@ export default function InvestmentPage() {
     await handleRequest(async () => {
       await Promise.all(
         // CORREÇÃO: Adicionado 'async' na função de callback
-        ids.map(async (id) => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
+        ids.map(async (id) =>
+          fetch(`/api/transacao/${id}`, { method: "DELETE" })
+        )
       );
       await refresh();
       // atualiza saldo após deletar
@@ -124,7 +127,7 @@ export default function InvestmentPage() {
               user={data.user}
               balance={{ ...data.balance, value: balanceValue }}
             />
-
+            <FinancialChart />
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}

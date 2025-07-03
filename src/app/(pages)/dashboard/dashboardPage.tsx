@@ -27,6 +27,7 @@ import type {
 } from "interfaces/dashboard";
 
 import dashboardData from "mocks/dashboard-data.json";
+import FinancialChart from "components/charts/financialChart";
 
 export default function DashboardPage() {
   const data: DashboardData = dashboardData;
@@ -87,9 +88,9 @@ export default function DashboardPage() {
     await dispatch(deleteTransactions(ids));
   };
 
-const handleAtualizaSaldo = useCallback(async () => {
-  await dispatch(fetchBalance());
-}, [dispatch]);
+  const handleAtualizaSaldo = useCallback(async () => {
+    await dispatch(fetchBalance());
+  }, [dispatch]);
 
   return (
     <Box className="w-full px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)] flex flex-col">
@@ -110,6 +111,7 @@ const handleAtualizaSaldo = useCallback(async () => {
               user={data.user}
               balance={{ ...data.balance, value: balanceValue }}
             />
+            <FinancialChart />
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}
@@ -130,14 +132,14 @@ const handleAtualizaSaldo = useCallback(async () => {
                 hasMore={hasMore}
                 isPageLoading={transactionsStatus === "loading"}
                 onSave={(txs) => {
-    void handleSaveTransactions(txs);
-  }}
-  /* onDelete já é Promise<void> no tipo do componente */
-  onDelete={handleDeleteTransactions}
-  /* atualizaSaldo espera void */
-  atualizaSaldo={() => {
-    void handleAtualizaSaldo();
-  }}
+                  void handleSaveTransactions(txs);
+                }}
+                /* onDelete já é Promise<void> no tipo do componente */
+                onDelete={handleDeleteTransactions}
+                /* atualizaSaldo espera void */
+                atualizaSaldo={() => {
+                  void handleAtualizaSaldo();
+                }}
               />
             </div>
           </Box>

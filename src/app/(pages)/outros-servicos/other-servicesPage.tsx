@@ -17,6 +17,7 @@ import type { DashboardData, Transaction } from "interfaces/dashboard";
 import dashboardData from "mocks/dashboard-data.json";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
+import FinancialChart from "components/charts/financialChart";
 
 export default function OtherServicesPage() {
   const data = dashboardData as DashboardData;
@@ -127,12 +128,9 @@ export default function OtherServicesPage() {
               user={data.user}
               balance={{ ...data.balance, value: balanceValue }}
             />
-
+            <FinancialChart />
             {widgetPreferences.spendingAlert && (
-              <SpendingAlertWidget
-                limit={2000}
-                transactions={transactions}
-              />
+              <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}
             {widgetPreferences.savingsGoal && (
               <SavingsGoalWidget goal={3000} transactions={transactions} />

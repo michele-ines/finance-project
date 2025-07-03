@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, Image, React } from "../../components/ui/index";
-import FinancialChart from "../../components/charts/financialChart";
 
 export default function Home() {
   return (
@@ -24,7 +23,6 @@ export default function Home() {
           >
             Análise Financeira
           </h2>
-          <FinancialChart />
         </section>
         <section className="flex flex-col items-center gap-10 lg:flex-row lg:justify-between lg:gap-4">
           <div className="w-full lg:w-1/2">
