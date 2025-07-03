@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "store/store";
+import { fetchBalance } from "store/slices/balanceSlice";
+
 import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
-import { useEffect, useState } from "react";
 
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardsOtherService from "components/my-cards/card-other-services/card-other-services";
@@ -16,6 +20,21 @@ import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function OtherServicesPage() {
   const data = dashboardData as DashboardData;
+  const dispatch = useDispatch<AppDispatch>();
+
+  // === saldo via Redux ===
+  const { value: balanceValue } = useSelector(
+    (state: RootState) => state.balance
+  );
+
+  const handleAtualizaSaldo = useCallback(async () => {
+    await dispatch(fetchBalance());
+  }, [dispatch]);
+
+  // fetch inicial do saldo
+  useEffect(() => {
+    void handleAtualizaSaldo();
+  }, [handleAtualizaSaldo]);
 
   /* -------------------- paginação -------------------- */
   const {
@@ -56,26 +75,32 @@ export default function OtherServicesPage() {
   const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
       await Promise.all(
-        txs.map(async (tx) => {
-          await fetch(`/api/transacao/${tx._id}`, {
+        // CORREÇÃO: Adicionado 'async' e corrigido o template literal
+        txs.map(async (tx) =>
+          fetch(`/api/transacao/${tx._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
-          });
-        })
+          })
+        )
       );
       await refresh();
+      // atualiza saldo após salvar
+      await handleAtualizaSaldo();
     });
   };
 
   const handleDeleteTransactions = async (ids: number[]) => {
     await handleRequest(async () => {
-      (await Promise.all(
-        ids.map(async (id) => {
-          await fetch(`/api/transacao/${id}`, { method: "DELETE" });
-        })
-      ));
+      await Promise.all(
+        // CORREÇÃO: Adicionado 'async' e corrigido o template literal
+        ids.map(async (id) =>
+          fetch(`/api/transacao/${id}`, { method: "DELETE" })
+        )
+      );
       await refresh();
+      // atualiza saldo após deletar
+      await handleAtualizaSaldo();
     });
   };
 
@@ -97,10 +122,17 @@ export default function OtherServicesPage() {
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
           {/* coluna esquerda */}
           <Box className="flex flex-col gap-6 w-full lg:w-[calc(55.666%-12px)]">
-            <CardBalance user={data.user} balance={data.balance} />
+            {/* Balance agora vem do Redux */}
+            <CardBalance
+              user={data.user}
+              balance={{ ...data.balance, value: balanceValue }}
+            />
 
             {widgetPreferences.spendingAlert && (
-              <SpendingAlertWidget limit={2000} transactions={transactions} />
+              <SpendingAlertWidget
+                limit={2000}
+                transactions={transactions}
+              />
             )}
             {widgetPreferences.savingsGoal && (
               <SavingsGoalWidget goal={3000} transactions={transactions} />
@@ -123,6 +155,9 @@ export default function OtherServicesPage() {
                   void handleSaveTransactions(txs);
                 }}
                 onDelete={handleDeleteTransactions}
+                atualizaSaldo={() => {
+                  void handleAtualizaSaldo();
+                }}
               />
             </div>
           </Box>

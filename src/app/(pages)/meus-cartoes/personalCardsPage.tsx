@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect, useState, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "store/store";
+import { fetchBalance } from "store/slices/balanceSlice";
+
 import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
-import { useEffect, useState } from "react";
 
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import PersonalCards from "components/my-cards/personal-cards/personal-cards";
@@ -16,8 +20,23 @@ import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function PersonalCardsPage() {
   const data = dashboardData as DashboardData;
+  const dispatch = useDispatch<AppDispatch>();
 
-  /* -------------------- paginação -------------------- */
+  // === saldo via Redux ===
+  const { value: balanceValue } = useSelector(
+    (state: RootState) => state.balance
+  );
+
+  const handleAtualizaSaldo = useCallback(async () => {
+    await dispatch(fetchBalance());
+  }, [dispatch]);
+
+  // Opcional: fetch inicial do saldo
+  useEffect(() => {
+    void handleAtualizaSaldo();
+  }, [handleAtualizaSaldo]);
+
+  /* -------------------- paginação de transações -------------------- */
   const {
     transactions,
     fetchPage,
@@ -65,6 +84,8 @@ export default function PersonalCardsPage() {
         })
       );
       await refresh();
+      // atualiza saldo após salvar
+      await handleAtualizaSaldo();
     });
   };
 
@@ -76,6 +97,8 @@ export default function PersonalCardsPage() {
         })
       );
       await refresh();
+      // atualiza saldo após deletar
+      await handleAtualizaSaldo();
     });
   };
 
@@ -97,7 +120,11 @@ export default function PersonalCardsPage() {
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
           {/* coluna esquerda */}
           <Box className="flex flex-col gap-6 w-full lg:w-[calc(55.666%-12px)]">
-            <CardBalance user={data.user} balance={data.balance} />
+            {/* 1) Balance agora usa o valor do Redux */}
+            <CardBalance
+              user={data.user}
+              balance={{ ...data.balance, value: balanceValue }}
+            />
 
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
@@ -115,7 +142,7 @@ export default function PersonalCardsPage() {
               <CardListExtract
                 transactions={transactions}
                 fetchPage={() => {
-                  void fetchPage(); 
+                  void fetchPage();
                 }}
                 hasMore={hasMore}
                 isPageLoading={isPageLoading}
@@ -123,6 +150,10 @@ export default function PersonalCardsPage() {
                   void handleSaveTransactions(txs);
                 }}
                 onDelete={handleDeleteTransactions}
+                // 2) permite que o CardListExtract dispare atualização de saldo se quiser
+                atualizaSaldo={() => {
+                  void handleAtualizaSaldo();
+                }}
               />
             </div>
           </Box>

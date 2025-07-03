@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "store/store";
+import { fetchBalance } from "store/slices/balanceSlice";
+
 import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 
 import CardBalance from "components/my-cards/card-balance/card-balance";
@@ -9,18 +13,28 @@ import CardListExtract from "components/my-cards/card-list-extract/card-list-ext
 import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
-import type { Balance, DashboardData, Transaction } from "interfaces/dashboard";
+import type { DashboardData, Transaction } from "interfaces/dashboard";
 import dashboardData from "mocks/dashboard-data.json";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
 export default function InvestmentPage() {
   const data = dashboardData as DashboardData;
+  const dispatch = useDispatch<AppDispatch>();
 
-  const balanceData: Balance = {
-    account: "Conta Investimento",
-    value: 50_000,
-  };
+  // === saldo via Redux ===
+  const { value: balanceValue } = useSelector(
+    (state: RootState) => state.balance
+  );
+
+  const handleAtualizaSaldo = useCallback(async () => {
+    await dispatch(fetchBalance());
+  }, [dispatch]);
+
+  // fetch inicial do saldo
+  useEffect(() => {
+    void handleAtualizaSaldo();
+  }, [handleAtualizaSaldo]);
 
   /* -------------------- paginação -------------------- */
   const {
@@ -40,11 +54,10 @@ export default function InvestmentPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferencesInvestments");
-    if (saved) {
+    if (saved)
       setWidgetPreferences(
         JSON.parse(saved) as { savingsGoal: boolean; spendingAlert: boolean }
       );
-    }
   }, []);
 
   useEffect(() => {
@@ -61,25 +74,31 @@ export default function InvestmentPage() {
   const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
       await Promise.all(
-        txs.map(async (tx) => {
-          await fetch(`/api/transacao/${tx._id}`, {
+        // CORREÇÃO: Adicionado 'async' na função de callback
+        txs.map(async (tx) =>
+          fetch(`/api/transacao/${tx._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
-          });
-        })
+          })
+        )
       );
       await refresh();
+      // atualiza saldo após salvar
+      await handleAtualizaSaldo();
     });
   };
 
   const handleDeleteTransactions = async (ids: number[]) => {
-    await Promise.all(
-      ids.map(async (id) => {
-        await fetch(`/api/transacao/${id}`, { method: "DELETE" });
-      })
-    );
-    await refresh();
+    await handleRequest(async () => {
+      await Promise.all(
+        // CORREÇÃO: Adicionado 'async' na função de callback
+        ids.map(async (id) => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
+      );
+      await refresh();
+      // atualiza saldo após deletar
+      await handleAtualizaSaldo();
+    });
   };
 
   /* ----------------------- UI ------------------------- */
@@ -100,7 +119,11 @@ export default function InvestmentPage() {
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8">
           {/* coluna esquerda */}
           <Box className="flex flex-col gap-6 w-full lg:w-[calc(55.666%-12px)]">
-            <CardBalance user={data.user} balance={balanceData} />
+            {/* Balance agora com valor do Redux */}
+            <CardBalance
+              user={data.user}
+              balance={{ ...data.balance, value: balanceValue }}
+            />
 
             {widgetPreferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
@@ -110,7 +133,7 @@ export default function InvestmentPage() {
             )}
 
             <CadInvestments
-              balance={balanceData}
+              balance={{ ...data.balance, value: balanceValue }}
               investments={data.investments}
             />
           </Box>
@@ -129,6 +152,9 @@ export default function InvestmentPage() {
                   void handleSaveTransactions(txs);
                 }}
                 onDelete={handleDeleteTransactions}
+                atualizaSaldo={() => {
+                  void handleAtualizaSaldo();
+                }}
               />
             </div>
           </Box>
@@ -149,7 +175,9 @@ export default function InvestmentPage() {
                   onChange={() => toggleWidget("spendingAlert")}
                   sx={{
                     color: "var(--byte-color-dash)",
-                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
+                    "&.Mui-checked": {
+                      color: "var(--byte-color-dash)",
+                    },
                   }}
                 />
               }
@@ -163,7 +191,9 @@ export default function InvestmentPage() {
                   onChange={() => toggleWidget("savingsGoal")}
                   sx={{
                     color: "var(--byte-color-dash)",
-                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
+                    "&.Mui-checked": {
+                      color: "var(--byte-color-dash)",
+                    },
                   }}
                 />
               }
