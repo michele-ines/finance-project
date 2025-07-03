@@ -43,8 +43,8 @@ export default function CardNewTransaction({
       </h3>
 
       <form
-        onSubmit={handleSubmit(async (data) => {
-          await onSubmit(data);
+        onSubmit={handleSubmit((data) => {
+          void onSubmit(data);
         })}
       >
         {/* ---------- SELECT Tipo ---------- */}
@@ -90,11 +90,7 @@ export default function CardNewTransaction({
           </Select>
           {errors.tipo && (
             /* 🆕 role=alert faz o leitor de tela anunciar a mensagem imediatamente */
-            <span
-              id="erro-tipo"
-              role="alert"
-              className="text-red-500 text-sm"
-            >
+            <span id="erro-tipo" role="alert" className="text-red-500 text-sm">
               {errors.tipo.message}
             </span>
           )}
@@ -139,11 +135,7 @@ export default function CardNewTransaction({
             }}
           />
           {errors.valor && (
-            <span
-              id="erro-valor"
-              role="alert"
-              className="text-red-500 text-sm"
-            >
+            <span id="erro-valor" role="alert" className="text-red-500 text-sm">
               {errors.valor.message}
             </span>
           )}

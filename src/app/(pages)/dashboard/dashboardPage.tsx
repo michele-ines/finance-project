@@ -1,11 +1,16 @@
-'use client';
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSelector, useDispatch } from 'react-redux';
-import { AppDispatch, RootState } from 'store/store';
-import { fetchTransactions, createNewTransaction, saveTransactions, deleteTransactions  } from 'store/slices/transactionsSlice';
-import { fetchBalance} from 'store/slices/balanceSlice';
-import { useDashboardData } from "../../hooks/use-dashboard-data"; 
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "store/store";
+import {
+  fetchTransactions,
+  createNewTransaction,
+  saveTransactions,
+  deleteTransactions,
+} from "store/slices/transactionsSlice";
+import { fetchBalance } from "store/slices/balanceSlice";
+import { useDashboardData } from "../../hooks/use-dashboard-data";
 
 import CardBalance from "components/my-cards/card-balance/card-balance";
 import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
@@ -13,19 +18,13 @@ import CardNewTransaction from "components/my-cards/card-new-transaction/card-ne
 import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
-import {
-  Box,
-  Modal,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 
 import type {
   DashboardData,
   NewTransactionData,
   Transaction,
 } from "interfaces/dashboard";
-
 
 import dashboardData from "mocks/dashboard-data.json";
 
@@ -34,39 +33,49 @@ export default function DashboardPage() {
   const dispatch = useDispatch<AppDispatch>();
 
   useDashboardData();
-  const { items: transactions, status: transactionsStatus, hasMore, currentPage } = useSelector((state: RootState) => state.transactions);
-  const { value: balanceValue, status: balanceStatus } = useSelector((state: RootState) => state.balance);
-
-  const [loadingTransaction, setLoadingTransaction] = useState(false);
+  const {
+    items: transactions,
+    status: transactionsStatus,
+    hasMore,
+    currentPage,
+  } = useSelector((state: RootState) => state.transactions);
+  const { value: balanceValue } = useSelector(
+    (state: RootState) => state.balance
+  );
+  const [loadingTransaction] = useState(false);
   const [widgetPreferences, setWidgetPreferences] = useState({
     savingsGoal: true,
     spendingAlert: true,
   });
   const [showModal, setShowModal] = useState(false);
 
-
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferences");
-    if (saved) setWidgetPreferences(JSON.parse(saved));
+    if (saved) {
+      /* converte o JSON para o tipo exato — nada de `any` */
+      setWidgetPreferences(
+        JSON.parse(saved) as { savingsGoal: boolean; spendingAlert: boolean }
+      );
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("widgetPreferences", JSON.stringify(widgetPreferences));
+    localStorage.setItem(
+      "widgetPreferences",
+      JSON.stringify(widgetPreferences)
+    );
   }, [widgetPreferences]);
 
   const toggleWidget = (key: keyof typeof widgetPreferences) =>
-    setWidgetPreferences(prev => ({ ...prev, [key]: !prev[key] }));
-
+    setWidgetPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const fetchNextPage = useCallback(() => {
-    if (transactionsStatus !== 'loading' && hasMore) {
-      dispatch(fetchTransactions(currentPage + 1));
+    if (transactionsStatus !== "loading" && hasMore) {
+      void dispatch(fetchTransactions(currentPage + 1));
     }
   }, [dispatch, transactionsStatus, hasMore, currentPage]);
 
-
-
- const onSubmit = async (data: NewTransactionData) => {
+  const onSubmit = async (data: NewTransactionData) => {
     await dispatch(createNewTransaction(data));
   };
 
@@ -78,26 +87,25 @@ export default function DashboardPage() {
     await dispatch(deleteTransactions(ids));
   };
 
-  const handleAtualizaSaldo = useCallback(async () => {
-    await dispatch(fetchBalance());
-  }, [dispatch]);
-
+const handleAtualizaSaldo = useCallback(async () => {
+  await dispatch(fetchBalance());
+}, [dispatch]);
 
   return (
     <Box className="w-full px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)] flex flex-col">
-       <Box className="font-sans max-w-screen-xl mx-auto w-full flex flex-col flex-1 min-h-0">
-         <Box className="flex justify-end mb-4">
+      <Box className="font-sans max-w-screen-xl mx-auto w-full flex flex-col flex-1 min-h-0">
+        <Box className="flex justify-end mb-4">
           <button
             onClick={() => setShowModal(true)}
-             className="px-4 py-2 rounded text-white"
+            className="px-4 py-2 rounded text-white"
             style={{ backgroundColor: "var(--byte-color-dash)" }}
-           >
+          >
             Personalizar Widgets
-           </button>
-         </Box>
+          </button>
+        </Box>
 
-         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8 flex-1 min-h-0">
-           <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
+        <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8 flex-1 min-h-0">
+          <Box className="flex flex-col gap-6 w-full max-w-full lg:w-[calc(55.666%-12px)]">
             <CardBalance
               user={data.user}
               balance={{ ...data.balance, value: balanceValue }}
@@ -120,10 +128,16 @@ export default function DashboardPage() {
                 transactions={transactions}
                 fetchPage={fetchNextPage}
                 hasMore={hasMore}
-                isPageLoading={transactionsStatus === 'loading'}
-                onSave={handleSaveTransactions}
-                onDelete={handleDeleteTransactions}
-                atualizaSaldo={handleAtualizaSaldo}
+                isPageLoading={transactionsStatus === "loading"}
+                onSave={(txs) => {
+    void handleSaveTransactions(txs);
+  }}
+  /* onDelete já é Promise<void> no tipo do componente */
+  onDelete={handleDeleteTransactions}
+  /* atualizaSaldo espera void */
+  atualizaSaldo={() => {
+    void handleAtualizaSaldo();
+  }}
               />
             </div>
           </Box>
@@ -142,7 +156,10 @@ export default function DashboardPage() {
                 <Checkbox
                   checked={widgetPreferences.spendingAlert}
                   onChange={() => toggleWidget("spendingAlert")}
-                  sx={{ color: "var(--byte-color-dash)", "&.Mui-checked": { color: "var(--byte-color-dash)" } }}
+                  sx={{
+                    color: "var(--byte-color-dash)",
+                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
+                  }}
                 />
               }
               label="Alerta de Gastos"
@@ -152,7 +169,10 @@ export default function DashboardPage() {
                 <Checkbox
                   checked={widgetPreferences.savingsGoal}
                   onChange={() => toggleWidget("savingsGoal")}
-                  sx={{ color: "var(--byte-color-dash)", "&.Mui-checked": { color: "var(--byte-color-dash)" } }}
+                  sx={{
+                    color: "var(--byte-color-dash)",
+                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
+                  }}
                 />
               }
               label="Meta de Economia"

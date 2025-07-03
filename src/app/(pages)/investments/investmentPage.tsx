@@ -1,21 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Modal,
-  FormControlLabel,
-  Checkbox,
-} from "@mui/material";
+import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 
-import CardBalance         from "components/my-cards/card-balance/card-balance";
-import CadInvestments      from "components/my-cards/cad-investments/cad-investments";
-import CardListExtract     from "components/my-cards/card-list-extract/card-list-extract";
-import SavingsGoalWidget   from "components/widgets/savings-goal-widget";
+import CardBalance from "components/my-cards/card-balance/card-balance";
+import CadInvestments from "components/my-cards/cad-investments/cad-investments";
+import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
+import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
 import type { Balance, DashboardData, Transaction } from "interfaces/dashboard";
-import dashboardData     from "mocks/dashboard-data.json";
+import dashboardData from "mocks/dashboard-data.json";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 
@@ -45,7 +40,11 @@ export default function InvestmentPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferencesInvestments");
-    if (saved) setWidgetPreferences(JSON.parse(saved));
+    if (saved) {
+      setWidgetPreferences(
+        JSON.parse(saved) as { savingsGoal: boolean; spendingAlert: boolean }
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -62,13 +61,13 @@ export default function InvestmentPage() {
   const handleSaveTransactions = async (txs: Transaction[]) => {
     await handleRequest(async () => {
       await Promise.all(
-        txs.map((tx) =>
-          fetch(`/api/transacao/${tx._id}`, {
+        txs.map(async (tx) => {
+          await fetch(`/api/transacao/${tx._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
-          })
-        )
+          });
+        })
       );
       await refresh();
     });
@@ -76,7 +75,9 @@ export default function InvestmentPage() {
 
   const handleDeleteTransactions = async (ids: number[]) => {
     await Promise.all(
-      ids.map((id) => fetch(`/api/transacao/${id}`, { method: "DELETE" }))
+      ids.map(async (id) => {
+        await fetch(`/api/transacao/${id}`, { method: "DELETE" });
+      })
     );
     await refresh();
   };
@@ -108,7 +109,10 @@ export default function InvestmentPage() {
               <SavingsGoalWidget goal={3000} transactions={transactions} />
             )}
 
-            <CadInvestments balance={balanceData} investments={data.investments} />
+            <CadInvestments
+              balance={balanceData}
+              investments={data.investments}
+            />
           </Box>
 
           {/* coluna direita – extrato com scroll */}
@@ -116,10 +120,14 @@ export default function InvestmentPage() {
             <div className="flex-1 overflow-y-auto max-h-[800px]">
               <CardListExtract
                 transactions={transactions}
-                fetchPage={fetchPage}
+                fetchPage={() => {
+                  void fetchPage();
+                }}
                 hasMore={hasMore}
                 isPageLoading={isPageLoading}
-                onSave={handleSaveTransactions}
+                onSave={(txs) => {
+                  void handleSaveTransactions(txs);
+                }}
                 onDelete={handleDeleteTransactions}
               />
             </div>

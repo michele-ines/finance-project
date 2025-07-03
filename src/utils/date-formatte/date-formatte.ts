@@ -8,7 +8,8 @@ export function getMonthNameBR(dateString: string): string {
   const monthIndex = date.getMonth();
   if (isNaN(monthIndex)) return "Invalid Date";
 
-  return monthNames[monthIndex];
+    return monthNames[monthIndex] ?? "Invalid Date";
+
 }
 
 export const formatDateBR = (isoDate: string): string => {

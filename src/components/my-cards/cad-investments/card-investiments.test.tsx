@@ -71,9 +71,9 @@ jest.mock("../../ui/index.ts", () => ({
       {children}
     </div>
   ),
-  PieChart: ({ series }: PieChartProps) => (
+  PieChart: ({ series = [] }: PieChartProps) => (
     <div data-testid="pie-chart">
-      {series[0].data.map((item) => (
+      {(series[0]?.data ?? []).map((item) => (
         <div key={item.label}>
           {item.label}: {item.value}
         </div>
@@ -129,7 +129,7 @@ describe("CadInvestments", () => {
   });
 
   it("deve permitir ativar via Enter e Space usando keyboard", () => {
-    const first = mockInvestments[0];
+    const first = mockInvestments[0]!;
     const formatted = first.value.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",

@@ -108,7 +108,7 @@ describe("CardListExtract – cobertura total ajustada", () => {
 
     fireEvent.click(await screen.findByLabelText("editar"));
 
-    const valorInput = screen.getAllByDisplayValue(/R\$ 1\.000,00/)[0];
+    const valorInput = screen.getAllByDisplayValue(/R\$ 1\.000,00/)[0]!;
     fireEvent.change(valorInput, { target: { value: "R$ 2.000,00" } });
     fireEvent.click(screen.getByText("Salvar"));
 
@@ -138,7 +138,7 @@ describe("CardListExtract – cobertura total ajustada", () => {
 
     fireEvent.click(screen.getByLabelText("excluir"));
     const [chk] = await screen.findAllByRole("checkbox");
-    fireEvent.click(chk);
+    fireEvent.click(chk!); 
 
     await act(async () => {
       fireEvent.click(screen.getByText("Excluir"));

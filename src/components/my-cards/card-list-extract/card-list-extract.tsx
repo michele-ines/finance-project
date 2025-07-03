@@ -21,7 +21,7 @@ import AttachFileIcon from "@mui/icons-material/AttachFile";
 import Tooltip from "@mui/material/Tooltip";
 
 import clsx from "clsx";
-import { useEffect, useMemo, useState, useRef } from "react";      /* ⬅️ useRef */
+import { useEffect, useMemo, useState, useRef } from "react"; /* ⬅️ useRef */
 import type { Transaction, Attachment } from "../../../interfaces/dashboard";
 import {
   formatBRL,
@@ -51,7 +51,7 @@ interface CardListExtractProps {
   isPageLoading: boolean;
   onSave?: (transactions: Transaction[]) => void;
   onDelete?: (transactionIds: number[]) => Promise<void>;
-  atualizaSaldo?: () => Promise<void>;
+  atualizaSaldo?: () => void;
 }
 
 /* ------------------------------------------------------------------ */
@@ -66,8 +66,9 @@ export default function CardListExtract({
   atualizaSaldo,
 }: CardListExtractProps) {
   /* --------------------------- state ------------------------------ */
-  const [editableTransactions, setEditableTransactions] =
-    useState<TxWithFiles[]>([]);
+  const [editableTransactions, setEditableTransactions] = useState<
+    TxWithFiles[]
+  >([]);
   useEffect(() => {
     if (!transactions) return;
     setEditableTransactions(
@@ -114,8 +115,7 @@ export default function CardListExtract({
       const txDate = new Date(tx.createdAt);
       const matchesStart =
         !startDate || txDate >= new Date(`${startDate}T00:00`);
-      const matchesEnd =
-        !endDate || txDate <= new Date(`${endDate}T23:59:59`);
+      const matchesEnd = !endDate || txDate <= new Date(`${endDate}T23:59:59`);
       return matchesType && matchesStart && matchesEnd;
     });
   }, [editableTransactions, typeFilter, startDate, endDate]);
@@ -179,16 +179,18 @@ export default function CardListExtract({
             body: JSON.stringify({
               tipo: tx.tipo,
               valor: tx.valor,
-              updatedAt:typeof tx.updatedAt === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(tx.updatedAt)
-                      ? parseDateBR(tx.updatedAt)
-                      : tx.updatedAt,
+              updatedAt:
+                typeof tx.updatedAt === "string" &&
+                /^\d{2}\/\d{2}\/\d{4}$/.test(tx.updatedAt)
+                  ? parseDateBR(tx.updatedAt)
+                  : tx.updatedAt,
             }),
           });
         }
       }
-      await fetchPage(); // recarrega página p/ anexos virem do backend
+      fetchPage();
       setIsEditing(false);
-      await atualizaSaldo?.();
+      atualizaSaldo?.();
       setStatusMsg("Transações salvas!");
       return;
     }
@@ -205,7 +207,7 @@ export default function CardListExtract({
         setIsDeletingInProgress(false);
         setIsDeleting(false);
         setSelectedTransactions([]);
-        await atualizaSaldo?.();
+        atualizaSaldo?.();
         /* limpa mensagem depois de 4 s */
         setTimeout(() => setStatusMsg(""), 4000);
       }
@@ -335,11 +337,7 @@ export default function CardListExtract({
       ) : (
         <>
           {/* -------------------------------- lista -------------------- */}
-          <ul
-            role="list"
-            aria-busy={isPageLoading}
-            className="space-y-4"
-          >
+          <ul role="list" aria-busy={isPageLoading} className="space-y-4">
             {filteredTransactions.map((tx, idx) => (
               <li key={tx._id ?? `tx-${idx}`}>
                 <Box
@@ -376,10 +374,7 @@ export default function CardListExtract({
                       {/* valor ------------------------------------ */}
                       <Input
                         disableUnderline
-                        className={clsx(
-                          styles.txValue,
-                          styles.txValueEditable
-                        )}
+                        className={clsx(styles.txValue, styles.txValueEditable)}
                         sx={{ flex: 1 }}
                         value={formatBRL(tx.valor)}
                         onChange={(e) =>
@@ -426,7 +421,10 @@ export default function CardListExtract({
                             color="primary"
                             aria-label="Anexar arquivos"
                           >
-                            <AttachFileIcon fontSize="inherit" aria-hidden="true" />
+                            <AttachFileIcon
+                              fontSize="inherit"
+                              aria-hidden="true"
+                            />
                           </IconButton>
                         </Tooltip>
                       </label>
@@ -490,7 +488,12 @@ export default function CardListExtract({
                           backgroundColor: "var(--byte-color-green-50)",
                           ":hover": { bgcolor: "var(--byte-color-green-100)" },
                         }}
-                        icon={<AttachFileIcon sx={{ fontSize: 14 }} aria-hidden="true" />}
+                        icon={
+                          <AttachFileIcon
+                            sx={{ fontSize: 14 }}
+                            aria-hidden="true"
+                          />
+                        }
                       />
                     ))}
 
@@ -503,7 +506,12 @@ export default function CardListExtract({
                           size="small"
                           color="info"
                           variant="outlined"
-                          icon={<AttachFileIcon sx={{ fontSize: 14 }} aria-hidden="true" />}
+                          icon={
+                            <AttachFileIcon
+                              sx={{ fontSize: 14 }}
+                              aria-hidden="true"
+                            />
+                          }
                         />
                       ))}
                   </Box>
@@ -561,7 +569,11 @@ export default function CardListExtract({
       )}
 
       {/* live-region invisível -------------------------------------- */}
-      <Box role="status" aria-live="polite" sx={{ position: "absolute", left: -9999 }}>
+      <Box
+        role="status"
+        aria-live="polite"
+        sx={{ position: "absolute", left: -9999 }}
+      >
         {statusMsg}
       </Box>
     </Box>
