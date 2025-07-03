@@ -21,11 +21,15 @@ export const formatDateBR = (isoDate: string): string => {
 };
 
 /** Recebe "dd/MM/yyyy" e devolve ISO string (“2025-05-10T00:00:00.000Z”) */
-export const parseDateBR = (brDate: string): string => {
-  const [day, month, year] = brDate.split("/");
-  return new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day),
-  ).toISOString();
-};
+export function parseDateBR(dateBR: string): string {
+  // Aceita apenas datas no formato dd/MM/yyyy
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateBR);
+  if (!match) throw new RangeError("Formato de data inválido (esperado dd/MM/yyyy)");
+
+  const [, dd, mm, yyyy] = match;
+  // Cria a data em UTC (mês começa do zero)
+  const date = new Date(Date.UTC(Number(yyyy), Number(mm) - 1, Number(dd)));
+  if (isNaN(date.getTime())) throw new RangeError("Data inválida");
+
+  return date.toISOString();
+}
