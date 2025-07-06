@@ -8,12 +8,12 @@ import {
   createNewTransaction,
   saveTransactions,
   deleteTransactions,
+  SavePayload,
 } from "store/slices/transactionsSlice";
 import { fetchBalance } from "store/slices/balanceSlice";
-import { useDashboardData } from "../../hooks/use-dashboard-data";
 
 import CardBalance from "components/my-cards/card-balance/card-balance";
-import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
+import CardListExtract, { TxWithFiles } from "components/my-cards/card-list-extract/card-list-extract";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
 import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
@@ -23,40 +23,44 @@ import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
 import type {
   DashboardData,
   NewTransactionData,
-  Transaction,
 } from "interfaces/dashboard";
 
 import dashboardData from "mocks/dashboard-data.json";
 import FinancialChart from "components/charts/financialChart";
+import { useDashboardData } from "app/hooks/use-dashboard-data";
 
 export default function DashboardPage() {
   const data: DashboardData = dashboardData;
   const dispatch = useDispatch<AppDispatch>();
 
   useDashboardData();
+
   const {
     items: transactions,
     status: transactionsStatus,
+    creationStatus,
     hasMore,
     currentPage,
   } = useSelector((state: RootState) => state.transactions);
+
   const { value: balanceValue } = useSelector(
     (state: RootState) => state.balance
   );
-  const [loadingTransaction] = useState(false);
+
   const [widgetPreferences, setWidgetPreferences] = useState({
     savingsGoal: true,
     spendingAlert: true,
   });
+
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("widgetPreferences");
     if (saved) {
-      /* converte o JSON para o tipo exato — nada de `any` */
-      setWidgetPreferences(
-        JSON.parse(saved) as { savingsGoal: boolean; spendingAlert: boolean }
-      );
+      setWidgetPreferences(JSON.parse(saved) as {
+        savingsGoal: boolean;
+        spendingAlert: boolean;
+      });
     }
   }, []);
 
@@ -76,20 +80,21 @@ export default function DashboardPage() {
     }
   }, [dispatch, transactionsStatus, hasMore, currentPage]);
 
-  const onSubmit = async (data: NewTransactionData) => {
-    await dispatch(createNewTransaction(data));
+  const onSubmit = (data: NewTransactionData) => {
+    void dispatch(createNewTransaction(data));
   };
 
-  const handleSaveTransactions = async (txs: Transaction[]) => {
-    await dispatch(saveTransactions(txs));
+  const handleSaveTransactions = (txsToSave: TxWithFiles[]) => {
+    const payload: SavePayload = { transactions: txsToSave };
+    void dispatch(saveTransactions(payload));
   };
 
-  const handleDeleteTransactions = async (ids: number[]) => {
-    await dispatch(deleteTransactions(ids));
+  const handleDeleteTransactions = (ids: number[]) => {
+    void dispatch(deleteTransactions(ids));
   };
 
-  const handleAtualizaSaldo = useCallback(async () => {
-    await dispatch(fetchBalance());
+  const handleAtualizaSaldo = useCallback(() => {
+    void dispatch(fetchBalance());
   }, [dispatch]);
 
   return (
@@ -113,14 +118,14 @@ export default function DashboardPage() {
             />
             <FinancialChart />
             {widgetPreferences.spendingAlert && (
-              <SpendingAlertWidget limit={2000} transactions={transactions} />
+              <SpendingAlertWidget transactions={transactions} limit={2000} />
             )}
             {widgetPreferences.savingsGoal && (
-              <SavingsGoalWidget goal={3000} transactions={transactions} />
+              <SavingsGoalWidget transactions={transactions} goal={3000} />
             )}
             <CardNewTransaction
               onSubmit={onSubmit}
-              isLoading={loadingTransaction}
+              isLoading={creationStatus === "loading"}
             />
           </Box>
 
@@ -131,15 +136,9 @@ export default function DashboardPage() {
                 fetchPage={fetchNextPage}
                 hasMore={hasMore}
                 isPageLoading={transactionsStatus === "loading"}
-                onSave={(txs) => {
-                  void handleSaveTransactions(txs);
-                }}
-                /* onDelete já é Promise<void> no tipo do componente */
+                onSave={handleSaveTransactions}
                 onDelete={handleDeleteTransactions}
-                /* atualizaSaldo espera void */
-                atualizaSaldo={() => {
-                  void handleAtualizaSaldo();
-                }}
+                atualizaSaldo={handleAtualizaSaldo}
               />
             </div>
           </Box>
@@ -148,7 +147,12 @@ export default function DashboardPage() {
         <Modal open={showModal} onClose={() => setShowModal(false)}>
           <Box
             className="bg-white p-6 rounded-2xl shadow-md text-gray-800"
-            sx={{ width: 480, margin: "auto", mt: "15%", outline: "none" }}
+            sx={{
+              width: 480,
+              margin: "auto",
+              mt: "15%",
+              outline: "none",
+            }}
           >
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               Personalizar Widgets
@@ -160,7 +164,9 @@ export default function DashboardPage() {
                   onChange={() => toggleWidget("spendingAlert")}
                   sx={{
                     color: "var(--byte-color-dash)",
-                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
+                    "&.Mui-checked": {
+                      color: "var(--byte-color-dash)",
+                    },
                   }}
                 />
               }
@@ -173,7 +179,9 @@ export default function DashboardPage() {
                   onChange={() => toggleWidget("savingsGoal")}
                   sx={{
                     color: "var(--byte-color-dash)",
-                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
+                    "&.Mui-checked": {
+                      color: "var(--byte-color-dash)",
+                    },
                   }}
                 />
               }

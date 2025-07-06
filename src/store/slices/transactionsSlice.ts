@@ -2,10 +2,17 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import type { NewTransactionData, Transaction } from "interfaces/dashboard";
 import { parseBRL } from "utils/currency-formatte/currency-formatte";
 import { fetchBalance } from "./balanceSlice";
+import { parseDateBR } from "utils/date-formatte/date-formatte";
 
 // ===============================================================
-// 1. TIPOS AUXILIARES E TYPE-GUARDS
+// 1. TIPOS AUXILIARES E THUNKS
 // ===============================================================
+
+// Interface para os dados que o thunk de salvar recebe do componente
+export interface SavePayload {
+  transactions: (Transaction & { novosAnexos?: File[] })[];
+}
+
 interface TransactionsResponse {
   transacoes: Transaction[];
   total: number;
@@ -17,78 +24,19 @@ interface CreateTransactionResponse {
 }
 
 const isTransactionsResponse = (raw: unknown): raw is TransactionsResponse =>
-  typeof raw === "object" &&
-  raw !== null &&
-  "transacoes" in raw &&
-  Array.isArray((raw as { transacoes: unknown }).transacoes) &&
-  "total" in raw &&
-  typeof (raw as { total: unknown }).total === "number";
+  typeof raw === "object" && raw !== null && "transacoes" in raw && Array.isArray((raw as { transacoes: unknown }).transacoes) && "total" in raw && typeof (raw as { total: unknown }).total === "number";
 
-const isCreateTransactionResponse = (
-  raw: unknown
-): raw is CreateTransactionResponse =>
+const isCreateTransactionResponse = (raw: unknown): raw is CreateTransactionResponse =>
   typeof raw === "object" && raw !== null && "transacao" in raw && "message" in raw;
 
-// ===============================================================
-// 2. THUNKS (AÇÕES ASSÍNCRONAS)
-// ===============================================================
-
-export const fetchTransactions = createAsyncThunk<
-  TransactionsResponse,
-  number,
-  { rejectValue: string }
->("transactions/fetchTransactions", async (page, { rejectWithValue }) => {
-  try {
-    const response = await fetch(`/api/transacao?page=${page}&limit=10`);
-    if (!response.ok) {
-      return rejectWithValue("Falha ao buscar transações.");
-    }
-
-    const raw: unknown = await response.json();
-    if (isTransactionsResponse(raw)) return raw;
-
-    return rejectWithValue("Formato inesperado na resposta do servidor.");
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Erro inesperado";
-    return rejectWithValue(message);
-  }
-});
-
-export const createNewTransaction = createAsyncThunk<
-  Transaction,
-  NewTransactionData,
-  { rejectValue: string }
->(
-  "transactions/createNew",
-  async (transactionData, { dispatch, rejectWithValue }) => {
+export const fetchTransactions = createAsyncThunk<TransactionsResponse, number, { rejectValue: string }>(
+  "transactions/fetchTransactions",
+  async (page, { rejectWithValue }) => {
     try {
-      const payload = {
-        ...transactionData,
-        valor: parseBRL(transactionData.valor),
-      };
-
-      const res = await fetch("/api/transacao", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errRaw: unknown = await res.json();
-        const errMsg =
-          typeof errRaw === "object" && errRaw !== null && "message" in errRaw
-            ? String((errRaw as { message: unknown }).message)
-            : "Falha ao adicionar transação";
-        return rejectWithValue(errMsg);
-      }
-
-      const raw: unknown = await res.json();
-      if (isCreateTransactionResponse(raw)) {
-        alert(raw.message);
-        await dispatch(fetchBalance()).unwrap();
-        return raw.transacao;
-      }
-
+      const response = await fetch(`/api/transacao?page=${page}&limit=10`);
+      if (!response.ok) return rejectWithValue("Falha ao buscar transações.");
+      const raw: unknown = await response.json();
+      if (isTransactionsResponse(raw)) return raw;
       return rejectWithValue("Formato inesperado na resposta do servidor.");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erro inesperado";
@@ -97,43 +45,69 @@ export const createNewTransaction = createAsyncThunk<
   }
 );
 
-export const saveTransactions = createAsyncThunk<
-  void,
-  Transaction[],
-  { rejectValue: string }
->(
-  "transactions/saveMultiple",
-  async (transactionsToSave, { dispatch, rejectWithValue }) => {
+export const createNewTransaction = createAsyncThunk<Transaction, NewTransactionData, { rejectValue: string }>(
+  "transactions/createNew",
+  async (transactionData, { dispatch, rejectWithValue }) => {
     try {
-      await Promise.all(
-        transactionsToSave.map(async (tx) => {
-          await fetch(`/api/transacao/${tx._id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor }),
-          });
-        })
-      );
-
-      // highlight-start
-      // AQUI A CORREÇÃO: Limpa o estado antes de buscar os dados atualizados.
-      dispatch(clearTransactions());
-      // highlight-end
-      await dispatch(fetchTransactions(1)).unwrap();
-      await dispatch(fetchBalance()).unwrap();
+      const payload = { ...transactionData, valor: parseBRL(transactionData.valor) };
+      const res = await fetch("/api/transacao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const errRaw: unknown = await res.json();
+        const errMsg = typeof errRaw === "object" && errRaw !== null && "message" in errRaw ? String((errRaw as { message: unknown }).message) : "Falha ao adicionar transação";
+        return rejectWithValue(errMsg);
+      }
+      const raw: unknown = await res.json();
+      if (isCreateTransactionResponse(raw)) {
+        alert(raw.message);
+        await dispatch(fetchBalance()).unwrap();
+        return raw.transacao;
+      }
+      return rejectWithValue("Formato inesperado na resposta do servidor.");
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Falha ao salvar as transações.";
+      const message = err instanceof Error ? err.message : "Erro inesperado";
       return rejectWithValue(message);
     }
   }
 );
 
-export const deleteTransactions = createAsyncThunk<
-  void,
-  number[],
-  { rejectValue: string }
->(
+// ATUALIZADO: O thunk agora recebe um payload com as transações a salvar
+export const saveTransactions = createAsyncThunk<void, SavePayload, { rejectValue: string }>(
+  "transactions/saveMultiple",
+  async (payload, { dispatch, rejectWithValue }) => {
+    try {
+      await Promise.all(
+        payload.transactions.map(async (tx) => {
+          // A lógica de FormData vs JSON permanece aqui, centralizada.
+          if (tx.novosAnexos && tx.novosAnexos.length > 0) {
+            const fd = new FormData();
+            fd.append("tipo", tx.tipo);
+            fd.append("valor", tx.valor.toString());
+            fd.append("updatedAt", parseDateBR(tx.updatedAt));
+            tx.novosAnexos.forEach((file) => fd.append("anexos", file));
+            await fetch(`/api/transacao/${tx._id}`, { method: "PUT", body: fd });
+          } else {
+            await fetch(`/api/transacao/${tx._id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tipo: tx.tipo, valor: tx.valor, anexos: tx.anexos }),
+            });
+          }
+        })
+      );
+      dispatch(clearTransactions());
+      await dispatch(fetchTransactions(1)).unwrap();
+      await dispatch(fetchBalance()).unwrap();
+    } catch (err: unknown) {
+      return rejectWithValue("Falha ao salvar as transações.");
+    }
+  }
+);
+
+export const deleteTransactions = createAsyncThunk<void, number[], { rejectValue: string }>(
   "transactions/deleteMultiple",
   async (transactionIds, { dispatch, rejectWithValue }) => {
     try {
@@ -142,23 +116,17 @@ export const deleteTransactions = createAsyncThunk<
           await fetch(`/api/transacao/${id}`, { method: "DELETE" });
         })
       );
-
-      // highlight-start
-      // E AQUI A MESMA CORREÇÃO: Limpa o estado para refletir a exclusão.
       dispatch(clearTransactions());
-      // highlight-end
       await dispatch(fetchTransactions(1)).unwrap();
       await dispatch(fetchBalance()).unwrap();
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Falha ao excluir as transações.";
-      return rejectWithValue(message);
+      return rejectWithValue("Falha ao excluir as transações.");
     }
   }
 );
 
 // ===============================================================
-// 3. ESTADO INICIAL E SLICE
+// 2. ESTADO INICIAL E SLICE
 // ===============================================================
 interface TransactionsState {
   items: Transaction[];
@@ -190,62 +158,36 @@ const transactionsSlice = createSlice({
       state.hasMore = true;
       state.status = "idle";
     },
-    prependTransaction: (state, action: PayloadAction<Transaction>) => {
-      state.items.unshift(action.payload);
-      state.total += 1;
-    },
   },
   extraReducers: (builder) => {
     builder
-      // fetchTransactions
-      .addCase(fetchTransactions.pending, (state) => {
-        state.status = "loading";
+      .addCase(fetchTransactions.pending, (state) => { state.status = "loading"; })
+      .addCase(fetchTransactions.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        const newItems = action.payload.transacoes.filter((newItem) => !state.items.some((item) => item._id === newItem._id));
+        state.items.push(...newItems);
+        state.total = action.payload.total;
+        state.currentPage += 1;
+        state.hasMore = state.items.length < state.total;
       })
-      .addCase(
-        fetchTransactions.fulfilled,
-        (state, action: PayloadAction<TransactionsResponse>) => {
-          state.status = "succeeded";
-          const newItems = action.payload.transacoes.filter(
-            (newItem) => !state.items.some((item) => item._id === newItem._id)
-          );
-          state.items.push(...newItems);
-          state.total = action.payload.total;
-          state.currentPage += 1;
-          state.hasMore = state.items.length < state.total;
-        }
-      )
       .addCase(fetchTransactions.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? "Erro desconhecido";
       })
-
-      // createNewTransaction
-      .addCase(createNewTransaction.pending, (state) => {
-        state.creationStatus = "loading";
+      .addCase(createNewTransaction.pending, (state) => { state.creationStatus = "loading"; })
+      .addCase(createNewTransaction.fulfilled, (state, action) => {
+        state.creationStatus = "succeeded";
+        state.items.unshift(action.payload);
+        state.total += 1;
       })
-      .addCase(
-        createNewTransaction.fulfilled,
-        (state, action: PayloadAction<Transaction>) => {
-          state.creationStatus = "succeeded";
-          state.items.unshift(action.payload);
-          state.total += 1;
-        }
-      )
       .addCase(createNewTransaction.rejected, (state, action) => {
         state.creationStatus = "failed";
         state.error = action.payload ?? "Erro desconhecido";
       })
-
-      // save / delete start a loading state
-      .addCase(saveTransactions.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(deleteTransactions.pending, (state) => {
-        state.status = "loading";
-      });
+      .addCase(saveTransactions.pending, (state) => { state.status = "loading"; })
+      .addCase(deleteTransactions.pending, (state) => { state.status = "loading"; });
   },
 });
 
-export const { clearTransactions, prependTransaction } =
-  transactionsSlice.actions;
+export const { clearTransactions } = transactionsSlice.actions;
 export default transactionsSlice.reducer;

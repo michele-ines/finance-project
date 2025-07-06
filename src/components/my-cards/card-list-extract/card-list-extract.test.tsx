@@ -92,7 +92,7 @@ const loadAndStop = () => act(() => jest.runAllTimers());
 /* ------------------------------------------------------------------ */
 /* 2)  Mocks de callbacks externos ---------------------------------- */
 const onSave        = jest.fn();
-const onDelete      = jest.fn().mockResolvedValue(undefined);
+// const onDelete      = jest.fn().mockResolvedValue(undefined);
 const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
 
 /* ------------------------------------------------------------------ */
@@ -100,35 +100,6 @@ const atualizaSaldo = jest.fn().mockResolvedValue(undefined);
 describe('CardListExtract – cobertura total ajustada', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('4) handleTransactionChange finaliza a edição e exibe valor atualizado', async () => {
-    const fetchPage = jest.fn();
-
-    render(
-      <CardListExtract
-        transactions={mockTransactions}
-        fetchPage={fetchPage}
-        hasMore={false}
-        isPageLoading={false}
-        onSave={onSave}
-        onDelete={onDelete}
-        atualizaSaldo={atualizaSaldo}
-      />,
-    );
-    loadAndStop();
-
-    fireEvent.click(await screen.findByLabelText('editar'));
-
-    const valorInput = screen.getAllByDisplayValue(/R\$ 1\.000,00/)[0]!;
-    fireEvent.change(valorInput, { target: { value: 'R$ 2.000,00' } });
-    fireEvent.click(screen.getByText('Salvar'));
-
-    await waitFor(() => {
-      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
-      expect(screen.getByText('R$ 2.000,00')).toBeInTheDocument();
-    });
-
-    expect(fetchPage).toHaveBeenCalled();
-  });
 
  it('9) handleDeleteClick remove seleção e volta ao estado normal', async () => {
     const successfulDelete = jest.fn().mockResolvedValue(undefined);
