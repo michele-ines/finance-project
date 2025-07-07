@@ -64,7 +64,7 @@ export default function CardListExtract({
       setEditableTransactions(
         transactions.map((tx) => ({
           ...tx,
-          valor: typeof tx.valor === "string" ? parseBRL(tx.valor) : tx.valor,
+          valor: typeof tx.valor === "string" ? parseFloat(tx.valor) : tx.valor,
         }))
       );
     }
