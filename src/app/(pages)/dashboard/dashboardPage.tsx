@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "store/store";
 import {
@@ -18,7 +18,7 @@ import CardNewTransaction from "components/my-cards/card-new-transaction/card-ne
 import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
-import { Box, Modal, FormControlLabel, Checkbox } from "@mui/material";
+import { Box } from "@mui/material";
 
 import type {
   DashboardData,
@@ -28,6 +28,8 @@ import type {
 
 import dashboardData from "mocks/dashboard-data.json";
 import FinancialChart from "components/charts/financialChart";
+import WidgetPreferencesButton from "components/widgets/widget-preferences-button";
+import { useWidgetPreferences } from "app/hooks/useWidgetPreferences";
 
 export default function DashboardPage() {
   const data: DashboardData = dashboardData;
@@ -44,31 +46,10 @@ export default function DashboardPage() {
     (state: RootState) => state.balance
   );
   const [loadingTransaction] = useState(false);
-  const [widgetPreferences, setWidgetPreferences] = useState({
-    savingsGoal: true,
-    spendingAlert: true,
-  });
-  const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("widgetPreferences");
-    if (saved) {
-      /* converte o JSON para o tipo exato — nada de `any` */
-      setWidgetPreferences(
-        JSON.parse(saved) as { savingsGoal: boolean; spendingAlert: boolean }
-      );
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "widgetPreferences",
-      JSON.stringify(widgetPreferences)
-    );
-  }, [widgetPreferences]);
-
-  const toggleWidget = (key: keyof typeof widgetPreferences) =>
-    setWidgetPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+  /* ---------------- prefs de widgets ----------------- */
+  const { preferences } = useWidgetPreferences();
+  /* --------------------------------------------------- */
 
   const fetchNextPage = useCallback(() => {
     if (transactionsStatus !== "loading" && hasMore) {
@@ -96,13 +77,7 @@ export default function DashboardPage() {
     <Box className="w-full px-4 py-6 lg:px-12 bg-[var(--byte-bg-dashboard)] flex flex-col">
       <Box className="font-sans max-w-screen-xl mx-auto w-full flex flex-col flex-1 min-h-0">
         <Box className="flex justify-end mb-4">
-          <button
-            onClick={() => setShowModal(true)}
-            className="px-4 py-2 rounded text-white"
-            style={{ backgroundColor: "var(--byte-color-dash)" }}
-          >
-            Personalizar Widgets
-          </button>
+          <WidgetPreferencesButton />
         </Box>
 
         <Box className="flex flex-col lg:flex-row gap-y-6 lg:gap-x-6 lg:ml-8 flex-1 min-h-0">
@@ -112,10 +87,10 @@ export default function DashboardPage() {
               balance={{ ...data.balance, value: balanceValue }}
             />
             <FinancialChart />
-            {widgetPreferences.spendingAlert && (
+            {preferences.spendingAlert && (
               <SpendingAlertWidget limit={2000} transactions={transactions} />
             )}
-            {widgetPreferences.savingsGoal && (
+            {preferences.savingsGoal && (
               <SavingsGoalWidget goal={3000} transactions={transactions} />
             )}
             <CardNewTransaction
@@ -144,52 +119,6 @@ export default function DashboardPage() {
             </div>
           </Box>
         </Box>
-
-        <Modal open={showModal} onClose={() => setShowModal(false)}>
-          <Box
-            className="bg-white p-6 rounded-2xl shadow-md text-gray-800"
-            sx={{ width: 480, margin: "auto", mt: "15%", outline: "none" }}
-          >
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Personalizar Widgets
-            </h2>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={widgetPreferences.spendingAlert}
-                  onChange={() => toggleWidget("spendingAlert")}
-                  sx={{
-                    color: "var(--byte-color-dash)",
-                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
-                  }}
-                />
-              }
-              label="Alerta de Gastos"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={widgetPreferences.savingsGoal}
-                  onChange={() => toggleWidget("savingsGoal")}
-                  sx={{
-                    color: "var(--byte-color-dash)",
-                    "&.Mui-checked": { color: "var(--byte-color-dash)" },
-                  }}
-                />
-              }
-              label="Meta de Economia"
-            />
-            <Box className="mt-4 flex justify-end">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-white rounded"
-                style={{ backgroundColor: "var(--byte-color-dash)" }}
-              >
-                Fechar
-              </button>
-            </Box>
-          </Box>
-        </Modal>
       </Box>
     </Box>
   );
