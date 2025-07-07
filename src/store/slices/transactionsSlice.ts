@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { NewTransactionData, Transaction } from "interfaces/dashboard";
 import { parseBRL } from "utils/currency-formatte/currency-formatte";
 import { fetchBalance } from "./balanceSlice";
@@ -102,7 +102,7 @@ export const saveTransactions = createAsyncThunk<void, SavePayload, { rejectValu
       await dispatch(fetchTransactions(1)).unwrap();
       await dispatch(fetchBalance()).unwrap();
     } catch (err: unknown) {
-      return rejectWithValue("Falha ao salvar as transações.");
+      return rejectWithValue("Falha ao salvar as transações." + (err instanceof Error ? `: ${err.message}` : ""));
     }
   }
 );
@@ -120,7 +120,7 @@ export const deleteTransactions = createAsyncThunk<void, number[], { rejectValue
       await dispatch(fetchTransactions(1)).unwrap();
       await dispatch(fetchBalance()).unwrap();
     } catch (err: unknown) {
-      return rejectWithValue("Falha ao excluir as transações.");
+      return rejectWithValue("Falha ao excluir as transações." + (err instanceof Error ? `: ${err.message}` : ""));
     }
   }
 );

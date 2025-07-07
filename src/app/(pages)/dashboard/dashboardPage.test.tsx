@@ -4,10 +4,38 @@ import type { RootState } from 'store/store';
 import * as ReactRedux from 'react-redux';
 
 /* ------------------------------------------------------------------ */
+// NOVO: Mock do localStorage para o ambiente de teste
+/* ------------------------------------------------------------------ */
+const localStorageMock = (() => {
+  let store: { [key: string]: string } = {};
+  return {
+    getItem(key: string) {
+      return store[key] || null;
+    },
+    setItem(key: string, value: string) {
+      store[key] = value.toString();
+    },
+    clear() {
+      store = {};
+    },
+    removeItem(key: string) {
+      delete store[key];
+    },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
+
+/* ------------------------------------------------------------------ */
 /* Helper para criar mocks com displayName                            */
 /* ------------------------------------------------------------------ */
-const createMockComponent = (testId: string, name: string): React.FC =>
-  Object.assign(() => <div data-testid={testId} />, { displayName: name });
+// ALTERADO: De 'const' para 'function' para resolver o problema de hoisting do Jest
+function createMockComponent(testId: string, name: string): React.FC {
+  return Object.assign(() => <div data-testid={testId} />, { displayName: name });
+}
 
 /* ------------------------------------------------------------------ */
 /* Mocks dos slices e do store (virtuais)                             */
@@ -44,7 +72,7 @@ jest.mock(
 );
 
 /* ------------------------------------------------------------------ */
-/* Mock de react-redux – tipado, sem any                               */
+/* Mock de react-redux – tipado, sem any                              */
 /* ------------------------------------------------------------------ */
 jest.mock('react-redux', () => {
   const actual = jest.requireActual<typeof ReactRedux>('react-redux');
@@ -66,9 +94,13 @@ jest.mock('react-redux', () => {
     },
   };
 
+  const mockDispatch = jest.fn(() => ({
+    unwrap: jest.fn(),
+  }));
+
   return {
     ...actual,
-    useDispatch: () => jest.fn(),
+    useDispatch: () => mockDispatch,
     useSelector: <T,>(sel: (s: RootState) => T): T => sel(mockState),
   };
 });
@@ -101,13 +133,19 @@ jest.mock(
   () => createMockComponent('alert-widget', 'SpendingAlertWidgetMock'),
   { virtual: true },
 );
+jest.mock(
+  'components/charts/financialChart',
+  () => createMockComponent('financial-chart', 'FinancialChartMock'),
+  { virtual: true },
+);
 
 /* ------------------------------------------------------------------ */
 /* Hook de dados                                                      */
 /* ------------------------------------------------------------------ */
-jest.mock('../../hooks/use-dashboard-data', () => ({
+jest.mock('app/hooks/use-dashboard-data', () => ({
   useDashboardData: jest.fn(),
 }));
+
 
 /* ------------------------------------------------------------------ */
 /* Mock do JSON de dados do dashboard                                 */
@@ -115,11 +153,8 @@ jest.mock('../../hooks/use-dashboard-data', () => ({
 jest.mock(
   'mocks/dashboard-data.json',
   () => ({
-    __esModule: true,
-    default: {
-      user: { name: 'Usuário Teste' },
-      balance: { value: 0 },
-    },
+    user: { name: 'Usuário Teste' },
+    balance: { value: 0 },
   }),
   { virtual: true },
 );
@@ -127,7 +162,7 @@ jest.mock(
 /* ------------------------------------------------------------------ */
 /* IMPORTA o componente APÓS todos os mocks                           */
 /* ------------------------------------------------------------------ */
-import DashboardPage from './dashboardPage';
+import DashboardPage from './page';
 
 /* ------------------------------------------------------------------ */
 /* Teste                                                              */

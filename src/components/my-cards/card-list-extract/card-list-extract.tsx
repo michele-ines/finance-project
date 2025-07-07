@@ -28,10 +28,7 @@ import {
   maskCurrency,
   parseBRL,
 } from "../../../utils/currency-formatte/currency-formatte";
-import {
-  formatDateBR,
-  parseDateBR,
-} from "../../../utils/date-formatte/date-formatte";
+import { formatDateBR } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
 import InfiniteScrollSentinel from "../../infinite-scroll-sentinel/infinite-scroll-sentinel";
 import { Chip } from "@mui/material";
@@ -59,7 +56,6 @@ export default function CardListExtract({
   onDelete,
   atualizaSaldo,
 }: CardListExtractProps) {
-  
   const [isEditing, setIsEditing] = useState(false);
   const [editableTransactions, setEditableTransactions] = useState<TxWithFiles[]>([]);
 
@@ -84,7 +80,7 @@ export default function CardListExtract({
   const [endDate, setEndDate] = useState("");
   const [dateError, setDateError] = useState(false);
   const isValidDate = (v: string) => v === "" || !Number.isNaN(Date.parse(v));
-  
+
   const filteredTransactions = useMemo(() => {
     const tiposEntrada = ["cambio", "deposito"];
     const tiposSaida = ["transferencia"];
@@ -126,7 +122,7 @@ export default function CardListExtract({
       prev.includes(id) ? prev.filter((n) => n !== id) : [...prev, id]
     );
 
-  const handleTransactionChange = (index: number, field: keyof Transaction, value: any) => {
+  const handleTransactionChange = (index: number, field: keyof Transaction, value: string) => {
     setEditableTransactions((prev) =>
       prev.map((tx, i) => {
         if (i !== index) return tx;
@@ -135,45 +131,38 @@ export default function CardListExtract({
       })
     );
   };
-  
+
   const handleAttachFiles = (transactionId: number, files: File[]) => {
     setEditableTransactions(currentTxs =>
-      currentTxs.map(tx => 
+      currentTxs.map(tx =>
         tx._id === transactionId ? { ...tx, novosAnexos: files } : tx
       )
     );
   };
 
-const handleRemoveAttachment = async (
+  const handleRemoveAttachment = async (
     transactionId: number,
     attachmentIdentifier: string,
     isNew: boolean
   ) => {
-     // Apenas tenta apagar do servidor se não for um anexo novo
-     if (!isNew) {
+    if (!isNew) {
       try {
-        // Extrai o nome do ficheiro do URL completo
         const fileName = attachmentIdentifier.substring(attachmentIdentifier.lastIndexOf('/') + 1);
-        
-        // Constrói o URL com o parâmetro de consulta "?fileName="
         const response = await fetch(`/api/anexos/${encodeURIComponent(fileName)}`, {
           method: 'DELETE',
         });
 
-        // O status 204 (No Content) é um sucesso e não tem corpo de resposta .json()
         if (response.status !== 204 && response.status !== 200) {
-          const errorData = await response.json();
-          alert(`Erro ao remover anexo: ${errorData.message || 'Erro desconhecido'}`);
-          return; // Interrompe a execução se a API falhar
+          const errorData = await response.json() as { message?: string };
+          alert(`Erro ao remover anexo: ${errorData.message ?? 'Erro desconhecido'}`);
+          return;
         }
-      } catch (error) {
+      } catch {
         alert('Erro de rede ao tentar remover o anexo.');
-        return; // Interrompe a execução se houver erro de rede
+        return;
       }
     }
 
-    // Se a chamada à API foi bem-sucedida (ou se era um ficheiro novo),
-    // prossegue com a atualização do estado da UI para remover o chip.
     setEditableTransactions(currentTxs =>
       currentTxs.map(tx => {
         if (tx._id !== transactionId) return tx;
@@ -212,7 +201,7 @@ const handleRemoveAttachment = async (
 
   const handleStartDateChange = (v: string) => { setStartDate(v); setDateError(!isValidDate(v)); };
   const handleEndDateChange = (v: string) => { setEndDate(v); setDateError(!isValidDate(v)); };
-  
+
   const loadingFirstPage = isPageLoading && editableTransactions.length === 0;
   const hasTransactions = !loadingFirstPage && editableTransactions.length > 0;
 
@@ -253,52 +242,52 @@ const handleRemoveAttachment = async (
               const hasExistingAttachment = (tx.anexos?.length ?? 0) > 0 || (tx.novosAnexos?.length ?? 0) > 0;
 
               return (
-              <li key={tx._id ?? `tx-${idx}`}>
-                <Box className={styles.extratoItem} style={{ gap: isEditing ? 0 : undefined }}>
-                  <Box className={styles.txRow}>
+                <li key={tx._id ?? `tx-${idx}`}>
+                  <Box className={styles.extratoItem} style={{ gap: isEditing ? 0 : undefined }}>
+                    <Box className={styles.txRow}>
+                      {isEditing ? (
+                        <Input disableUnderline className={styles.txType} fullWidth value={formatTipo(tx.tipo)} onChange={(e) => handleTransactionChange(idx, "tipo", e.target.value)} inputProps={{ style: { textAlign: "left" } }} inputRef={idx === 0 ? firstEditRef : undefined} />
+                      ) : (
+                        <span className={styles.txType}>{formatTipo(tx.tipo)}</span>
+                      )}
+                      <span className={styles.txDate}>{formatDateBR(tx.createdAt)}</span>
+                    </Box>
                     {isEditing ? (
-                      <Input disableUnderline className={styles.txType} fullWidth value={formatTipo(tx.tipo)} onChange={(e) => handleTransactionChange(idx, "tipo", e.target.value)} inputProps={{ style: { textAlign: "left" } }} inputRef={idx === 0 ? firstEditRef : undefined} />
+                      <Box className="flex items-center gap-2 w-full">
+                        <Input disableUnderline className={clsx(styles.txValue, styles.txValueEditable)} sx={{ flex: 1 }} value={formatBRL(tx.valor)} onChange={(e) => handleTransactionChange(idx, "valor", maskCurrency(e.target.value))} inputProps={{ inputMode: "decimal", title: "Até 999.999,99" }} />
+                        <input hidden multiple accept="image/*,application/pdf" id={`edit-anexos-${tx._id}`} type="file" aria-label="Selecionar arquivos para anexar"
+                          disabled={hasExistingAttachment}
+                          onChange={(e) => { const files = e.target.files; if (files) { handleAttachFiles(tx._id, Array.from(files)); } }}
+                        />
+                        <label htmlFor={`edit-anexos-${tx._id}`}>
+                          <Tooltip title={hasExistingAttachment ? "Remova o anexo atual para adicionar um novo" : "Anexar arquivos"}>
+                            <span>
+                              <IconButton component="span" size="small" color="primary" aria-label="Anexar arquivos" disabled={hasExistingAttachment}>
+                                <AttachFileIcon fontSize="inherit" aria-hidden="true" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </label>
+                      </Box>
                     ) : (
-                      <span className={styles.txType}>{formatTipo(tx.tipo)}</span>
+                      <Box className="flex items-center">
+                        {isDeleting && (<Checkbox aria-label={`Selecionar transação ${formatBRL(Math.abs(tx.valor))}`} checked={selectedTransactions.includes(tx._id)} onChange={() => handleCheckboxChange(tx._id)} size="small" className="mr-2" sx={{ color: "var(--byte-color-dash)", "&.Mui-checked": { color: "var(--byte-color-dash)" } }} />)}
+                        <span className={styles.txValue}>{tx.valor < 0 && "-"}{formatBRL(tx.valor)}</span>
+                        {tx.anexos?.length ? (<Tooltip title={`${tx.anexos.length} anexo(s)`}><AttachFileIcon sx={{ fontSize: 16, ml: 0.5, color: "var(--byte-color-dash)" }} aria-hidden="true" /></Tooltip>) : null}
+                      </Box>
                     )}
-                    <span className={styles.txDate}>{formatDateBR(tx.createdAt)}</span>
                   </Box>
-                  {isEditing ? (
-                    <Box className="flex items-center gap-2 w-full">
-                      <Input disableUnderline className={clsx(styles.txValue, styles.txValueEditable)} sx={{ flex: 1 }} value={formatBRL(tx.valor)} onChange={(e) => handleTransactionChange(idx, "valor", maskCurrency(e.target.value))} inputProps={{ inputMode: "decimal", title: "Até 999.999,99" }} />
-                      <input hidden multiple accept="image/*,application/pdf" id={`edit-anexos-${tx._id}`} type="file" aria-label="Selecionar arquivos para anexar"
-                        disabled={hasExistingAttachment}
-                        onChange={(e) => { const files = e.target.files; if (files) { handleAttachFiles(tx._id, Array.from(files)); } }} 
-                      />
-                      <label htmlFor={`edit-anexos-${tx._id}`}>
-                        <Tooltip title={hasExistingAttachment ? "Remova o anexo atual para adicionar um novo" : "Anexar arquivos"}>
-                          <span>
-                            <IconButton component="span" size="small" color="primary" aria-label="Anexar arquivos" disabled={hasExistingAttachment}>
-                              <AttachFileIcon fontSize="inherit" aria-hidden="true" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </label>
+                  {(tx.anexos?.length || tx.novosAnexos?.length) ? (
+                    <Box className="flex flex-wrap gap-2 mt-2 ml-2">
+                      {tx.anexos?.map((a: Attachment) => (
+                        <Chip key={a.url} label={a.name} size="small" icon={<AttachFileIcon sx={{ fontSize: 14 }} />} component={!isEditing ? Link : "div"} href={!isEditing ? a.url : undefined} target={!isEditing ? "_blank" : undefined} clickable={!isEditing} onDelete={isEditing ? () => { void handleRemoveAttachment(tx._id, a.url, false); } : undefined} sx={{ backgroundColor: "var(--byte-color-green-50)", ":hover": { bgcolor: "var(--byte-color-green-100)" } }} />
+                      ))}
+                      {isEditing && tx.novosAnexos?.map((f, i) => (
+                        <Chip key={i} label={f.name} size="small" color="info" variant="outlined" icon={<AttachFileIcon sx={{ fontSize: 14 }} />} onDelete={() => { void handleRemoveAttachment(tx._id, f.name, true); }} />
+                      ))}
                     </Box>
-                  ) : (
-                    <Box className="flex items-center">
-                      {isDeleting && (<Checkbox aria-label={`Selecionar transação ${formatBRL(Math.abs(tx.valor))}`} checked={selectedTransactions.includes(tx._id)} onChange={() => handleCheckboxChange(tx._id)} size="small" className="mr-2" sx={{ color: "var(--byte-color-dash)", "&.Mui-checked": { color: "var(--byte-color-dash)" } }} />)}
-                      <span className={styles.txValue}>{tx.valor < 0 && "-"}{formatBRL(tx.valor)}</span>
-                      {tx.anexos?.length ? (<Tooltip title={`${tx.anexos.length} anexo(s)`}><AttachFileIcon sx={{ fontSize: 16, ml: 0.5, color: "var(--byte-color-dash)" }} aria-hidden="true" /></Tooltip>) : null}
-                    </Box>
-                  )}
-                </Box>
-                {(tx.anexos?.length || tx.novosAnexos?.length) && (
-                  <Box className="flex flex-wrap gap-2 mt-2 ml-2">
-                    {tx.anexos?.map((a: Attachment) => (
-                      <Chip key={a.url} label={a.name} size="small" icon={<AttachFileIcon sx={{ fontSize: 14 }} />} component={!isEditing ? Link : "div"} href={!isEditing ? a.url : undefined} target={!isEditing ? "_blank" : undefined} clickable={!isEditing} onDelete={isEditing ? () => handleRemoveAttachment(tx._id, a.url, false) : undefined} sx={{ backgroundColor: "var(--byte-color-green-50)", ":hover": { bgcolor: "var(--byte-color-green-100)" } }} />
-                    ))}
-                    {isEditing && tx.novosAnexos?.map((f, i) => (
-                      <Chip key={i} label={f.name} size="small" color="info" variant="outlined" icon={<AttachFileIcon sx={{ fontSize: 14 }} />} onDelete={() => handleRemoveAttachment(tx._id, f.name, true)} />
-                    ))}
-                  </Box>
-                )}
-              </li>
+                  ) : null}
+                </li>
               )
             })}
           </ul>
@@ -308,7 +297,7 @@ const handleRemoveAttachment = async (
       )}
       {(isEditing || isDeleting) && (
         <Box className="flex gap-2 justify-between mt-4">
-          <Button onClick={handleSaveOrDeleteClick} className={clsx(styles.botaoSalvar, isDeleting && (isDeletingInProgress || !selectedTransactions.length) && "opacity-50 cursor-not-allowed")} disabled={isDeleting && (isDeletingInProgress || !selectedTransactions.length)}>
+          <Button onClick={() => { void handleSaveOrDeleteClick(); }} className={clsx(styles.botaoSalvar, isDeleting && (isDeletingInProgress || !selectedTransactions.length) && "opacity-50 cursor-not-allowed")} disabled={isDeleting && (isDeletingInProgress || !selectedTransactions.length)}>
             {isEditing ? "Salvar" : isDeletingInProgress ? "Excluindo..." : "Excluir"}
           </Button>
           <Button onClick={isEditing ? handleCancelClick : handleCancelDeleteClick} className={styles.botaoCancelar} disabled={isDeleting && isDeletingInProgress}>Cancelar</Button>

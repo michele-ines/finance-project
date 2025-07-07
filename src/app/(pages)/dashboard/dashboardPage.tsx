@@ -80,17 +80,30 @@ export default function DashboardPage() {
     }
   }, [dispatch, transactionsStatus, hasMore, currentPage]);
 
-  const onSubmit = (data: NewTransactionData) => {
-    void dispatch(createNewTransaction(data));
+  const onSubmit = async (data: NewTransactionData) => {
+
+    try {
+      await dispatch(createNewTransaction(data)).unwrap();
+    } catch (error) {
+      console.error("Falha ao criar a transação:", error);
+    }
   };
 
-  const handleSaveTransactions = (txsToSave: TxWithFiles[]) => {
+  const handleSaveTransactions = async (txsToSave: TxWithFiles[]) => {
     const payload: SavePayload = { transactions: txsToSave };
-    void dispatch(saveTransactions(payload));
+    try {
+      await dispatch(saveTransactions(payload)).unwrap();
+    } catch (error) {
+      console.error("Falha ao salvar as transações:", error);
+    }
   };
 
-  const handleDeleteTransactions = (ids: number[]) => {
-    void dispatch(deleteTransactions(ids));
+  const handleDeleteTransactions = async (ids: number[]) => {
+    try {
+      await dispatch(deleteTransactions(ids)).unwrap();
+    } catch (error) {
+      console.error("Falha ao deletar as transações:", error);
+    }
   };
 
   const handleAtualizaSaldo = useCallback(() => {
