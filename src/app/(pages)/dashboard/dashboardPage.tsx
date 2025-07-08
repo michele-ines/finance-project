@@ -149,7 +149,9 @@ export default function DashboardPage() {
                 fetchPage={fetchNextPage}
                 hasMore={hasMore}
                 isPageLoading={transactionsStatus === "loading"}
-                onSave={handleSaveTransactions}
+                   onSave={(txs) => {
+                  void handleSaveTransactions(txs);
+                }}
                 onDelete={handleDeleteTransactions}
                 atualizaSaldo={handleAtualizaSaldo}
               />

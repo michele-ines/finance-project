@@ -28,7 +28,7 @@ import {
   maskCurrency,
   parseBRL,
 } from "../../../utils/currency-formatte/currency-formatte";
-import { formatDateBR } from "../../../utils/date-formatte/date-formatte";
+import { formatDateBR, parseDateBR } from "../../../utils/date-formatte/date-formatte";
 import SkeletonListExtract from "../../ui/skeleton-list-extract/skeleton-list-extract";
 import InfiniteScrollSentinel from "../../infinite-scroll-sentinel/infinite-scroll-sentinel";
 import { Chip } from "@mui/material";
@@ -42,7 +42,7 @@ interface CardListExtractProps {
   fetchPage: () => void;
   hasMore: boolean;
   isPageLoading: boolean;
-  onSave: (transactions: TxWithFiles[]) => Promise<void>;
+  onSave?: (transactions: Transaction[]) => void;
   onDelete: (transactionIds: number[]) => Promise<void>;
   atualizaSaldo: () => void;
 }
@@ -52,8 +52,7 @@ export default function CardListExtract({
   fetchPage,
   hasMore,
   isPageLoading,
-  onSave,
-  onDelete,
+    onDelete,
   atualizaSaldo,
 }: CardListExtractProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -177,11 +176,40 @@ export default function CardListExtract({
 
   const handleSaveOrDeleteClick = async () => {
     if (isEditing) {
-      await onSave(editableTransactions);
+      for (const tx of editableTransactions) {
+        /* ---------- envia possíveis novos anexos ---------- */
+        if (tx.novosAnexos?.length) {
+          const fd = new FormData();
+          fd.append("tipo", tx.tipo);
+          fd.append("valor", tx.valor.toString());
+          fd.append("updatedAt", parseDateBR(tx.updatedAt));
+          tx.novosAnexos.forEach((f) => fd.append("anexos", f));
+          await fetch(`/api/transacao/${tx._id}`, { method: "PUT", body: fd });
+        } else {
+          await fetch(`/api/transacao/${tx._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tipo: tx.tipo,
+              valor: tx.valor,
+              updatedAt:
+                typeof tx.updatedAt === "string" &&
+                /^\d{2}\/\d{2}\/\d{4}$/.test(tx.updatedAt)
+                  ? parseDateBR(tx.updatedAt)
+                  : tx.updatedAt,
+            }),
+          });
+        }
+      }
+      void fetchPage();
       setIsEditing(false);
+      atualizaSaldo?.();
       setStatusMsg("Transações salvas!");
       return;
     }
+
+        /* --------------------- exclusão ---------------------- */
+
     if (isDeleting) {
       if (!selectedTransactions.length) return;
       setIsDeletingInProgress(true);
@@ -199,9 +227,11 @@ export default function CardListExtract({
     }
   };
 
+  /* ---------------- helpers de data ------------------------------- */
   const handleStartDateChange = (v: string) => { setStartDate(v); setDateError(!isValidDate(v)); };
   const handleEndDateChange = (v: string) => { setEndDate(v); setDateError(!isValidDate(v)); };
 
+    /* ------------------------- render ------------------------------- */
   const loadingFirstPage = isPageLoading && editableTransactions.length === 0;
   const hasTransactions = !loadingFirstPage && editableTransactions.length > 0;
 
