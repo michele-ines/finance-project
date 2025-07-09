@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "store/store";
 import {
@@ -8,44 +8,45 @@ import {
   createNewTransaction,
   saveTransactions,
   deleteTransactions,
+  SavePayload,
 } from "store/slices/transactionsSlice";
 import { fetchBalance } from "store/slices/balanceSlice";
-import { useDashboardData } from "../../hooks/use-dashboard-data";
 
 import CardBalance from "components/my-cards/card-balance/card-balance";
-import CardListExtract from "components/my-cards/card-list-extract/card-list-extract";
+import CardListExtract, {
+  TxWithFiles,
+} from "components/my-cards/card-list-extract/card-list-extract";
 import CardNewTransaction from "components/my-cards/card-new-transaction/card-new-transaction";
 import SavingsGoalWidget from "components/widgets/savings-goal-widget";
 import SpendingAlertWidget from "components/widgets/spending-alert-widget";
 
 import { Box } from "@mui/material";
 
-import type {
-  DashboardData,
-  NewTransactionData,
-  Transaction,
-} from "interfaces/dashboard";
+import type { DashboardData, NewTransactionData } from "interfaces/dashboard";
 
 import dashboardData from "mocks/dashboard-data.json";
 import FinancialChart from "components/charts/financialChart";
 import WidgetPreferencesButton from "components/widgets/widget-preferences-button";
-import { useWidgetPreferences } from "app/hooks/useWidgetPreferences";
+import { useWidgetPreferences } from "app/hooks/use-widget-preferences";
+import { useDashboardData } from "app/hooks/use-dashboard-data";
 
 export default function DashboardPage() {
   const data: DashboardData = dashboardData;
   const dispatch = useDispatch<AppDispatch>();
 
   useDashboardData();
+
   const {
     items: transactions,
     status: transactionsStatus,
+    creationStatus,
     hasMore,
     currentPage,
   } = useSelector((state: RootState) => state.transactions);
+
   const { value: balanceValue } = useSelector(
     (state: RootState) => state.balance
   );
-  const [loadingTransaction] = useState(false);
 
   /* ---------------- prefs de widgets ----------------- */
   const { preferences } = useWidgetPreferences();
@@ -58,19 +59,32 @@ export default function DashboardPage() {
   }, [dispatch, transactionsStatus, hasMore, currentPage]);
 
   const onSubmit = async (data: NewTransactionData) => {
-    await dispatch(createNewTransaction(data));
+    try {
+      await dispatch(createNewTransaction(data)).unwrap();
+    } catch (error) {
+      console.error("Falha ao criar a transação:", error);
+    }
   };
 
-  const handleSaveTransactions = async (txs: Transaction[]) => {
-    await dispatch(saveTransactions(txs));
+  const handleSaveTransactions = async (txsToSave: TxWithFiles[]) => {
+    const payload: SavePayload = { transactions: txsToSave };
+    try {
+      await dispatch(saveTransactions(payload)).unwrap();
+    } catch (error) {
+      console.error("Falha ao salvar as transações:", error);
+    }
   };
 
   const handleDeleteTransactions = async (ids: number[]) => {
-    await dispatch(deleteTransactions(ids));
+    try {
+      await dispatch(deleteTransactions(ids)).unwrap();
+    } catch (error) {
+      console.error("Falha ao deletar as transações:", error);
+    }
   };
 
-  const handleAtualizaSaldo = useCallback(async () => {
-    await dispatch(fetchBalance());
+  const handleAtualizaSaldo = useCallback(() => {
+    void dispatch(fetchBalance());
   }, [dispatch]);
 
   return (
@@ -95,7 +109,7 @@ export default function DashboardPage() {
             )}
             <CardNewTransaction
               onSubmit={onSubmit}
-              isLoading={loadingTransaction}
+              isLoading={creationStatus === "loading"}
             />
           </Box>
 
@@ -109,12 +123,8 @@ export default function DashboardPage() {
                 onSave={(txs) => {
                   void handleSaveTransactions(txs);
                 }}
-                /* onDelete já é Promise<void> no tipo do componente */
                 onDelete={handleDeleteTransactions}
-                /* atualizaSaldo espera void */
-                atualizaSaldo={() => {
-                  void handleAtualizaSaldo();
-                }}
+                atualizaSaldo={handleAtualizaSaldo}
               />
             </div>
           </Box>

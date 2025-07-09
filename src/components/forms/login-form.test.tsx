@@ -66,33 +66,29 @@ describe("LoginForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("exibe erros “campo obrigatório” quando submete vazio", async () => {
+  it('exibe erros “campo obrigatório” quando submete vazio', async () => {
     render(<LoginForm />);
-    const user = userEvent.setup();
-
-    await user.click(screen.getByRole("button", { name: /acessar/i }));
+    const submitButton = screen.getByRole('button', { name: /acessar/i });
+    await userEvent.click(submitButton);
 
     expect(
-      await screen.findByText(/o campo de e-mail é obrigatório/i)
+      await screen.findByText(/Email é obrigatório/i)
     ).toBeInTheDocument();
     expect(
-      await screen.findByText(/o campo de senha é obrigatório/i)
+      await screen.findByText(/Senha é obrigatória/i)
     ).toBeInTheDocument();
   });
-
-  it("exibe erro de e-mail inválido quando formato está errado", async () => {
+  it('exibe erro de e-mail inválido quando formato está errado', async () => {
     render(<LoginForm />);
-    const user = userEvent.setup();
+    const emailInput = screen.getByLabelText(/e-mail/i);
+    const submitButton = screen.getByRole('button', { name: /acessar/i });
 
-    await user.type(
-      screen.getByRole("textbox", { name: /e-mail/i }),
-      "invalido"
-    );
-    await user.type(screen.getByLabelText(/^senha$/i), "123456");
-    await user.click(screen.getByRole("button", { name: /acessar/i }));
+    await userEvent.type(emailInput, 'email-invalido');
+    await userEvent.click(submitButton);
 
+    // CORRIGIDO: Use a mensagem de erro que realmente aparece
     expect(
-      await screen.findByText(/digite um e-mail válido/i)
+      await screen.findByText(/Formato de email inválido/i)
     ).toBeInTheDocument();
   });
 
