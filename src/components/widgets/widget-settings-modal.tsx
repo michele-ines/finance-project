@@ -6,7 +6,7 @@ import {
   Checkbox,
   Typography,
 } from "@mui/material";
-import { useWidgetPreferences } from "app/hooks/useWidgetPreferences";
+import { useWidgetPreferences } from "app/hooks/use-widget-preferences";
 import { useEffect } from "react";
 
 type WidgetSettingsModalProps = {

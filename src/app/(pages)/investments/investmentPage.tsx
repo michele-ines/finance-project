@@ -18,7 +18,7 @@ import dashboardData from "mocks/dashboard-data.json";
 import { handleRequest } from "utils/error-handlers/error-handle";
 import { usePaginatedTransactions } from "hooks/use-paginated-transactions";
 import FinancialChart from "components/charts/financialChart";
-import { useWidgetPreferences } from "app/hooks/useWidgetPreferences";
+import { useWidgetPreferences } from "app/hooks/use-widget-preferences";
 import WidgetPreferencesButton from "components/widgets/widget-preferences-button";
 
 export default function InvestmentPage() {
