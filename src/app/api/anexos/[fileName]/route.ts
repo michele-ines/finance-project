@@ -1,15 +1,19 @@
+// src/app/api/anexos/[fileName]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+type RouteParams = {
+  fileName: string;
+};
+
 export async function DELETE(
   request: NextRequest,
-  // O tipo do segundo argumento é a chave
-  { params }: { params: { fileName: string } } 
+  { params }: { params: Promise<RouteParams> }
 ) {
   try {
-  
-    const fileName = (await Promise.resolve(params)).fileName
+    const { fileName } = await params;
 
     if (!fileName) {
       return NextResponse.json({ message: 'Nome do ficheiro não fornecido no URL.' }, { status: 400 });
@@ -18,10 +22,10 @@ export async function DELETE(
     const baseName = path.basename(decodeURIComponent(fileName));
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     const filePath = path.join(uploadsDir, baseName);
-    
+
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      return new NextResponse(null, { status: 204 }); 
+      return new NextResponse(null, { status: 204 });
     } else {
       return NextResponse.json({ message: 'Arquivo não encontrado.' }, { status: 404 });
     }
