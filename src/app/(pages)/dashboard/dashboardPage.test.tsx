@@ -1,4 +1,3 @@
-/* __tests__/dashboard-page.test.tsx ---------------------------------- */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import type { RootState } from 'store/store';
@@ -87,8 +86,6 @@ jest.mock('mocks/dashboard-data.json', () => ({
 jest.mock('react-redux', () => {
   const actual = jest.requireActual<typeof ReactRedux>('react-redux');
 
-  // A definição do tipo e do estado inicial são movidas para DENTRO
-  // do mock para evitar erros de "hoisting" e "ReferenceError".
   type WidgetPreferences = {
     activeWidgets: string[];
     savingsGoal: boolean;
